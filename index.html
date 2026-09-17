@@ -40,8 +40,8 @@
 
         /* Top Bar & Header */
         .top-nav {
-            background: rgba(0, 0, 0, 0.35);
-            padding: 8px 15px;
+            background: rgba(0, 0, 0, 0.45);
+            padding: 10px 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -53,15 +53,15 @@
         }
 
         .top-nav-btn {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.25);
             color: white;
             border: 1px solid rgba(255, 255, 255, 0.4);
-            padding: 5px 12px;
+            padding: 6px 14px;
             border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 600;
             cursor: pointer;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(8px);
             transition: all 0.2s;
             display: flex;
             align-items: center;
@@ -69,7 +69,7 @@
         }
 
         .top-nav-btn:hover {
-            background: rgba(255, 255, 255, 0.35);
+            background: rgba(255, 255, 255, 0.4);
         }
 
         header {
@@ -77,7 +77,7 @@
             background-size: cover;
             background-position: center;
             color: white;
-            padding: 3.5rem 1rem 1.8rem;
+            padding: 3.8rem 1rem 1.8rem;
             text-align: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.15);
             position: relative;
@@ -86,8 +86,8 @@
         header::before {
             content: '';
             position: absolute;
-            top:0; left:0; right:0; bottom:0;
-            background: rgba(0,0,0,0.45);
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
             z-index: 1;
         }
 
@@ -124,8 +124,8 @@
         }
 
         .store-pill {
-            background: rgba(255,255,255,0.2);
-            padding: 3px 10px;
+            background: rgba(255,255,255,0.25);
+            padding: 4px 12px;
             border-radius: 12px;
             backdrop-filter: blur(4px);
         }
@@ -168,7 +168,6 @@
             color: var(--text-muted);
         }
 
-        /* Categories Scroll */
         .categories {
             display: flex;
             gap: 8px;
@@ -246,10 +245,11 @@
 
         .product-img {
             width: 100%;
-            height: 140px;
+            height: 150px;
             object-fit: cover;
             border-radius: 8px;
             margin-bottom: 10px;
+            background-color: #f0f0f0;
         }
 
         .badge-popular {
@@ -284,7 +284,7 @@
             font-size: 1rem;
             font-weight: 600;
             margin-bottom: 6px;
-            padding-right: 60px;
+            padding-right: 40px;
         }
 
         .product-info p {
@@ -720,22 +720,29 @@
         }
 
         /* QR Code & Print Styling */
-        #qrcodeContainer {
+        #qrcodeContainer, #printQrCode {
             display: flex;
             justify-content: center;
             margin: 20px 0;
         }
 
-        #qrcodeContainer img {
+        #qrcodeContainer img, #printQrCode img {
             border: 8px solid white;
             box-shadow: var(--shadow);
             border-radius: 8px;
+            margin: 0 auto;
+        }
+
+        #printableArea {
+            display: none;
         }
 
         @media print {
-            body * { visibility: hidden; }
-            #printableArea, #printableArea * { visibility: visible; }
+            body > *:not(#printableArea) {
+                display: none !important;
+            }
             #printableArea {
+                display: block !important;
                 position: absolute;
                 left: 0; top: 0;
                 width: 100%;
@@ -835,11 +842,11 @@
                     Entre com seu e-mail e senha do Firebase Authentication para gerenciar o estabelecimento.
                 </p>
                 <div class="form-group">
-                    <label>E-mail de Acesso</label>
+                    <label for="loginEmail">E-mail de Acesso</label>
                     <input type="email" id="loginEmail" class="form-control" placeholder="admin@cardapiovirtual.com.br">
                 </div>
                 <div class="form-group">
-                    <label>Senha</label>
+                    <label for="loginPassword">Senha</label>
                     <input type="password" id="loginPassword" class="form-control" placeholder="Digite sua senha" onkeyup="if(event.key==='Enter') verifyLogin()">
                 </div>
             </div>
@@ -868,35 +875,35 @@
                 <div id="tabConfig" class="admin-tab-content">
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Nome da Loja</label>
+                            <label for="cfgStoreName">Nome da Loja</label>
                             <input type="text" id="cfgStoreName" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label>Logo / Emoji</label>
+                            <label for="cfgLogo">Logo / Emoji</label>
                             <input type="text" id="cfgLogo" class="form-control" placeholder="Ex: 🦀">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Descrição Curta</label>
+                        <label for="cfgDesc">Descrição Curta</label>
                         <input type="text" id="cfgDesc" class="form-control">
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>WhatsApp (com DDD)</label>
+                            <label for="cfgWhatsapp">WhatsApp (com DDD)</label>
                             <input type="text" id="cfgWhatsapp" class="form-control" placeholder="5585999999999">
                         </div>
                         <div class="form-group">
-                            <label>Instagram</label>
+                            <label for="cfgInstagram">Instagram</label>
                             <input type="text" id="cfgInstagram" class="form-control" placeholder="@sualoja">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Horário de Funcionamento</label>
+                            <label for="cfgHours">Horário de Funcionamento</label>
                             <input type="text" id="cfgHours" class="form-control" placeholder="10:00 - 22:00">
                         </div>
                         <div class="form-group">
-                            <label>Modo de Vendas</label>
+                            <label for="cfgSalesMode">Modo de Vendas</label>
                             <select id="cfgSalesMode" class="form-control">
                                 <option value="direct">Venda Direta (Pedido via WhatsApp)</option>
                                 <option value="simulation">Simulação de Conta (Prévia para Garçom)</option>
@@ -904,16 +911,16 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Endereço Completo</label>
+                        <label for="cfgAddress">Endereço Completo</label>
                         <input type="text" id="cfgAddress" class="form-control">
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>URL da Foto de Capa</label>
+                            <label for="cfgCoverUrl">URL da Foto de Capa</label>
                             <input type="text" id="cfgCoverUrl" class="form-control" placeholder="https://...">
                         </div>
                         <div class="form-group">
-                            <label>Ou Upload de Capa (Firebase Storage)</label>
+                            <label for="cfgCoverFile">Ou Upload de Capa (Firebase Storage)</label>
                             <input type="file" id="cfgCoverFile" accept="image/*" class="form-control">
                         </div>
                     </div>
@@ -924,35 +931,35 @@
                     <h4 id="catalogFormTitle" style="margin-bottom:12px; font-size:1rem;">Adicionar Novo Produto</h4>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Nome (Português)</label>
+                            <label for="prodNamePt">Nome (Português)</label>
                             <input type="text" id="prodNamePt" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label>Nome (Inglês - Opcional)</label>
+                            <label for="prodNameEn">Nome (Inglês - Opcional)</label>
                             <input type="text" id="prodNameEn" class="form-control">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Preço (R$)</label>
+                            <label for="prodPrice">Preço (R$)</label>
                             <input type="number" step="0.01" id="prodPrice" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label>Categoria</label>
+                            <label for="prodCategory">Categoria</label>
                             <input type="text" id="prodCategory" class="form-control" placeholder="Ex: Entradas">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Descrição</label>
+                        <label for="prodDesc">Descrição</label>
                         <textarea id="prodDesc" class="form-control" rows="2"></textarea>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>URL da Imagem</label>
+                            <label for="prodImgUrl">URL da Imagem</label>
                             <input type="text" id="prodImgUrl" class="form-control" placeholder="https://...">
                         </div>
                         <div class="form-group">
-                            <label>Ou Upload de Foto (Firebase Storage)</label>
+                            <label for="prodImgFile">Ou Upload de Foto (Firebase Storage)</label>
                             <input type="file" id="prodImgFile" accept="image/*" class="form-control">
                         </div>
                     </div>
@@ -996,7 +1003,7 @@
     </div>
 
     <!-- Printable QR Code Template -->
-    <div id="printableArea" style="display:none;">
+    <div id="printableArea">
         <h1 id="printStoreName" style="font-size:2.5rem; margin-bottom:10px;">Cardápio Virtual</h1>
         <p style="font-size:1.2rem; color:#555; margin-bottom:30px;">Acesse nosso cardápio digital!</p>
         <div id="printQrCode"></div>
@@ -1019,7 +1026,7 @@
             getStorage, ref, uploadBytes, getDownloadURL 
         } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-        // Configuração do Firebase do projeto cardvirtual-11e1b
+        // Configuração do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDrgTKjb5oow4K1B1lcO-7LtOCzoZj3iBI",
             authDomain: "cardvirtual-11e1b.firebaseapp.com",
@@ -1035,7 +1042,10 @@
         const auth = getAuth(app);
         const storage = getStorage(app);
 
-        // Configurações Padrão de Fallback (Se o banco estiver limpo)
+        // Helper de formatação monetária
+        const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
+
+        // Configurações Padrão de Fallback
         const defaultStoreConfig = {
             name: "Cardápio Virtual",
             logo: "🦀",
@@ -1072,6 +1082,7 @@
                 popular: "Mais Pedido",
                 outOfStock: "Esgotado",
                 lojistaMode: "Modo Lojista",
+                adminPanel: "Painel Lojista",
                 simulationNotice: "Modo Simulação: Apresente esta prévia de consumo ao garçom.",
                 orderSuccessMsg: "Pedido preparado! Redirecionando para o WhatsApp...",
                 simulationSuccessMsg: "Simulação de conta concluída com sucesso!"
@@ -1090,6 +1101,7 @@
                 popular: "Best Seller",
                 outOfStock: "Out of Stock",
                 lojistaMode: "Store Manager",
+                adminPanel: "Store Panel",
                 simulationNotice: "Simulation Mode: Present this bill preview to your waiter.",
                 orderSuccessMsg: "Order prepared! Redirecting to WhatsApp...",
                 simulationSuccessMsg: "Bill simulation completed successfully!"
@@ -1105,7 +1117,7 @@
         let isAuthenticated = false;
         let editingProductId = null;
 
-        // Inicialização dos Escutadores Firestore em Tempo Real
+        // Inicialização
         document.addEventListener("DOMContentLoaded", () => {
             initAuthListener();
             initFirestoreListeners();
@@ -1125,27 +1137,25 @@
             };
         });
 
-        // 1. Escutador de Autenticação (Firebase Auth)
+        // 1. Escutador de Autenticação
         function initAuthListener() {
             onAuthStateChanged(auth, (user) => {
                 isAuthenticated = !!user;
                 const lojistaBtnText = document.getElementById("lojistaBtnText");
                 if (user) {
-                    lojistaBtnText.innerText = "Painel Lojista";
+                    lojistaBtnText.innerText = i18n[currentLang].adminPanel;
                 } else {
                     lojistaBtnText.innerText = i18n[currentLang].lojistaMode;
                 }
             });
         }
 
-        // 2. Escutadores Firestore (Real-Time Sync)
+        // 2. Escutadores Firestore
         function initFirestoreListeners() {
-            // Escutador das Configurações
             onSnapshot(doc(db, "store_config", "settings"), (docSnap) => {
                 if (docSnap.exists()) {
-                    storeConfig = docSnap.data();
+                    storeConfig = { ...defaultStoreConfig, ...docSnap.data() };
                 } else {
-                    // Inicializa documento no Firestore se inexistente
                     setDoc(doc(db, "store_config", "settings"), defaultStoreConfig);
                 }
                 renderHeader();
@@ -1154,12 +1164,10 @@
                 showToast("Erro ao carregar configurações: " + error.message);
             });
 
-            // Escutador do Catálogo de Produtos
             onSnapshot(collection(db, "products"), (snapshot) => {
                 if (!snapshot.empty) {
-                    products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    products = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 } else {
-                    // Semeia produtos padrão caso banco esteja limpo
                     seedInitialProducts();
                 }
                 renderCategories();
@@ -1176,14 +1184,12 @@
             }
         }
 
-        // Helper de Upload para Firebase Storage
         async function uploadFileToStorage(file, pathFolder) {
             const storageRef = ref(storage, `${pathFolder}/${Date.now()}_${file.name}`);
             const snapshot = await uploadBytes(storageRef, file);
             return await getDownloadURL(snapshot.ref);
         }
 
-        // Renderização do Cabeçalho
         function renderHeader() {
             document.getElementById("pageTitle").innerText = `${storeConfig.name} - ${currentLang === 'pt' ? 'Cardápio Digital' : 'Digital Menu'}`;
             document.getElementById("storeLogo").innerText = storeConfig.logo || "🦀";
@@ -1199,7 +1205,6 @@
             document.getElementById("searchInput").placeholder = i18n[currentLang].searchPlaceholder;
         }
 
-        // Renderização das Categorias
         function renderCategories() {
             const rawCategories = [...new Set(products.map(p => currentLang === 'pt' ? p.category : (p.categoryEn || p.category)))];
             const categories = [i18n[currentLang].all, ...rawCategories];
@@ -1218,7 +1223,6 @@
             renderProducts();
         }
 
-        // Renderização dos Produtos
         function renderProducts() {
             const container = document.getElementById("menuContainer");
             const searchVal = document.getElementById("searchInput").value.toLowerCase();
@@ -1234,7 +1238,7 @@
             });
 
             if (filteredProducts.length === 0) {
-                container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted);">Nenhum produto encontrado.</div>`;
+                container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted);">${currentLang === 'pt' ? 'Nenhum produto encontrado.' : 'No products found.'}</div>`;
                 return;
             }
 
@@ -1255,13 +1259,13 @@
                             return `
                                 <div class="product-card ${!isAvailable ? 'unavailable' : ''}">
                                     ${!isAvailable ? `<span class="badge-out-stock">${i18n[currentLang].outOfStock}</span>` : (p.favorite ? `<span class="badge-popular">${i18n[currentLang].popular}</span>` : '')}
-                                    ${p.image ? `<img src="${p.image}" class="product-img" alt="${name}">` : ''}
+                                    ${p.image ? `<img src="${p.image}" class="product-img" alt="${name}" onerror="this.style.display='none'">` : ''}
                                     <div class="product-info">
                                         <h3>${name}</h3>
                                         <p>${desc}</p>
                                     </div>
                                     <div class="product-bottom">
-                                        <span class="price">R$ ${parseFloat(p.price).toFixed(2).replace('.', ',')}</span>
+                                        <span class="price">${formatCurrency(p.price)}</span>
                                         <button class="add-btn" ${!isAvailable ? 'disabled' : ''} onclick="addToCart('${p.id}')">
                                             <i class="fa-solid fa-plus"></i> ${i18n[currentLang].add}
                                         </button>
@@ -1278,13 +1282,12 @@
             renderProducts();
         }
 
-        // Alternância de Idioma com Tradução via API
         async function toggleLanguage() {
             currentLang = currentLang === 'pt' ? 'en' : 'pt';
             document.getElementById('langDisplay').innerText = currentLang === 'pt' ? '🇧🇷 PT' : '🇺🇸 EN';
             
             if (currentLang === 'en') {
-                showToast("Traduzindo conteúdo com IA...");
+                showToast("Traduzindo conteúdo...");
                 for (let p of products) {
                     if (!p.nameEn || p.nameEn === p.name) {
                         try {
@@ -1293,7 +1296,7 @@
                             if (data.responseData?.translatedText) {
                                 await updateDoc(doc(db, "products", p.id), { nameEn: data.responseData.translatedText });
                             }
-                        } catch(e){}
+                        } catch(e) {}
                     }
                 }
             }
@@ -1304,13 +1307,11 @@
             updateCartUI();
         }
 
-        // Gestão do Carrinho
         function addToCart(productId) {
             const product = products.find(p => p.id === productId);
             if (!product || product.available === false) return;
 
             const existing = cart.find(item => item.id === productId);
-
             if (existing) {
                 existing.qty++;
             } else {
@@ -1318,7 +1319,7 @@
             }
 
             updateCartUI();
-            showToast(`${product.name} adicionado!`);
+            showToast(`${product.name} ${currentLang === 'pt' ? 'adicionado!' : 'added!'}`);
         }
 
         function changeQty(productId, delta) {
@@ -1338,8 +1339,8 @@
             const totalPrice = cart.reduce((acc, item) => acc + (parseFloat(item.price) * item.qty), 0);
 
             document.getElementById("cartBadge").innerText = totalQty;
-            document.getElementById("cartTotalBar").innerText = `R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
-            document.getElementById("cartTotalModal").innerText = `R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
+            document.getElementById("cartTotalBar").innerText = formatCurrency(totalPrice);
+            document.getElementById("cartTotalModal").innerText = formatCurrency(totalPrice);
 
             document.getElementById("cartLabelTotal").innerText = i18n[currentLang].totalCommand;
             document.getElementById("viewCartBtn").innerText = i18n[currentLang].viewCart;
@@ -1367,7 +1368,7 @@
                         <div class="cart-item">
                             <div>
                                 <div class="cart-item-title">${name}</div>
-                                <div class="cart-item-price">R$ ${parseFloat(item.price).toFixed(2).replace('.', ',')}</div>
+                                <div class="cart-item-price">${formatCurrency(item.price)}</div>
                             </div>
                             <div class="qty-controls">
                                 <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
@@ -1392,28 +1393,28 @@
             else modal.classList.remove("active");
         }
 
-        // Finalização do Pedido
         function sendOrder() {
             if (cart.length === 0) {
                 showToast("Sua comanda está vazia!");
                 return;
             }
 
+            const total = cart.reduce((acc, item) => acc + (parseFloat(item.price) * item.qty), 0);
+
             if (storeConfig.salesMode === "simulation") {
-                alert(`${i18n[currentLang].simulationSuccessMsg}\n\nTotal: R$ ${cart.reduce((a, b) => a + (parseFloat(b.price) * b.qty), 0).toFixed(2)}`);
+                alert(`${i18n[currentLang].simulationSuccessMsg}\n\nTotal: ${formatCurrency(total)}`);
                 cart = [];
                 updateCartUI();
                 toggleCartModal(false);
             } else {
                 let msg = `*Novo Pedido - ${storeConfig.name}*\n\n`;
                 cart.forEach(item => {
-                    msg += `• ${item.qty}x ${item.name} - R$ ${(parseFloat(item.price) * item.qty).toFixed(2)}\n`;
+                    msg += `• ${item.qty}x ${item.name} - ${formatCurrency(parseFloat(item.price) * item.qty)}\n`;
                 });
-                const total = cart.reduce((acc, item) => acc + (parseFloat(item.price) * item.qty), 0);
-                msg += `\n*Total: R$ ${total.toFixed(2)}*`;
+                msg += `\n*Total: ${formatCurrency(total)}*`;
 
                 const phone = storeConfig.whatsapp.replace(/\D/g, '');
-                window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}`, '_blank');
+                window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
                 
                 showToast(i18n[currentLang].orderSuccessMsg);
                 cart = [];
@@ -1422,7 +1423,6 @@
             }
         }
 
-        // Autenticação Lojista via Firebase Auth
         function handleLojistaClick() {
             if (isAuthenticated) {
                 openAdminPanel();
@@ -1489,14 +1489,13 @@
             document.getElementById(tabId).style.display = "block";
         }
 
-        // CRUD Produtos no Firestore & Firebase Storage
         async function saveProduct() {
-            const namePt = document.getElementById("prodNamePt").value;
-            const nameEn = document.getElementById("prodNameEn").value;
+            const namePt = document.getElementById("prodNamePt").value.trim();
+            const nameEn = document.getElementById("prodNameEn").value.trim();
             const price = parseFloat(document.getElementById("prodPrice").value);
-            const category = document.getElementById("prodCategory").value;
-            const desc = document.getElementById("prodDesc").value;
-            const urlImg = document.getElementById("prodImgUrl").value;
+            const category = document.getElementById("prodCategory").value.trim();
+            const desc = document.getElementById("prodDesc").value.trim();
+            const urlImg = document.getElementById("prodImgUrl").value.trim();
             const available = document.getElementById("prodAvailable").checked;
             const fileInput = document.getElementById("prodImgFile");
 
@@ -1507,7 +1506,6 @@
 
             let imageUrl = urlImg;
 
-            // Envio da imagem para o Firebase Storage se arquivo foi selecionado
             if (fileInput.files[0]) {
                 try {
                     showToast("Enviando foto para o Storage...");
@@ -1533,12 +1531,12 @@
             try {
                 if (editingProductId) {
                     await updateDoc(doc(db, "products", editingProductId), productData);
-                    showToast("Produto atualizado no Firestore!");
+                    showToast("Produto atualizado!");
                 } else {
                     productData.favorite = false;
                     productData.createdAt = serverTimestamp();
                     await addDoc(collection(db, "products"), productData);
-                    showToast("Produto cadastrado no Firestore!");
+                    showToast("Produto cadastrado!");
                 }
                 resetProductForm();
             } catch (error) {
@@ -1604,7 +1602,7 @@
         async function toggleProductAvailability(id, currentStatus) {
             try {
                 await updateDoc(doc(db, "products", id), { available: !currentStatus });
-                showToast(`Status alterado com sucesso!`);
+                showToast("Status alterado!");
             } catch (error) {
                 showToast("Erro ao alterar disponibilidade: " + error.message);
             }
@@ -1618,7 +1616,7 @@
                     <div class="admin-product-item">
                         <div class="admin-product-info">
                             <h4>${p.name}</h4>
-                            <span>R$ ${parseFloat(p.price).toFixed(2)} | ${p.category}</span>
+                            <span>${formatCurrency(p.price)} | ${p.category}</span>
                         </div>
                         <div style="display:flex; gap:6px;">
                             <button class="btn-toggle-sm ${isAvail ? 'available' : ''}" onclick="toggleProductAvailability('${p.id}', ${isAvail})">
@@ -1632,10 +1630,9 @@
             }).join('');
         }
 
-        // Salvar Configurações do Estabelecimento
         async function saveAdminSettings() {
             const coverFileInput = document.getElementById("cfgCoverFile");
-            let coverUrl = document.getElementById("cfgCoverUrl").value;
+            let coverUrl = document.getElementById("cfgCoverUrl").value.trim();
 
             if (coverFileInput.files[0]) {
                 try {
@@ -1648,27 +1645,26 @@
             }
 
             const updatedSettings = {
-                name: document.getElementById("cfgStoreName").value,
-                logo: document.getElementById("cfgLogo").value,
-                description: document.getElementById("cfgDesc").value,
-                whatsapp: document.getElementById("cfgWhatsapp").value,
-                instagram: document.getElementById("cfgInstagram").value,
-                hours: document.getElementById("cfgHours").value,
+                name: document.getElementById("cfgStoreName").value.trim(),
+                logo: document.getElementById("cfgLogo").value.trim(),
+                description: document.getElementById("cfgDesc").value.trim(),
+                whatsapp: document.getElementById("cfgWhatsapp").value.trim(),
+                instagram: document.getElementById("cfgInstagram").value.trim(),
+                hours: document.getElementById("cfgHours").value.trim(),
                 salesMode: document.getElementById("cfgSalesMode").value,
-                address: document.getElementById("cfgAddress").value,
+                address: document.getElementById("cfgAddress").value.trim(),
                 coverUrl: coverUrl
             };
 
             try {
                 await setDoc(doc(db, "store_config", "settings"), updatedSettings, { merge: true });
                 toggleModal("adminModal", false);
-                showToast("Configurações salvas no Firestore!");
+                showToast("Configurações salvas!");
             } catch (error) {
                 showToast("Erro ao salvar configurações: " + error.message);
             }
         }
 
-        // QR Code & Funções Auxiliares
         function generateQRCode() {
             const container = document.getElementById("qrcodeContainer");
             container.innerHTML = "";
@@ -1710,7 +1706,7 @@
             }, 3000);
         }
 
-        // Exportação para o escopo Global (window) para compatibilidade com eventos HTML
+        // Exportação global de funções chamadas por eventos HTML inline
         window.toggleLanguage = toggleLanguage;
         window.handleLojistaClick = handleLojistaClick;
         window.verifyLogin = verifyLogin;
