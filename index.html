@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">Cardápio Virtual</title>
+    <!-- Google Fonts, Font Awesome Icons & QRCode.js CDN -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #c82333;
+            --primary-dark: #9f1a27;
+            --secondary: #0056b3;
+            --accent: #ff9900;
+            --success: #28a745;
+            --bg-light: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-dark: #2c3e50;
+            --text-muted: #6c757d;
+            --border-color: #e9ecef;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            padding-bottom: 90px;
+        }
+
+        /* Top Bar & Header */
+        .top-nav {
+            background: rgba(0, 0, 0, 0.35);
+            padding: 8px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+
+        .top-nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .top-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, #8b0000 100%);
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 3.5rem 1rem 1.8rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top:0; left:0; right:0; bottom:0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .store-logo {
+            font-size: 2.5rem;
+            margin-bottom: 4px;
+            display: inline-block;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        header p {
+            font-size: 0.85rem;
+            opacity: 0.95;
+            margin-top: 4px;
+        }
+
+        .store-info-pills {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            font-size: 0.75rem;
+        }
+
+        .store-pill {
+            background: rgba(255,255,255,0.2);
+            padding: 3px 10px;
+            border-radius: 12px;
+            backdrop-filter: blur(4px);
+        }
+
+        /* Controls: Search & Category Filter */
+        .controls {
+            position: sticky;
+            top: 0;
+            z-index: 90;
+            background: white;
+            padding: 10px 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(200, 35, 51, 0.15);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        /* Categories Scroll */
+        .categories {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            scrollbar-width: none;
+        }
+
+        .categories::-webkit-scrollbar { display: none; }
+
+        .cat-btn {
+            background: #e9ecef;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cat-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Main Menu Grid */
+        .container {
+            max-width: 1100px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin: 25px 0 12px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .product-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 15px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            transition: transform 0.2s, opacity 0.2s;
+            overflow: hidden;
+        }
+
+        .product-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .product-card.unavailable {
+            opacity: 0.65;
+            filter: grayscale(0.7);
+        }
+
+        .product-img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .badge-popular {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            z-index: 2;
+        }
+
+        .badge-out-stock {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #6c757d;
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            z-index: 2;
+        }
+
+        .product-info h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            padding-right: 60px;
+        }
+
+        .product-info p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .product-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .price {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--secondary);
+        }
+
+        .add-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .add-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .add-btn:hover:not(:disabled) {
+            background: var(--primary-dark);
+        }
+
+        /* Skeleton Loading */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+            border-radius: 8px;
+        }
+
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-card {
+            height: 220px;
+            border-radius: var(--radius);
+        }
+
+        /* Cart Floating Bar */
+        .cart-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: #ffffff;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.12);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .cart-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .cart-icon-wrapper {
+            position: relative;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px; right: -10px;
+            background: var(--accent);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 50%;
+            width: 20px; height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cart-total-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .cart-total-amount {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .view-cart-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 300;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-cart {
+            justify-content: flex-end;
+        }
+
+        .modal-cart .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 450px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            animation: slideLeft 0.3s ease-out;
+        }
+
+        @keyframes slideLeft {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        .modal-center {
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .modal-center .modal-content {
+            background: white;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            animation: popIn 0.25s ease-out;
+            overflow: hidden;
+        }
+
+        .modal-center .modal-content.large {
+            max-width: 800px;
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            padding: 15px 20px;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            background: #f8f9fa;
+        }
+
+        /* Cart Items */
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px 20px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-item-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .cart-item-price {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .qty-btn {
+            background: #e9ecef;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .simulation-banner {
+            background: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            margin-bottom: 12px;
+            border-left: 4px solid #ffeba2;
+        }
+
+        /* Admin Tabs & Form Styles */
+        .admin-tabs {
+            display: flex;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 20px;
+            gap: 10px;
+            overflow-x: auto;
+        }
+
+        .admin-tab {
+            padding: 10px 15px;
+            border: none;
+            background: none;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            white-space: nowrap;
+        }
+
+        .admin-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text-dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .admin-product-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: var(--bg-light);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .admin-product-info h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .admin-product-info span {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .btn-danger-sm {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .btn-edit-sm {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .btn-toggle-sm {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .btn-toggle-sm.available {
+            background: var(--success);
+        }
+
+        /* Toast Notification */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: #323232;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* QR Code & Print Styling */
+        #qrcodeContainer {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        #qrcodeContainer img {
+            border: 8px solid white;
+            box-shadow: var(--shadow);
+            border-radius: 8px;
+        }
+
+        @media print {
+            body * { visibility: hidden; }
+            #printableArea, #printableArea * { visibility: visible; }
+            #printableArea {
+                position: absolute;
+                left: 0; top: 0;
+                width: 100%;
+                text-align: center;
+                padding: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation & Store Info -->
+    <header id="headerBg">
+        <div class="top-nav">
+            <button class="top-nav-btn" onclick="toggleLanguage()">
+                <span id="langDisplay">🇧🇷 PT</span>
+            </button>
+            <button class="top-nav-btn" onclick="handleLojistaClick()">
+                <i class="fa-solid fa-user-gear"></i> <span id="lojistaBtnText">Modo Lojista</span>
+            </button>
+        </div>
+
+        <div class="header-content">
+            <div class="store-logo" id="storeLogo">🦀</div>
+            <h1 id="storeNameDisplay">Cardápio Virtual</h1>
+            <p id="storeDescDisplay">Praia do Futuro - Fortaleza/CE | Desde 1987</p>
+            
+            <div class="store-info-pills">
+                <span class="store-pill" id="storeHoursDisplay"><i class="fa-regular fa-clock"></i> 10:00 - 22:00</span>
+                <span class="store-pill" id="storeInstaDisplay"><i class="fa-brands fa-instagram"></i> @cardapiovirtual</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Controls: Search & Category Filter -->
+    <div class="controls">
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="Buscar no cardápio..." oninput="filterProducts()">
+        </div>
+        <div class="categories" id="categoryContainer"></div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="container" id="menuContainer">
+        <!-- Skeleton Loading State Initial -->
+        <div class="product-grid">
+            <div class="skeleton skeleton-card"></div>
+            <div class="skeleton skeleton-card"></div>
+            <div class="skeleton skeleton-card"></div>
+        </div>
+    </div>
+
+    <!-- Cart Floating Bar -->
+    <div class="cart-bar">
+        <div class="cart-info">
+            <div class="cart-icon-wrapper">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span class="cart-badge" id="cartBadge">0</span>
+            </div>
+            <div>
+                <div class="cart-total-text" id="cartLabelTotal">Total da Comanda</div>
+                <div class="cart-total-amount" id="cartTotalBar">R$ 0,00</div>
+            </div>
+        </div>
+        <button class="view-cart-btn" id="viewCartBtn" onclick="toggleCartModal(true)">Ver Comanda</button>
+    </div>
+
+    <!-- Cart Modal (Drawer) -->
+    <div class="modal modal-cart" id="cartModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalCartTitle">Sua Comanda</h2>
+                <button class="close-btn" onclick="toggleCartModal(false)">&times;</button>
+            </div>
+            <div class="cart-items" id="cartItemsContainer"></div>
+            <div class="modal-footer">
+                <div id="simulationBannerContainer"></div>
+                <div style="display:flex; justify-content:space-between; font-size:1.1rem; font-weight:bold;">
+                    <span id="modalCartTotalLabel">Total:</span>
+                    <span id="cartTotalModal">R$ 0,00</span>
+                </div>
+                <button class="checkout-btn" id="checkoutBtn" onclick="sendOrder()">Finalizar Pedido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Access Modal (Firebase Auth) -->
+    <div class="modal modal-center" id="pinModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-lock"></i> Acesso Lojista</h2>
+                <button class="close-btn" onclick="toggleModal('pinModal', false)">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:15px; line-height:1.4;">
+                    Entre com seu e-mail e senha do Firebase Authentication para gerenciar o estabelecimento.
+                </p>
+                <div class="form-group">
+                    <label>E-mail de Acesso</label>
+                    <input type="email" id="loginEmail" class="form-control" placeholder="admin@cardapiovirtual.com.br">
+                </div>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="Digite sua senha" onkeyup="if(event.key==='Enter') verifyLogin()">
+                </div>
+            </div>
+            <div class="modal-footer" style="text-align:right;">
+                <button class="add-btn" style="width:100%; justify-content:center;" onclick="verifyLogin()">Entrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div class="modal modal-center" id="adminModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-sliders"></i> Painel do Lojista</h2>
+                <button class="close-btn" onclick="toggleModal('adminModal', false)">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Admin Tabs -->
+                <div class="admin-tabs">
+                    <button class="admin-tab active" onclick="switchAdminTab('tabConfig', event)"><i class="fa-solid fa-store"></i> Estabelecimento</button>
+                    <button class="admin-tab" onclick="switchAdminTab('tabCatalog', event)"><i class="fa-solid fa-utensils"></i> Catálogo de Produtos</button>
+                    <button class="admin-tab" onclick="switchAdminTab('tabQr', event)"><i class="fa-solid fa-qrcode"></i> QR Code & Divulgação</button>
+                </div>
+
+                <!-- Tab 1: Configurações do Estabelecimento -->
+                <div id="tabConfig" class="admin-tab-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nome da Loja</label>
+                            <input type="text" id="cfgStoreName" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Logo / Emoji</label>
+                            <input type="text" id="cfgLogo" class="form-control" placeholder="Ex: 🦀">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Descrição Curta</label>
+                        <input type="text" id="cfgDesc" class="form-control">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>WhatsApp (com DDD)</label>
+                            <input type="text" id="cfgWhatsapp" class="form-control" placeholder="5585999999999">
+                        </div>
+                        <div class="form-group">
+                            <label>Instagram</label>
+                            <input type="text" id="cfgInstagram" class="form-control" placeholder="@sualoja">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Horário de Funcionamento</label>
+                            <input type="text" id="cfgHours" class="form-control" placeholder="10:00 - 22:00">
+                        </div>
+                        <div class="form-group">
+                            <label>Modo de Vendas</label>
+                            <select id="cfgSalesMode" class="form-control">
+                                <option value="direct">Venda Direta (Pedido via WhatsApp)</option>
+                                <option value="simulation">Simulação de Conta (Prévia para Garçom)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Endereço Completo</label>
+                        <input type="text" id="cfgAddress" class="form-control">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>URL da Foto de Capa</label>
+                            <input type="text" id="cfgCoverUrl" class="form-control" placeholder="https://...">
+                        </div>
+                        <div class="form-group">
+                            <label>Ou Upload de Capa (Firebase Storage)</label>
+                            <input type="file" id="cfgCoverFile" accept="image/*" class="form-control">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Gerenciamento do Catálogo -->
+                <div id="tabCatalog" class="admin-tab-content" style="display:none;">
+                    <h4 id="catalogFormTitle" style="margin-bottom:12px; font-size:1rem;">Adicionar Novo Produto</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nome (Português)</label>
+                            <input type="text" id="prodNamePt" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Nome (Inglês - Opcional)</label>
+                            <input type="text" id="prodNameEn" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Preço (R$)</label>
+                            <input type="number" step="0.01" id="prodPrice" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Categoria</label>
+                            <input type="text" id="prodCategory" class="form-control" placeholder="Ex: Entradas">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Descrição</label>
+                        <textarea id="prodDesc" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>URL da Imagem</label>
+                            <input type="text" id="prodImgUrl" class="form-control" placeholder="https://...">
+                        </div>
+                        <div class="form-group">
+                            <label>Ou Upload de Foto (Firebase Storage)</label>
+                            <input type="file" id="prodImgFile" accept="image/*" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group" style="display:flex; align-items:center; gap:8px;">
+                        <input type="checkbox" id="prodAvailable" checked style="width:18px; height:18px;">
+                        <label for="prodAvailable" style="margin:0; cursor:pointer;">Produto Disponível para Venda</label>
+                    </div>
+
+                    <div style="display:flex; gap:10px; margin-bottom:20px;">
+                        <button class="add-btn" id="btnSaveProduct" onclick="saveProduct()">
+                            <i class="fa-solid fa-plus" id="btnSaveProductIcon"></i> <span id="btnSaveProductText">Cadastrar Produto</span>
+                        </button>
+                        <button class="cat-btn" id="btnCancelEdit" style="display:none;" onclick="cancelEditProduct()">
+                            <i class="fa-solid fa-xmark"></i> Cancelar Edição
+                        </button>
+                    </div>
+
+                    <h4 style="margin-bottom:12px; font-size:1rem;">Produtos Cadastrados</h4>
+                    <div id="adminProductList" style="max-height:250px; overflow-y:auto;"></div>
+                </div>
+
+                <!-- Tab 3: QR Code & Divulgação -->
+                <div id="tabQr" class="admin-tab-content" style="display:none; text-align:center;">
+                    <p style="font-size:0.9rem; color:var(--text-muted);">Aponte a câmera para acessar o cardápio digital:</p>
+                    <div id="qrcodeContainer"></div>
+                    <div class="form-group" style="max-width:400px; margin:0 auto 15px;">
+                        <input type="text" id="qrUrlInput" class="form-control" readonly>
+                    </div>
+                    <div style="display:flex; justify-content:center; gap:10px;">
+                        <button class="cat-btn" onclick="copyStoreUrl()"><i class="fa-solid fa-copy"></i> Copiar Link</button>
+                        <button class="cat-btn active" onclick="printQrSheet()"><i class="fa-solid fa-print"></i> Imprimir Placa QR Code</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+                <button class="btn-danger-sm" onclick="logoutAdmin()"><i class="fa-solid fa-right-from-bracket"></i> Sair do Painel</button>
+                <button class="checkout-btn" style="width:auto; padding:8px 20px;" onclick="saveAdminSettings()">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Printable QR Code Template -->
+    <div id="printableArea" style="display:none;">
+        <h1 id="printStoreName" style="font-size:2.5rem; margin-bottom:10px;">Cardápio Virtual</h1>
+        <p style="font-size:1.2rem; color:#555; margin-bottom:30px;">Acesse nosso cardápio digital!</p>
+        <div id="printQrCode"></div>
+        <p id="printStoreUrl" style="font-size:1.1rem; margin-top:20px; font-weight:bold;"></p>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Application Script (Firebase Web SDK v10 Modular) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { 
+            getFirestore, doc, collection, onSnapshot, setDoc, addDoc, updateDoc, deleteDoc, serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { 
+            getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        import { 
+            getStorage, ref, uploadBytes, getDownloadURL 
+        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+        // Configuração do Firebase do projeto cardvirtual-11e1b
+        const firebaseConfig = {
+            apiKey: "AIzaSyDrgTKjb5oow4K1B1lcO-7LtOCzoZj3iBI",
+            authDomain: "cardvirtual-11e1b.firebaseapp.com",
+            projectId: "cardvirtual-11e1b",
+            storageBucket: "cardvirtual-11e1b.firebasestorage.app",
+            messagingSenderId: "794498957123",
+            appId: "1:794498957123:web:9324afeffcdea6f817f9f6"
+        };
+
+        // Inicialização do Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const storage = getStorage(app);
+
+        // Configurações Padrão de Fallback (Se o banco estiver limpo)
+        const defaultStoreConfig = {
+            name: "Cardápio Virtual",
+            logo: "🦀",
+            description: "Praia do Futuro - Fortaleza/CE | Desde 1987",
+            descriptionEn: "Praia do Futuro - Fortaleza/CE | Since 1987",
+            whatsapp: "5585999999999",
+            address: "Av. Clóvis Arrais Maia, 4930 - Praia do Futuro, Fortaleza - CE",
+            hours: "10:00 - 22:00",
+            instagram: "@cardapiovirtual",
+            coverUrl: "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1200&q=80",
+            salesMode: "direct"
+        };
+
+        const defaultProducts = [
+            { category: "Entradas", categoryEn: "Starters", name: "Caranguejo à Moda da Casa", nameEn: "House Special Crab", description: "Porção com 3 unidades ao molho de coco e verduras, acompanhados de farofa e molho verde.", descriptionEn: "3 crabs cooked in coconut sauce with veggies, served with toasted cassava flour and green sauce.", price: 49.90, favorite: true, available: true },
+            { category: "Entradas", categoryEn: "Starters", name: "Dueto de Caranguejo", nameEn: "Crab Duo", description: "150g de carne de caranguejo e 6 unid. de patinha de caranguejo.", descriptionEn: "150g of shredded crab meat and 6 crab claws.", price: 74.90, favorite: true, available: true },
+            { category: "Peixes", categoryEn: "Fish", name: "Peixe Frito", nameEn: "Fried Red Snapper", description: "Peixe vermelho de 1,2kg, baião, macaxeira e farofa.", descriptionEn: "1.2kg whole red snapper served with rice, beans, cassava and farofa.", price: 224.90, favorite: true, available: true },
+            { category: "Bebidas & Sucos", categoryEn: "Drinks & Juices", name: "Sucos Naturais (300ml)", nameEn: "Fresh Natural Juices (300ml)", description: "Cajá, Graviola, Acerola, Laranja, Maracujá, Abacaxi ou Limão.", descriptionEn: "Tropical fruit juices: Cajá, Soursop, Acerola, Orange, Passion Fruit, Pineapple or Lime.", price: 12.90, favorite: false, available: true }
+        ];
+
+        // Dicionário Multilíngue (UI Labels)
+        const i18n = {
+            pt: {
+                searchPlaceholder: "Buscar no cardápio...",
+                all: "Todos",
+                totalCommand: "Total da Comanda",
+                viewCart: "Ver Comanda",
+                myCart: "Sua Comanda",
+                cartEmpty: "Sua comanda está vazia.",
+                total: "Total:",
+                checkoutWhatsApp: "Finalizar Pedido (WhatsApp)",
+                checkoutSimulate: "Simular Conta",
+                add: "Adicionar",
+                popular: "Mais Pedido",
+                outOfStock: "Esgotado",
+                lojistaMode: "Modo Lojista",
+                simulationNotice: "Modo Simulação: Apresente esta prévia de consumo ao garçom.",
+                orderSuccessMsg: "Pedido preparado! Redirecionando para o WhatsApp...",
+                simulationSuccessMsg: "Simulação de conta concluída com sucesso!"
+            },
+            en: {
+                searchPlaceholder: "Search menu...",
+                all: "All",
+                totalCommand: "Order Total",
+                viewCart: "View Bill",
+                myCart: "Your Order",
+                cartEmpty: "Your order is empty.",
+                total: "Total:",
+                checkoutWhatsApp: "Send Order (WhatsApp)",
+                checkoutSimulate: "Simulate Bill",
+                add: "Add",
+                popular: "Best Seller",
+                outOfStock: "Out of Stock",
+                lojistaMode: "Store Manager",
+                simulationNotice: "Simulation Mode: Present this bill preview to your waiter.",
+                orderSuccessMsg: "Order prepared! Redirecting to WhatsApp...",
+                simulationSuccessMsg: "Bill simulation completed successfully!"
+            }
+        };
+
+        // Estado Global da Aplicação
+        let storeConfig = { ...defaultStoreConfig };
+        let products = [];
+        let cart = [];
+        let currentCategory = "Todos";
+        let currentLang = 'pt';
+        let isAuthenticated = false;
+        let editingProductId = null;
+
+        // Inicialização dos Escutadores Firestore em Tempo Real
+        document.addEventListener("DOMContentLoaded", () => {
+            initAuthListener();
+            initFirestoreListeners();
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    toggleCartModal(false);
+                    toggleModal('pinModal', false);
+                    toggleModal('adminModal', false);
+                }
+            });
+
+            window.onclick = (e) => {
+                if (e.target.classList.contains('modal')) {
+                    e.target.classList.remove('active');
+                }
+            };
+        });
+
+        // 1. Escutador de Autenticação (Firebase Auth)
+        function initAuthListener() {
+            onAuthStateChanged(auth, (user) => {
+                isAuthenticated = !!user;
+                const lojistaBtnText = document.getElementById("lojistaBtnText");
+                if (user) {
+                    lojistaBtnText.innerText = "Painel Lojista";
+                } else {
+                    lojistaBtnText.innerText = i18n[currentLang].lojistaMode;
+                }
+            });
+        }
+
+        // 2. Escutadores Firestore (Real-Time Sync)
+        function initFirestoreListeners() {
+            // Escutador das Configurações
+            onSnapshot(doc(db, "store_config", "settings"), (docSnap) => {
+                if (docSnap.exists()) {
+                    storeConfig = docSnap.data();
+                } else {
+                    // Inicializa documento no Firestore se inexistente
+                    setDoc(doc(db, "store_config", "settings"), defaultStoreConfig);
+                }
+                renderHeader();
+                updateCartUI();
+            }, (error) => {
+                showToast("Erro ao carregar configurações: " + error.message);
+            });
+
+            // Escutador do Catálogo de Produtos
+            onSnapshot(collection(db, "products"), (snapshot) => {
+                if (!snapshot.empty) {
+                    products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                } else {
+                    // Semeia produtos padrão caso banco esteja limpo
+                    seedInitialProducts();
+                }
+                renderCategories();
+                renderProducts();
+                if (isAuthenticated) renderAdminProductList();
+            }, (error) => {
+                showToast("Erro ao carregar produtos: " + error.message);
+            });
+        }
+
+        async function seedInitialProducts() {
+            for (let prod of defaultProducts) {
+                await addDoc(collection(db, "products"), { ...prod, createdAt: serverTimestamp() });
+            }
+        }
+
+        // Helper de Upload para Firebase Storage
+        async function uploadFileToStorage(file, pathFolder) {
+            const storageRef = ref(storage, `${pathFolder}/${Date.now()}_${file.name}`);
+            const snapshot = await uploadBytes(storageRef, file);
+            return await getDownloadURL(snapshot.ref);
+        }
+
+        // Renderização do Cabeçalho
+        function renderHeader() {
+            document.getElementById("pageTitle").innerText = `${storeConfig.name} - ${currentLang === 'pt' ? 'Cardápio Digital' : 'Digital Menu'}`;
+            document.getElementById("storeLogo").innerText = storeConfig.logo || "🦀";
+            document.getElementById("storeNameDisplay").innerText = storeConfig.name;
+            document.getElementById("storeDescDisplay").innerText = currentLang === 'pt' ? storeConfig.description : (storeConfig.descriptionEn || storeConfig.description);
+            document.getElementById("storeHoursDisplay").innerHTML = `<i class="fa-regular fa-clock"></i> ${storeConfig.hours}`;
+            document.getElementById("storeInstaDisplay").innerHTML = `<i class="fa-brands fa-instagram"></i> ${storeConfig.instagram}`;
+            
+            if (storeConfig.coverUrl) {
+                document.getElementById("headerBg").style.backgroundImage = `url('${storeConfig.coverUrl}')`;
+            }
+
+            document.getElementById("searchInput").placeholder = i18n[currentLang].searchPlaceholder;
+        }
+
+        // Renderização das Categorias
+        function renderCategories() {
+            const rawCategories = [...new Set(products.map(p => currentLang === 'pt' ? p.category : (p.categoryEn || p.category)))];
+            const categories = [i18n[currentLang].all, ...rawCategories];
+            
+            const container = document.getElementById("categoryContainer");
+            container.innerHTML = categories.map(cat => `
+                <button class="cat-btn ${cat === currentCategory || (currentCategory === 'Todos' && cat === i18n[currentLang].all) ? 'active' : ''}" onclick="selectCategory('${cat}')">
+                    ${cat}
+                </button>
+            `).join('');
+        }
+
+        function selectCategory(category) {
+            currentCategory = (category === i18n['pt'].all || category === i18n['en'].all) ? "Todos" : category;
+            renderCategories();
+            renderProducts();
+        }
+
+        // Renderização dos Produtos
+        function renderProducts() {
+            const container = document.getElementById("menuContainer");
+            const searchVal = document.getElementById("searchInput").value.toLowerCase();
+
+            const filteredProducts = products.filter(p => {
+                const name = currentLang === 'pt' ? p.name : (p.nameEn || p.name);
+                const desc = currentLang === 'pt' ? p.description : (p.descriptionEn || p.description);
+                const category = currentLang === 'pt' ? p.category : (p.categoryEn || p.category);
+
+                const matchesCat = currentCategory === "Todos" || category === currentCategory;
+                const matchesSearch = name.toLowerCase().includes(searchVal) || desc.toLowerCase().includes(searchVal);
+                return matchesCat && matchesSearch;
+            });
+
+            if (filteredProducts.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted);">Nenhum produto encontrado.</div>`;
+                return;
+            }
+
+            const categoriesToDisplay = currentCategory === "Todos" 
+                ? [...new Set(filteredProducts.map(p => currentLang === 'pt' ? p.category : (p.categoryEn || p.category)))] 
+                : [currentCategory];
+
+            container.innerHTML = categoriesToDisplay.map(cat => {
+                const catItems = filteredProducts.filter(p => (currentLang === 'pt' ? p.category : (p.categoryEn || p.category)) === cat);
+                return `
+                    <div class="section-title"><i class="fa-solid fa-utensils"></i> ${cat}</div>
+                    <div class="product-grid">
+                        ${catItems.map(p => {
+                            const name = currentLang === 'pt' ? p.name : (p.nameEn || p.name);
+                            const desc = currentLang === 'pt' ? p.description : (p.descriptionEn || p.description);
+                            const isAvailable = p.available !== false;
+                            
+                            return `
+                                <div class="product-card ${!isAvailable ? 'unavailable' : ''}">
+                                    ${!isAvailable ? `<span class="badge-out-stock">${i18n[currentLang].outOfStock}</span>` : (p.favorite ? `<span class="badge-popular">${i18n[currentLang].popular}</span>` : '')}
+                                    ${p.image ? `<img src="${p.image}" class="product-img" alt="${name}">` : ''}
+                                    <div class="product-info">
+                                        <h3>${name}</h3>
+                                        <p>${desc}</p>
+                                    </div>
+                                    <div class="product-bottom">
+                                        <span class="price">R$ ${parseFloat(p.price).toFixed(2).replace('.', ',')}</span>
+                                        <button class="add-btn" ${!isAvailable ? 'disabled' : ''} onclick="addToCart('${p.id}')">
+                                            <i class="fa-solid fa-plus"></i> ${i18n[currentLang].add}
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterProducts() {
+            renderProducts();
+        }
+
+        // Alternância de Idioma com Tradução via API
+        async function toggleLanguage() {
+            currentLang = currentLang === 'pt' ? 'en' : 'pt';
+            document.getElementById('langDisplay').innerText = currentLang === 'pt' ? '🇧🇷 PT' : '🇺🇸 EN';
+            
+            if (currentLang === 'en') {
+                showToast("Traduzindo conteúdo com IA...");
+                for (let p of products) {
+                    if (!p.nameEn || p.nameEn === p.name) {
+                        try {
+                            const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(p.name)}&langpair=pt|en`);
+                            const data = await res.json();
+                            if (data.responseData?.translatedText) {
+                                await updateDoc(doc(db, "products", p.id), { nameEn: data.responseData.translatedText });
+                            }
+                        } catch(e){}
+                    }
+                }
+            }
+
+            renderHeader();
+            renderCategories();
+            renderProducts();
+            updateCartUI();
+        }
+
+        // Gestão do Carrinho
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product || product.available === false) return;
+
+            const existing = cart.find(item => item.id === productId);
+
+            if (existing) {
+                existing.qty++;
+            } else {
+                cart.push({ ...product, qty: 1 });
+            }
+
+            updateCartUI();
+            showToast(`${product.name} adicionado!`);
+        }
+
+        function changeQty(productId, delta) {
+            const item = cart.find(i => i.id === productId);
+            if (!item) return;
+
+            item.qty += delta;
+            if (item.qty <= 0) {
+                cart = cart.filter(i => i.id !== productId);
+            }
+
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
+            const totalPrice = cart.reduce((acc, item) => acc + (parseFloat(item.price) * item.qty), 0);
+
+            document.getElementById("cartBadge").innerText = totalQty;
+            document.getElementById("cartTotalBar").innerText = `R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
+            document.getElementById("cartTotalModal").innerText = `R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
+
+            document.getElementById("cartLabelTotal").innerText = i18n[currentLang].totalCommand;
+            document.getElementById("viewCartBtn").innerText = i18n[currentLang].viewCart;
+            document.getElementById("modalCartTitle").innerText = i18n[currentLang].myCart;
+            document.getElementById("modalCartTotalLabel").innerText = i18n[currentLang].total;
+
+            const checkoutBtn = document.getElementById("checkoutBtn");
+            const simContainer = document.getElementById("simulationBannerContainer");
+
+            if (storeConfig.salesMode === "simulation") {
+                checkoutBtn.innerText = i18n[currentLang].checkoutSimulate;
+                simContainer.innerHTML = `<div class="simulation-banner"><i class="fa-solid fa-circle-info"></i> ${i18n[currentLang].simulationNotice}</div>`;
+            } else {
+                checkoutBtn.innerText = i18n[currentLang].checkoutWhatsApp;
+                simContainer.innerHTML = "";
+            }
+
+            const cartContainer = document.getElementById("cartItemsContainer");
+            if (cart.length === 0) {
+                cartContainer.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:30px 0;">${i18n[currentLang].cartEmpty}</p>`;
+            } else {
+                cartContainer.innerHTML = cart.map(item => {
+                    const name = currentLang === 'pt' ? item.name : (item.nameEn || item.name);
+                    return `
+                        <div class="cart-item">
+                            <div>
+                                <div class="cart-item-title">${name}</div>
+                                <div class="cart-item-price">R$ ${parseFloat(item.price).toFixed(2).replace('.', ',')}</div>
+                            </div>
+                            <div class="qty-controls">
+                                <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
+                                <span>${item.qty}</span>
+                                <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function toggleCartModal(show) {
+            const modal = document.getElementById("cartModal");
+            if (show) modal.classList.add("active");
+            else modal.classList.remove("active");
+        }
+
+        function toggleModal(modalId, show) {
+            const modal = document.getElementById(modalId);
+            if (show) modal.classList.add("active");
+            else modal.classList.remove("active");
+        }
+
+        // Finalização do Pedido
+        function sendOrder() {
+            if (cart.length === 0) {
+                showToast("Sua comanda está vazia!");
+                return;
+            }
+
+            if (storeConfig.salesMode === "simulation") {
+                alert(`${i18n[currentLang].simulationSuccessMsg}\n\nTotal: R$ ${cart.reduce((a, b) => a + (parseFloat(b.price) * b.qty), 0).toFixed(2)}`);
+                cart = [];
+                updateCartUI();
+                toggleCartModal(false);
+            } else {
+                let msg = `*Novo Pedido - ${storeConfig.name}*\n\n`;
+                cart.forEach(item => {
+                    msg += `• ${item.qty}x ${item.name} - R$ ${(parseFloat(item.price) * item.qty).toFixed(2)}\n`;
+                });
+                const total = cart.reduce((acc, item) => acc + (parseFloat(item.price) * item.qty), 0);
+                msg += `\n*Total: R$ ${total.toFixed(2)}*`;
+
+                const phone = storeConfig.whatsapp.replace(/\D/g, '');
+                window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}`, '_blank');
+                
+                showToast(i18n[currentLang].orderSuccessMsg);
+                cart = [];
+                updateCartUI();
+                toggleCartModal(false);
+            }
+        }
+
+        // Autenticação Lojista via Firebase Auth
+        function handleLojistaClick() {
+            if (isAuthenticated) {
+                openAdminPanel();
+            } else {
+                document.getElementById("loginEmail").value = "";
+                document.getElementById("loginPassword").value = "";
+                toggleModal("pinModal", true);
+                document.getElementById("loginEmail").focus();
+            }
+        }
+
+        async function verifyLogin() {
+            const email = document.getElementById("loginEmail").value.trim();
+            const password = document.getElementById("loginPassword").value;
+
+            if (!email || !password) {
+                showToast("Preencha e-mail e senha!");
+                return;
+            }
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                toggleModal("pinModal", false);
+                openAdminPanel();
+                showToast("Autenticado com sucesso!");
+            } catch (error) {
+                showToast("Erro na autenticação: " + error.message);
+            }
+        }
+
+        async function logoutAdmin() {
+            try {
+                await signOut(auth);
+                toggleModal("adminModal", false);
+                showToast("Sessão encerrada.");
+            } catch (error) {
+                showToast("Erro ao sair: " + error.message);
+            }
+        }
+
+        function openAdminPanel() {
+            document.getElementById("cfgStoreName").value = storeConfig.name || "";
+            document.getElementById("cfgLogo").value = storeConfig.logo || "";
+            document.getElementById("cfgDesc").value = storeConfig.description || "";
+            document.getElementById("cfgWhatsapp").value = storeConfig.whatsapp || "";
+            document.getElementById("cfgInstagram").value = storeConfig.instagram || "";
+            document.getElementById("cfgHours").value = storeConfig.hours || "";
+            document.getElementById("cfgSalesMode").value = storeConfig.salesMode || "direct";
+            document.getElementById("cfgAddress").value = storeConfig.address || "";
+            document.getElementById("cfgCoverUrl").value = storeConfig.coverUrl || "";
+            document.getElementById("cfgCoverFile").value = "";
+
+            resetProductForm();
+            renderAdminProductList();
+            generateQRCode();
+            toggleModal("adminModal", true);
+        }
+
+        function switchAdminTab(tabId, event) {
+            document.querySelectorAll(".admin-tab").forEach(t => t.classList.remove("active"));
+            document.querySelectorAll(".admin-tab-content").forEach(c => c.style.display = "none");
+            
+            if (event) event.currentTarget.classList.add("active");
+            document.getElementById(tabId).style.display = "block";
+        }
+
+        // CRUD Produtos no Firestore & Firebase Storage
+        async function saveProduct() {
+            const namePt = document.getElementById("prodNamePt").value;
+            const nameEn = document.getElementById("prodNameEn").value;
+            const price = parseFloat(document.getElementById("prodPrice").value);
+            const category = document.getElementById("prodCategory").value;
+            const desc = document.getElementById("prodDesc").value;
+            const urlImg = document.getElementById("prodImgUrl").value;
+            const available = document.getElementById("prodAvailable").checked;
+            const fileInput = document.getElementById("prodImgFile");
+
+            if (!namePt || isNaN(price) || !category) {
+                showToast("Preencha Nome, Preço e Categoria!");
+                return;
+            }
+
+            let imageUrl = urlImg;
+
+            // Envio da imagem para o Firebase Storage se arquivo foi selecionado
+            if (fileInput.files[0]) {
+                try {
+                    showToast("Enviando foto para o Storage...");
+                    imageUrl = await uploadFileToStorage(fileInput.files[0], "products");
+                } catch (e) {
+                    showToast("Erro no envio da foto: " + e.message);
+                    return;
+                }
+            }
+
+            const productData = {
+                name: namePt,
+                nameEn: nameEn || namePt,
+                price: price,
+                category: category,
+                categoryEn: category,
+                description: desc,
+                descriptionEn: desc,
+                available: available,
+                image: imageUrl || ""
+            };
+
+            try {
+                if (editingProductId) {
+                    await updateDoc(doc(db, "products", editingProductId), productData);
+                    showToast("Produto atualizado no Firestore!");
+                } else {
+                    productData.favorite = false;
+                    productData.createdAt = serverTimestamp();
+                    await addDoc(collection(db, "products"), productData);
+                    showToast("Produto cadastrado no Firestore!");
+                }
+                resetProductForm();
+            } catch (error) {
+                showToast("Erro ao salvar produto: " + error.message);
+            }
+        }
+
+        function editProduct(id) {
+            const prod = products.find(p => p.id === id);
+            if (!prod) return;
+
+            editingProductId = id;
+            document.getElementById("catalogFormTitle").innerText = "Editar Produto";
+            document.getElementById("prodNamePt").value = prod.name || "";
+            document.getElementById("prodNameEn").value = prod.nameEn || "";
+            document.getElementById("prodPrice").value = prod.price || "";
+            document.getElementById("prodCategory").value = prod.category || "";
+            document.getElementById("prodDesc").value = prod.description || "";
+            document.getElementById("prodImgUrl").value = prod.image || "";
+            document.getElementById("prodAvailable").checked = prod.available !== false;
+            document.getElementById("prodImgFile").value = "";
+
+            document.getElementById("btnSaveProductText").innerText = "Atualizar Produto";
+            document.getElementById("btnSaveProductIcon").className = "fa-solid fa-check";
+            document.getElementById("btnCancelEdit").style.display = "inline-flex";
+
+            document.getElementById("catalogFormTitle").scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetProductForm() {
+            editingProductId = null;
+            document.getElementById("catalogFormTitle").innerText = "Adicionar Novo Produto";
+            document.getElementById("prodNamePt").value = "";
+            document.getElementById("prodNameEn").value = "";
+            document.getElementById("prodPrice").value = "";
+            document.getElementById("prodCategory").value = "";
+            document.getElementById("prodDesc").value = "";
+            document.getElementById("prodImgUrl").value = "";
+            document.getElementById("prodImgFile").value = "";
+            document.getElementById("prodAvailable").checked = true;
+
+            document.getElementById("btnSaveProductText").innerText = "Cadastrar Produto";
+            document.getElementById("btnSaveProductIcon").className = "fa-solid fa-plus";
+            document.getElementById("btnCancelEdit").style.display = "none";
+        }
+
+        function cancelEditProduct() {
+            resetProductForm();
+            showToast("Edição cancelada.");
+        }
+
+        async function deleteProduct(id) {
+            if (confirm("Deseja remover este produto do banco de dados?")) {
+                try {
+                    await deleteDoc(doc(db, "products", id));
+                    showToast("Produto removido!");
+                } catch (error) {
+                    showToast("Erro ao remover: " + error.message);
+                }
+            }
+        }
+
+        async function toggleProductAvailability(id, currentStatus) {
+            try {
+                await updateDoc(doc(db, "products", id), { available: !currentStatus });
+                showToast(`Status alterado com sucesso!`);
+            } catch (error) {
+                showToast("Erro ao alterar disponibilidade: " + error.message);
+            }
+        }
+
+        function renderAdminProductList() {
+            const container = document.getElementById("adminProductList");
+            container.innerHTML = products.map(p => {
+                const isAvail = p.available !== false;
+                return `
+                    <div class="admin-product-item">
+                        <div class="admin-product-info">
+                            <h4>${p.name}</h4>
+                            <span>R$ ${parseFloat(p.price).toFixed(2)} | ${p.category}</span>
+                        </div>
+                        <div style="display:flex; gap:6px;">
+                            <button class="btn-toggle-sm ${isAvail ? 'available' : ''}" onclick="toggleProductAvailability('${p.id}', ${isAvail})">
+                                ${isAvail ? 'Disponível' : 'Esgotado'}
+                            </button>
+                            <button class="btn-edit-sm" onclick="editProduct('${p.id}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn-danger-sm" onclick="deleteProduct('${p.id}')"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Salvar Configurações do Estabelecimento
+        async function saveAdminSettings() {
+            const coverFileInput = document.getElementById("cfgCoverFile");
+            let coverUrl = document.getElementById("cfgCoverUrl").value;
+
+            if (coverFileInput.files[0]) {
+                try {
+                    showToast("Enviando foto de capa para o Storage...");
+                    coverUrl = await uploadFileToStorage(coverFileInput.files[0], "covers");
+                } catch (e) {
+                    showToast("Erro no upload da capa: " + e.message);
+                    return;
+                }
+            }
+
+            const updatedSettings = {
+                name: document.getElementById("cfgStoreName").value,
+                logo: document.getElementById("cfgLogo").value,
+                description: document.getElementById("cfgDesc").value,
+                whatsapp: document.getElementById("cfgWhatsapp").value,
+                instagram: document.getElementById("cfgInstagram").value,
+                hours: document.getElementById("cfgHours").value,
+                salesMode: document.getElementById("cfgSalesMode").value,
+                address: document.getElementById("cfgAddress").value,
+                coverUrl: coverUrl
+            };
+
+            try {
+                await setDoc(doc(db, "store_config", "settings"), updatedSettings, { merge: true });
+                toggleModal("adminModal", false);
+                showToast("Configurações salvas no Firestore!");
+            } catch (error) {
+                showToast("Erro ao salvar configurações: " + error.message);
+            }
+        }
+
+        // QR Code & Funções Auxiliares
+        function generateQRCode() {
+            const container = document.getElementById("qrcodeContainer");
+            container.innerHTML = "";
+            const url = window.location.href;
+            
+            new QRCode(container, { text: url, width: 180, height: 180 });
+
+            document.getElementById("qrUrlInput").value = url;
+            document.getElementById("printStoreName").innerText = storeConfig.name;
+            document.getElementById("printStoreUrl").innerText = url;
+
+            const printContainer = document.getElementById("printQrCode");
+            printContainer.innerHTML = "";
+            new QRCode(printContainer, { text: url, width: 250, height: 250 });
+        }
+
+        function copyStoreUrl() {
+            const input = document.getElementById("qrUrlInput");
+            input.select();
+            navigator.clipboard.writeText(input.value);
+            showToast("Link copiado!");
+        }
+
+        function printQrSheet() {
+            window.print();
+        }
+
+        function showToast(msg) {
+            const container = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+            toast.className = "toast";
+            toast.innerText = msg;
+            container.appendChild(toast);
+
+            setTimeout(() => toast.classList.add("show"), 10);
+            setTimeout(() => {
+                toast.classList.remove("show");
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Exportação para o escopo Global (window) para compatibilidade com eventos HTML
+        window.toggleLanguage = toggleLanguage;
+        window.handleLojistaClick = handleLojistaClick;
+        window.verifyLogin = verifyLogin;
+        window.logoutAdmin = logoutAdmin;
+        window.toggleModal = toggleModal;
+        window.toggleCartModal = toggleCartModal;
+        window.selectCategory = selectCategory;
+        window.filterProducts = filterProducts;
+        window.addToCart = addToCart;
+        window.changeQty = changeQty;
+        window.sendOrder = sendOrder;
+        window.switchAdminTab = switchAdminTab;
+        window.saveProduct = saveProduct;
+        window.editProduct = editProduct;
+        window.cancelEditProduct = cancelEditProduct;
+        window.deleteProduct = deleteProduct;
+        window.toggleProductAvailability = toggleProductAvailability;
+        window.copyStoreUrl = copyStoreUrl;
+        window.printQrSheet = printQrSheet;
+        window.saveAdminSettings = saveAdminSettings;
+    </script>
+</body>
+</html>
