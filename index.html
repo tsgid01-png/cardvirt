@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="pageTitle">Cardápio Virtual</title>
-    <!-- Google Fonts, Font Awesome Icons & QRCode.js CDN -->
+    <!-- Google Fonts, Font Awesome Icons, QRCode.js & Tesseract.js (OCR) CDN -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     
     <style>
         :root {
@@ -463,7 +464,7 @@
         }
 
         .modal-center .modal-content.large {
-            max-width: 800px;
+            max-width: 850px;
         }
 
         @keyframes popIn {
@@ -691,6 +692,39 @@
             background: var(--success);
         }
 
+        /* Import Box Styles */
+        .import-box {
+            border: 2px dashed #0056b3;
+            background: #f0f7ff;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .import-box i {
+            font-size: 2.2rem;
+            color: #0056b3;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            background: #e9ecef;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
         /* Toast Notification */
         .toast-container {
             position: fixed;
@@ -868,6 +902,7 @@
                 <div class="admin-tabs">
                     <button class="admin-tab active" onclick="switchAdminTab('tabConfig', event)"><i class="fa-solid fa-store"></i> Estabelecimento</button>
                     <button class="admin-tab" onclick="switchAdminTab('tabCatalog', event)"><i class="fa-solid fa-utensils"></i> Catálogo de Produtos</button>
+                    <button class="admin-tab" onclick="switchAdminTab('tabImport', event)"><i class="fa-solid fa-file-import"></i> Importar PDF/Imagem</button>
                     <button class="admin-tab" onclick="switchAdminTab('tabQr', event)"><i class="fa-solid fa-qrcode"></i> QR Code & Divulgação</button>
                 </div>
 
@@ -981,7 +1016,41 @@
                     <div id="adminProductList" style="max-height:250px; overflow-y:auto;"></div>
                 </div>
 
-                <!-- Tab 3: QR Code & Divulgação -->
+                <!-- Tab 3: Importador Automático por PDF/Imagem -->
+                <div id="tabImport" class="admin-tab-content" style="display:none;">
+                    <div class="import-box">
+                        <i class="fa-solid fa-file-pdf"></i>
+                        <h4>Importação Inteligente de Cardápio</h4>
+                        <p style="font-size:0.85rem; color:var(--text-muted); margin: 6px 0 15px;">
+                            Faça o upload de uma <strong>Imagem</strong> ou <strong>PDF do seu Cardápio</strong>. Nosso leitor óptico extrairá os itens e preços automaticamente para o seu banco de dados.
+                        </p>
+
+                        <div class="form-group" style="max-width: 400px; margin: 0 auto;">
+                            <label for="importCategoryDefault">Categoria Padrão para os Itens Importados</label>
+                            <input type="text" id="importCategoryDefault" class="form-control" value="Geral" placeholder="Ex: Bebidas, Refeições">
+                        </div>
+
+                        <div class="form-group" style="max-width: 400px; margin: 15px auto 0;">
+                            <input type="file" id="menuImportFile" accept="image/*,application/pdf" class="form-control">
+                        </div>
+
+                        <button class="add-btn" style="margin: 15px auto 0; justify-content:center;" onclick="processMenuImport()">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Processar e Importar
+                        </button>
+
+                        <div class="progress-bar" id="importProgressBar">
+                            <div class="progress-fill" id="importProgressFill"></div>
+                        </div>
+                        <p id="importStatusText" style="font-size:0.8rem; margin-top:8px; color:var(--text-muted);"></p>
+                    </div>
+
+                    <div id="importedPreviewArea" style="display:none;">
+                        <h4>Itens Detectados:</h4>
+                        <div id="importedItemsList" style="max-height: 200px; overflow-y: auto; margin-top: 10px; background: #fff; padding: 10px; border: 1px solid #ddd; border-radius: 8px;"></div>
+                    </div>
+                </div>
+
+                <!-- Tab 4: QR Code & Divulgação -->
                 <div id="tabQr" class="admin-tab-content" style="display:none; text-align:center;">
                     <p style="font-size:0.9rem; color:var(--text-muted);">Aponte a câmera para acessar o cardápio digital:</p>
                     <div id="qrcodeContainer"></div>
@@ -1059,7 +1128,6 @@
             salesMode: "direct"
         };
 
-        // Array de produtos iniciais completamente limpo/esvaziado
         const defaultProducts = [];
 
         // Dicionário Multilíngue (UI Labels)
@@ -1188,7 +1256,7 @@
 
         function renderHeader() {
             document.getElementById("pageTitle").innerText = `${storeConfig.name} - ${currentLang === 'pt' ? 'Cardápio Digital' : 'Digital Menu'}`;
-            document.getElementById("storeLogo").innerText = storeConfig.logo || "🦀";
+            document.getElementById("storeLogo").innerText = storeConfig.logo || "crab";
             document.getElementById("storeNameDisplay").innerText = storeConfig.name;
             document.getElementById("storeDescDisplay").innerText = currentLang === 'pt' ? storeConfig.description : (storeConfig.descriptionEn || storeConfig.description);
             document.getElementById("storeHoursDisplay").innerHTML = `<i class="fa-regular fa-clock"></i> ${storeConfig.hours}`;
@@ -1626,6 +1694,92 @@
             }).join('');
         }
 
+        // Importador de Cardápio por PDF ou Imagem
+        async function processMenuImport() {
+            const fileInput = document.getElementById("menuImportFile");
+            const categoryDefault = document.getElementById("importCategoryDefault").value.trim() || "Geral";
+            const progressBar = document.getElementById("importProgressBar");
+            const progressFill = document.getElementById("importProgressFill");
+            const statusText = document.getElementById("importStatusText");
+            const previewArea = document.getElementById("importedPreviewArea");
+            const itemsList = document.getElementById("importedItemsList");
+
+            if (!fileInput.files[0]) {
+                showToast("Selecione um arquivo de imagem ou PDF.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            progressBar.style.display = "block";
+            progressFill.style.width = "0%";
+            statusText.innerText = "Iniciando leitura óptica (OCR)...";
+
+            try {
+                const worker = await Tesseract.createWorker('por');
+                
+                statusText.innerText = "Lendo texto e preços do arquivo...";
+                progressFill.style.width = "40%";
+
+                const ret = await worker.recognize(file);
+                const text = ret.data.text;
+
+                progressFill.style.width = "70%";
+                statusText.innerText = "Extraindo produtos e salvando...";
+
+                await worker.terminate();
+
+                const lines = text.split('\n');
+                const priceRegex = /(?:R\$\s*)?(\d+[.,]\d{2})/i;
+                let addedCount = 0;
+                let previewHTML = "";
+
+                for (let line of lines) {
+                    const match = line.match(priceRegex);
+                    if (match) {
+                        const price = parseFloat(match[1].replace(',', '.'));
+                        const name = line.replace(priceRegex, '').replace(/[^\w\sÀ-ú]/gi, '').trim();
+
+                        if (name.length > 2 && !isNaN(price)) {
+                            const newProduct = {
+                                name: name,
+                                nameEn: name,
+                                price: price,
+                                category: categoryDefault,
+                                categoryEn: categoryDefault,
+                                description: "Importado via cardápio",
+                                descriptionEn: "Imported via menu file",
+                                available: true,
+                                image: "",
+                                favorite: false,
+                                createdAt: serverTimestamp()
+                            };
+
+                            await addDoc(collection(db, "products"), newProduct);
+                            addedCount++;
+                            previewHTML += `<div>• <strong>${name}</strong> - R$ ${price.toFixed(2)}</div>`;
+                        }
+                    }
+                }
+
+                progressFill.style.width = "100%";
+                if (addedCount > 0) {
+                    statusText.innerText = `Sucesso! ${addedCount} produtos importados.`;
+                    showToast(`${addedCount} produtos cadastrados com sucesso!`);
+                    previewArea.style.display = "block";
+                    itemsList.innerHTML = previewHTML;
+                } else {
+                    statusText.innerText = "Nenhum preço/produto com padrão válido detectado na imagem.";
+                    showToast("Não foi possível reconhecer o formato de preço.");
+                }
+
+            } catch (err) {
+                showToast("Erro ao processar o arquivo: " + err.message);
+                statusText.innerText = "Erro no processamento.";
+            } finally {
+                setTimeout(() => { progressBar.style.display = "none"; }, 3000);
+            }
+        }
+
         async function saveAdminSettings() {
             const coverFileInput = document.getElementById("cfgCoverFile");
             let coverUrl = document.getElementById("cfgCoverUrl").value.trim();
@@ -1723,6 +1877,7 @@
         window.copyStoreUrl = copyStoreUrl;
         window.printQrSheet = printQrSheet;
         window.saveAdminSettings = saveAdminSettings;
+        window.processMenuImport = processMenuImport;
     </script>
 </body>
 </html>
