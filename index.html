@@ -868,11 +868,11 @@
     <div class="modal modal-center" id="pinModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2><i class="fa-solid fa-lock"></i> <span id="lblLoginTitle">Acesso Lojista</span></h2>
+                <h2><i class="fa-solid fa-lock"></i> <span id="loginTitleText">Acesso Lojista</span></h2>
                 <button class="close-btn" onclick="toggleModal('pinModal', false)">&times;</button>
             </div>
             <div class="modal-body">
-                <p id="lblLoginDesc" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:15px; line-height:1.4;">
+                <p id="loginDescText" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:15px; line-height:1.4;">
                     Entre com seu e-mail e senha do Firebase Authentication para gerenciar o estabelecimento.
                 </p>
                 <div class="form-group">
@@ -894,78 +894,78 @@
     <div class="modal modal-center" id="adminModal">
         <div class="modal-content large">
             <div class="modal-header">
-                <h2><i class="fa-solid fa-sliders"></i> <span id="lblAdminTitle">Painel do Lojista</span></h2>
+                <h2><i class="fa-solid fa-sliders"></i> <span id="adminTitleText">Painel do Lojista</span></h2>
                 <button class="close-btn" onclick="toggleModal('adminModal', false)">&times;</button>
             </div>
             <div class="modal-body">
                 <!-- Admin Tabs -->
                 <div class="admin-tabs">
-                    <button class="admin-tab active" onclick="switchAdminTab('tabConfig', event)"><i class="fa-solid fa-store"></i> Estabelecimento</button>
-                    <button class="admin-tab" onclick="switchAdminTab('tabCatalog', event)"><i class="fa-solid fa-utensils"></i> Catálogo de Produtos</button>
-                    <button class="admin-tab" onclick="switchAdminTab('tabImport', event)"><i class="fa-solid fa-file-import"></i> Importar PDF/Imagem</button>
-                    <button class="admin-tab" onclick="switchAdminTab('tabQr', event)"><i class="fa-solid fa-qrcode"></i> QR Code & Divulgação</button>
+                    <button class="admin-tab active" onclick="switchAdminTab('tabConfig', event)" id="tabConfigBtn"><i class="fa-solid fa-store"></i> Estabelecimento</button>
+                    <button class="admin-tab" onclick="switchAdminTab('tabCatalog', event)" id="tabCatalogBtn"><i class="fa-solid fa-utensils"></i> Catálogo de Produtos</button>
+                    <button class="admin-tab" onclick="switchAdminTab('tabImport', event)" id="tabImportBtn"><i class="fa-solid fa-file-import"></i> Importar PDF/Imagem</button>
+                    <button class="admin-tab" onclick="switchAdminTab('tabQr', event)" id="tabQrBtn"><i class="fa-solid fa-qrcode"></i> QR Code & Divulgação</button>
                 </div>
 
                 <!-- Tab 1: Configurações do Estabelecimento -->
                 <div id="tabConfig" class="admin-tab-content">
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="cfgStoreName">Nome da Loja</label>
+                            <label for="cfgStoreName" id="lblCfgStoreName">Nome da Loja</label>
                             <input type="text" id="cfgStoreName" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for="cfgLogo">Logo / Emoji</label>
+                            <label for="cfgLogo" id="lblCfgLogo">Logo / Emoji</label>
                             <input type="text" id="cfgLogo" class="form-control" placeholder="Ex: 🦀">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="cfgDesc">Descrição Curta (PT)</label>
+                        <label for="cfgDesc" id="lblCfgDesc">Descrição Curta (PT)</label>
                         <input type="text" id="cfgDesc" class="form-control">
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="cfgDescEn">Descrição Curta (EN)</label>
+                            <label for="cfgDescEn" id="lblCfgDescEn">Descrição (EN)</label>
                             <input type="text" id="cfgDescEn" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for="cfgDescZh">Descrição Curta (ZH - Chinês)</label>
+                            <label for="cfgDescZh" id="lblCfgDescZh">Descrição (ZH)</label>
                             <input type="text" id="cfgDescZh" class="form-control">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="cfgWhatsapp">WhatsApp (com DDD)</label>
+                            <label for="cfgWhatsapp" id="lblCfgWhatsapp">WhatsApp (com DDD)</label>
                             <input type="text" id="cfgWhatsapp" class="form-control" placeholder="5585999999999">
                         </div>
                         <div class="form-group">
-                            <label for="cfgInstagram">Instagram</label>
+                            <label for="cfgInstagram" id="lblCfgInstagram">Instagram</label>
                             <input type="text" id="cfgInstagram" class="form-control" placeholder="@sualoja">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="cfgHours">Horário de Funcionamento</label>
+                            <label for="cfgHours" id="lblCfgHours">Horário de Funcionamento</label>
                             <input type="text" id="cfgHours" class="form-control" placeholder="10:00 - 22:00">
                         </div>
                         <div class="form-group">
-                            <label for="cfgSalesMode">Modo de Vendas</label>
+                            <label for="cfgSalesMode" id="lblCfgSalesMode">Modo de Vendas</label>
                             <select id="cfgSalesMode" class="form-control">
-                                <option value="direct">Venda Direta (Pedido via WhatsApp)</option>
-                                <option value="simulation">Simulação de Conta (Prévia para Garçom)</option>
+                                <option value="direct" id="optSalesDirect">Venda Direta (Pedido via WhatsApp)</option>
+                                <option value="simulation" id="optSalesSimulate">Simulação de Conta (Prévia para Garçom)</option>
                             </select>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="cfgAddress">Endereço Completo</label>
+                        <label for="cfgAddress" id="lblCfgAddress">Endereço Completo</label>
                         <input type="text" id="cfgAddress" class="form-control">
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="cfgCoverUrl">URL da Foto de Capa</label>
+                            <label for="cfgCoverUrl" id="lblCfgCoverUrl">URL da Foto de Capa</label>
                             <input type="text" id="cfgCoverUrl" class="form-control" placeholder="https://...">
                         </div>
                         <div class="form-group">
-                            <label for="cfgCoverFile">Ou Upload de Capa (Firebase Storage)</label>
+                            <label for="cfgCoverFile" id="lblCfgCoverFile">Ou Upload de Capa (Firebase Storage)</label>
                             <input type="file" id="cfgCoverFile" accept="image/*" class="form-control">
                         </div>
                     </div>
@@ -976,63 +976,55 @@
                     <h4 id="catalogFormTitle" style="margin-bottom:12px; font-size:1rem;">Adicionar Novo Produto</h4>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="prodNamePt">Nome (Português)</label>
+                            <label for="prodNamePt" id="lblProdNamePt">Nome (Português)</label>
                             <input type="text" id="prodNamePt" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for="prodNameEn">Nome (Inglês - Opcional)</label>
+                            <label for="prodNameEn" id="lblProdNameEn">Nome (Inglês - Opcional)</label>
                             <input type="text" id="prodNameEn" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for="prodNameZh">Nome (Chinês - Opcional)</label>
+                            <label for="prodNameZh" id="lblProdNameZh">Nome (Chinês - Opcional)</label>
                             <input type="text" id="prodNameZh" class="form-control">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="prodPrice">Preço (R$)</label>
+                            <label for="prodPrice" id="lblProdPrice">Preço (R$)</label>
                             <input type="number" step="0.01" id="prodPrice" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for="prodCategory">Categoria (PT)</label>
+                            <label for="prodCategory" id="lblProdCategory">Categoria</label>
                             <input type="text" id="prodCategory" class="form-control" placeholder="Ex: Entradas">
-                        </div>
-                        <div class="form-group">
-                            <label for="prodCategoryEn">Categoria (EN)</label>
-                            <input type="text" id="prodCategoryEn" class="form-control" placeholder="Ex: Starters">
-                        </div>
-                        <div class="form-group">
-                            <label for="prodCategoryZh">Categoria (ZH)</label>
-                            <input type="text" id="prodCategoryZh" class="form-control" placeholder="Ex: 开胃菜">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="prodDesc">Descrição (PT)</label>
+                        <label for="prodDesc" id="lblProdDesc">Descrição (PT)</label>
                         <textarea id="prodDesc" class="form-control" rows="2"></textarea>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="prodDescEn">Descrição (EN)</label>
+                            <label for="prodDescEn" id="lblProdDescEn">Descrição (EN)</label>
                             <textarea id="prodDescEn" class="form-control" rows="2"></textarea>
                         </div>
                         <div class="form-group">
-                            <label for="prodDescZh">Descrição (ZH)</label>
+                            <label for="prodDescZh" id="lblProdDescZh">Descrição (ZH)</label>
                             <textarea id="prodDescZh" class="form-control" rows="2"></textarea>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="prodImgUrl">URL da Imagem</label>
+                            <label for="prodImgUrl" id="lblProdImgUrl">URL da Imagem</label>
                             <input type="text" id="prodImgUrl" class="form-control" placeholder="https://...">
                         </div>
                         <div class="form-group">
-                            <label for="prodImgFile">Ou Upload de Foto (Firebase Storage)</label>
+                            <label for="prodImgFile" id="lblProdImgFile">Ou Upload de Foto (Firebase Storage)</label>
                             <input type="file" id="prodImgFile" accept="image/*" class="form-control">
                         </div>
                     </div>
                     <div class="form-group" style="display:flex; align-items:center; gap:8px;">
                         <input type="checkbox" id="prodAvailable" checked style="width:18px; height:18px;">
-                        <label for="prodAvailable" style="margin:0; cursor:pointer;">Produto Disponível para Venda</label>
+                        <label for="prodAvailable" id="lblProdAvailable" style="margin:0; cursor:pointer;">Produto Disponível para Venda</label>
                     </div>
 
                     <div style="display:flex; gap:10px; margin-bottom:20px;">
@@ -1040,11 +1032,11 @@
                             <i class="fa-solid fa-plus" id="btnSaveProductIcon"></i> <span id="btnSaveProductText">Cadastrar Produto</span>
                         </button>
                         <button class="cat-btn" id="btnCancelEdit" style="display:none;" onclick="cancelEditProduct()">
-                            <i class="fa-solid fa-xmark"></i> Cancelar Edição
+                            <i class="fa-solid fa-xmark"></i> <span id="btnCancelEditText">Cancelar Edição</span>
                         </button>
                     </div>
 
-                    <h4 style="margin-bottom:12px; font-size:1rem;">Produtos Cadastrados</h4>
+                    <h4 id="lblRegisteredProds" style="margin-bottom:12px; font-size:1rem;">Produtos Cadastrados</h4>
                     <div id="adminProductList" style="max-height:250px; overflow-y:auto;"></div>
                 </div>
 
@@ -1052,13 +1044,13 @@
                 <div id="tabImport" class="admin-tab-content" style="display:none;">
                     <div class="import-box">
                         <i class="fa-solid fa-file-pdf"></i>
-                        <h4>Importação Inteligente de Cardápio</h4>
-                        <p style="font-size:0.85rem; color:var(--text-muted); margin: 6px 0 15px;">
+                        <h4 id="importTitleText">Importação Inteligente de Cardápio</h4>
+                        <p id="importDescText" style="font-size:0.85rem; color:var(--text-muted); margin: 6px 0 15px;">
                             Faça o upload de uma <strong>Imagem</strong> ou <strong>PDF do seu Cardápio</strong>. Nosso leitor óptico extrairá os itens e preços automaticamente para o seu banco de dados.
                         </p>
 
                         <div class="form-group" style="max-width: 400px; margin: 0 auto;">
-                            <label for="importCategoryDefault">Categoria Padrão para os Itens Importados</label>
+                            <label for="importCategoryDefault" id="lblImportCategory">Categoria Padrão para os Itens Importados</label>
                             <input type="text" id="importCategoryDefault" class="form-control" value="Geral" placeholder="Ex: Bebidas, Refeições">
                         </div>
 
@@ -1066,7 +1058,7 @@
                             <input type="file" id="menuImportFile" accept="image/*,application/pdf" class="form-control">
                         </div>
 
-                        <button class="add-btn" style="margin: 15px auto 0; justify-content:center;" onclick="processMenuImport()">
+                        <button class="add-btn" id="btnProcessImport" style="margin: 15px auto 0; justify-content:center;" onclick="processMenuImport()">
                             <i class="fa-solid fa-wand-magic-sparkles"></i> Processar e Importar
                         </button>
 
@@ -1077,28 +1069,28 @@
                     </div>
 
                     <div id="importedPreviewArea" style="display:none;">
-                        <h4>Itens Detectados:</h4>
+                        <h4 id="importedDetectedText">Itens Detectados:</h4>
                         <div id="importedItemsList" style="max-height: 200px; overflow-y: auto; margin-top: 10px; background: #fff; padding: 10px; border: 1px solid #ddd; border-radius: 8px;"></div>
                     </div>
                 </div>
 
                 <!-- Tab 4: QR Code & Divulgação -->
                 <div id="tabQr" class="admin-tab-content" style="display:none; text-align:center;">
-                    <p style="font-size:0.9rem; color:var(--text-muted);">Aponte a câmera para acessar o cardápio digital:</p>
+                    <p id="qrScanNoticeText" style="font-size:0.9rem; color:var(--text-muted);">Aponte a câmera para acessar o cardápio digital:</p>
                     <div id="qrcodeContainer"></div>
                     <div class="form-group" style="max-width:400px; margin:0 auto 15px;">
                         <input type="text" id="qrUrlInput" class="form-control" readonly>
                     </div>
                     <div style="display:flex; justify-content:center; gap:10px;">
-                        <button class="cat-btn" onclick="copyStoreUrl()"><i class="fa-solid fa-copy"></i> Copiar Link</button>
-                        <button class="cat-btn active" onclick="printQrSheet()"><i class="fa-solid fa-print"></i> Imprimir Placa QR Code</button>
+                        <button class="cat-btn" onclick="copyStoreUrl()"><i class="fa-solid fa-copy"></i> <span id="btnCopyLinkText">Copiar Link</span></button>
+                        <button class="cat-btn active" onclick="printQrSheet()"><i class="fa-solid fa-print"></i> <span id="btnPrintQrText">Imprimir Placa QR Code</span></button>
                     </div>
                 </div>
             </div>
 
             <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
-                <button class="btn-danger-sm" onclick="logoutAdmin()"><i class="fa-solid fa-right-from-bracket"></i> Sair do Painel</button>
-                <button class="checkout-btn" style="width:auto; padding:8px 20px;" onclick="saveAdminSettings()">Salvar Alterações</button>
+                <button class="btn-danger-sm" onclick="logoutAdmin()"><i class="fa-solid fa-right-from-bracket"></i> <span id="btnExitPanelText">Sair do Painel</span></button>
+                <button class="checkout-btn" id="btnSaveSettings" style="width:auto; padding:8px 20px;" onclick="saveAdminSettings()">Salvar Alterações</button>
             </div>
         </div>
     </div>
@@ -1106,7 +1098,7 @@
     <!-- Printable QR Code Template -->
     <div id="printableArea">
         <h1 id="printStoreName" style="font-size:2.5rem; margin-bottom:10px;">Cardápio Virtual</h1>
-        <p style="font-size:1.2rem; color:#555; margin-bottom:30px;">Acesse nosso cardápio digital!</p>
+        <p id="printStoreSubText" style="font-size:1.2rem; color:#555; margin-bottom:30px;">Acesse nosso cardápio digital!</p>
         <div id="printQrCode"></div>
         <p id="printStoreUrl" style="font-size:1.1rem; margin-top:20px; font-weight:bold;"></p>
     </div>
@@ -1149,10 +1141,10 @@
         // Configurações Padrão de Fallback
         const defaultStoreConfig = {
             name: "Cardápio Virtual",
-            logo: "🦀",
+            logo: "crab",
             description: "Praia do Futuro - Fortaleza/CE | Desde 1987",
             descriptionEn: "Praia do Futuro - Fortaleza/CE | Since 1987",
-            descriptionZh: "未来海滩 - 福塔莱萨/CE | 始于 1987 年",
+            descriptionZh: "福塔莱萨/CE 福图罗海滩 | 始于 1987 年",
             whatsapp: "5585999999999",
             address: "Av. Clóvis Arrais Maia, 4930 - Praia do Futuro, Fortaleza - CE",
             hours: "10:00 - 22:00",
@@ -1163,10 +1155,9 @@
 
         const defaultProducts = [];
 
-        // Dicionário Multilíngue (UI Labels: PT, EN, ZH)
+        // Dicionário Multilíngue (UI Labels - PT, EN, ZH)
         const i18n = {
             pt: {
-                flag: "🇧🇷 PT",
                 searchPlaceholder: "Buscar no cardápio...",
                 all: "Todos",
                 totalCommand: "Total da Comanda",
@@ -1179,22 +1170,69 @@
                 add: "Adicionar",
                 popular: "Mais Pedido",
                 outOfStock: "Esgotado",
+                available: "Disponível",
                 lojistaMode: "Modo Lojista",
                 adminPanel: "Painel Lojista",
                 simulationNotice: "Modo Simulação: Apresente esta prévia de consumo ao garçom.",
                 orderSuccessMsg: "Pedido preparado! Redirecionando para o WhatsApp...",
                 simulationSuccessMsg: "Simulação de conta concluída com sucesso!",
-                noProductsFound: "Nenhum produto encontrado.",
-                translatingMsg: "Traduzindo conteúdo...",
-                emptyCartWarning: "Sua comanda está vazia!",
+                noProducts: "Nenhum produto encontrado.",
+                translating: "Traduzindo conteúdo...",
+                digitalMenu: "Cardápio Digital",
+                // Admin Labels
                 loginTitle: "Acesso Lojista",
                 loginDesc: "Entre com seu e-mail e senha do Firebase Authentication para gerenciar o estabelecimento.",
-                loginEmailLabel: "E-mail de Acesso",
-                loginPasswordLabel: "Senha",
-                loginSubmitBtn: "Entrar"
+                emailLabel: "E-mail de Acesso",
+                passwordLabel: "Senha",
+                enterBtn: "Entrar",
+                tabStore: "Estabelecimento",
+                tabCatalog: "Catálogo de Produtos",
+                tabImport: "Importar PDF/Imagem",
+                tabQr: "QR Code & Divulgação",
+                storeName: "Nome da Loja",
+                storeLogo: "Logo / Emoji",
+                shortDescPt: "Descrição Curta (PT)",
+                shortDescEn: "Descrição (EN)",
+                shortDescZh: "Descrição (ZH)",
+                whatsappLabel: "WhatsApp (com DDD)",
+                instagramLabel: "Instagram",
+                hoursLabel: "Horário de Funcionamento",
+                salesModeLabel: "Modo de Vendas",
+                salesDirect: "Venda Direta (Pedido via WhatsApp)",
+                salesSimulate: "Simulação de Conta (Prévia para Garçom)",
+                addressLabel: "Endereço Completo",
+                coverUrlLabel: "URL da Foto de Capa",
+                coverFileLabel: "Ou Upload de Capa (Firebase Storage)",
+                addNewProd: "Adicionar Novo Produto",
+                editProd: "Editar Produto",
+                prodNamePt: "Nome (Português)",
+                prodNameEn: "Nome (Inglês - Opcional)",
+                prodNameZh: "Nome (Chinês - Opcional)",
+                priceLabel: "Preço (R$)",
+                categoryLabel: "Categoria",
+                prodDescPt: "Descrição (PT)",
+                prodDescEn: "Descrição (EN)",
+                prodDescZh: "Descrição (ZH)",
+                imgUrlLabel: "URL da Imagem",
+                imgFileLabel: "Ou Upload de Foto (Firebase Storage)",
+                prodAvailableCheck: "Produto Disponível para Venda",
+                btnCreateProd: "Cadastrar Produto",
+                btnUpdateProd: "Atualizar Produto",
+                btnCancelEdit: "Cancelar Edição",
+                registeredProds: "Produtos Cadastrados",
+                importTitle: "Importação Inteligente de Cardápio",
+                importDesc: "Faça o upload de uma Imagem ou PDF do seu Cardápio. Nosso leitor óptico extrairá os itens e preços automaticamente.",
+                importCatLabel: "Categoria Padrão para os Itens Importados",
+                btnProcessImport: "Processar e Importar",
+                importedDetected: "Itens Detectados:",
+                qrNotice: "Aponte a câmera para acessar o cardápio digital:",
+                btnCopyLink: "Copiar Link",
+                btnPrintQr: "Imprimir Placa QR Code",
+                btnExitPanel: "Sair do Painel",
+                btnSaveSettings: "Salvar Alterações",
+                printSubText: "Acesse nosso cardápio digital!"
             },
             en: {
-                flag: "🇺🇸 EN",
                 searchPlaceholder: "Search menu...",
                 all: "All",
                 totalCommand: "Order Total",
@@ -1207,47 +1245,142 @@
                 add: "Add",
                 popular: "Best Seller",
                 outOfStock: "Out of Stock",
+                available: "Available",
                 lojistaMode: "Store Manager",
                 adminPanel: "Store Panel",
                 simulationNotice: "Simulation Mode: Present this bill preview to your waiter.",
                 orderSuccessMsg: "Order prepared! Redirecting to WhatsApp...",
                 simulationSuccessMsg: "Bill simulation completed successfully!",
-                noProductsFound: "No products found.",
-                translatingMsg: "Translating content...",
-                emptyCartWarning: "Your order is empty!",
+                noProducts: "No products found.",
+                translating: "Translating content...",
+                digitalMenu: "Digital Menu",
+                // Admin Labels
                 loginTitle: "Store Login",
                 loginDesc: "Enter your Firebase Authentication email and password to manage the store.",
-                loginEmailLabel: "Access Email",
-                loginPasswordLabel: "Password",
-                loginSubmitBtn: "Login"
+                emailLabel: "Access Email",
+                passwordLabel: "Password",
+                enterBtn: "Login",
+                tabStore: "Store Settings",
+                tabCatalog: "Product Catalog",
+                tabImport: "Import PDF/Image",
+                tabQr: "QR Code & Promotion",
+                storeName: "Store Name",
+                storeLogo: "Logo / Emoji",
+                shortDescPt: "Short Description (PT)",
+                shortDescEn: "Description (EN)",
+                shortDescZh: "Description (ZH)",
+                whatsappLabel: "WhatsApp (with Country Code)",
+                instagramLabel: "Instagram",
+                hoursLabel: "Opening Hours",
+                salesModeLabel: "Sales Mode",
+                salesDirect: "Direct Sale (Order via WhatsApp)",
+                salesSimulate: "Bill Simulation (Preview for Waiter)",
+                addressLabel: "Full Address",
+                coverUrlLabel: "Cover Photo URL",
+                coverFileLabel: "Or Upload Cover (Firebase Storage)",
+                addNewProd: "Add New Product",
+                editProd: "Edit Product",
+                prodNamePt: "Name (Portuguese)",
+                prodNameEn: "Name (English - Optional)",
+                prodNameZh: "Name (Chinese - Optional)",
+                priceLabel: "Price (R$)",
+                categoryLabel: "Category",
+                prodDescPt: "Description (PT)",
+                prodDescEn: "Description (EN)",
+                prodDescZh: "Description (ZH)",
+                imgUrlLabel: "Image URL",
+                imgFileLabel: "Or Upload Photo (Firebase Storage)",
+                prodAvailableCheck: "Product Available for Sale",
+                btnCreateProd: "Register Product",
+                btnUpdateProd: "Update Product",
+                btnCancelEdit: "Cancel Edit",
+                registeredProds: "Registered Products",
+                importTitle: "Smart Menu Import",
+                importDesc: "Upload an Image or PDF of your menu. Our OCR engine will automatically extract items and prices.",
+                importCatLabel: "Default Category for Imported Items",
+                btnProcessImport: "Process and Import",
+                importedDetected: "Detected Items:",
+                qrNotice: "Point the camera to access the digital menu:",
+                btnCopyLink: "Copy Link",
+                btnPrintQr: "Print QR Code Sign",
+                btnExitPanel: "Exit Panel",
+                btnSaveSettings: "Save Changes",
+                printSubText: "Access our digital menu!"
             },
             zh: {
-                flag: "🇨🇳 ZH",
                 searchPlaceholder: "搜索菜单...",
                 all: "全部",
                 totalCommand: "账单总计",
                 viewCart: "查看账单",
-                myCart: "您的订单",
-                cartEmpty: "您的订单是空的。",
+                myCart: "您的点餐",
+                cartEmpty: "您的点餐单是空的。",
                 total: "总计:",
                 checkoutWhatsApp: "发送订单 (WhatsApp)",
                 checkoutSimulate: "模拟账单",
                 add: "添加",
                 popular: "最受欢迎",
                 outOfStock: "已售罄",
+                available: "有货",
                 lojistaMode: "商家模式",
-                adminPanel: "管理面板",
-                simulationNotice: "模拟模式：请向服务员出示此账单预览。",
-                orderSuccessMsg: "订单已准备好！正在跳转到 WhatsApp...",
+                adminPanel: "商家管理",
+                simulationNotice: "模拟模式：请将此账单预览出示给服务员。",
+                orderSuccessMsg: "订单已准备好！正在跳转至 WhatsApp...",
                 simulationSuccessMsg: "账单模拟成功完成！",
-                noProductsFound: "未找到相关产品。",
-                translatingMsg: "正在翻译内容...",
-                emptyCartWarning: "您的订单是空的！",
+                noProducts: "未找到相关产品。",
+                translating: "正在翻译内容...",
+                digitalMenu: "电子菜单",
+                // Admin Labels
                 loginTitle: "商家登录",
-                loginDesc: "输入您的 Firebase 身份验证电子邮件和密码以管理店铺。",
-                loginEmailLabel: "登录邮箱",
-                loginPasswordLabel: "密码",
-                loginSubmitBtn: "登录"
+                loginDesc: "请输入您的 Firebase 认证邮箱和密码以管理店铺。",
+                emailLabel: "登录邮箱",
+                passwordLabel: "密码",
+                enterBtn: "登录",
+                tabStore: "店铺设置",
+                tabCatalog: "产品目录",
+                tabImport: "导入 PDF/图片",
+                tabQr: "二维码与推广",
+                storeName: "店铺名称",
+                storeLogo: "标志 / 表情符号",
+                shortDescPt: "简短描述 (PT)",
+                shortDescEn: "描述 (EN)",
+                shortDescZh: "描述 (ZH)",
+                whatsappLabel: "WhatsApp (含国家代码)",
+                instagramLabel: "Instagram",
+                hoursLabel: "营业时间",
+                salesModeLabel: "销售模式",
+                salesDirect: "直接销售 (通过 WhatsApp 下单)",
+                salesSimulate: "账单模拟 (服务员预览)",
+                addressLabel: "详细地址",
+                coverUrlLabel: "封面图片 URL",
+                coverFileLabel: "或上传封面 (Firebase Storage)",
+                addNewProd: "添加新产品",
+                editProd: "编辑产品",
+                prodNamePt: "名称 (葡萄牙语)",
+                prodNameEn: "名称 (英语 - 可选)",
+                prodNameZh: "名称 (中文 - 可选)",
+                priceLabel: "价格 (R$)",
+                categoryLabel: "类别",
+                prodDescPt: "描述 (PT)",
+                prodDescEn: "描述 (EN)",
+                prodDescZh: "描述 (ZH)",
+                imgUrlLabel: "图片 URL",
+                imgFileLabel: "或上传照片 (Firebase Storage)",
+                prodAvailableCheck: "产品可供销售",
+                btnCreateProd: "注册产品",
+                btnUpdateProd: "更新产品",
+                btnCancelEdit: "取消编辑",
+                registeredProds: "已注册产品",
+                importTitle: "智能菜单导入",
+                importDesc: "上传您的菜单图片或 PDF。我们的 OCR 引擎将自动提取项目和价格。",
+                importCatLabel: "导入项目的默认类别",
+                btnProcessImport: "处理并导入",
+                importedDetected: "检测到的项目:",
+                qrNotice: "扫描二维码以访问电子菜单：",
+                btnCopyLink: "复制链接",
+                btnPrintQr: "打印二维码标牌",
+                btnExitPanel: "退出面板",
+                btnSaveSettings: "保存更改",
+                printSubText: "访问我们的电子菜单！"
             }
         };
 
@@ -1280,22 +1413,6 @@
             };
         });
 
-        // Helper de Tradução via API Gratuita (MyMemory)
-        async function translateText(text, targetLang) {
-            if (!text || text.trim() === '') return '';
-            try {
-                const langPair = targetLang === 'en' ? 'pt|en' : 'pt|zh-CN';
-                const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langPair}`);
-                const data = await res.json();
-                if (data.responseData && data.responseData.translatedText) {
-                    return data.responseData.translatedText;
-                }
-            } catch (e) {
-                console.error("Erro ao traduzir via API:", e);
-            }
-            return text;
-        }
-
         // 1. Escutador de Autenticação
         function initAuthListener() {
             onAuthStateChanged(auth, (user) => {
@@ -1319,6 +1436,7 @@
                 }
                 renderHeader();
                 updateCartUI();
+                updateStaticUILabels();
             }, (error) => {
                 showToast("Erro ao carregar configurações: " + error.message);
             });
@@ -1349,23 +1467,20 @@
             return await getDownloadURL(snapshot.ref);
         }
 
-        // Obter propriedade multilíngue com fallback inteligente
-        function getI18nProp(item, propName) {
-            if (!item) return '';
-            if (currentLang === 'pt') return item[propName] || '';
-            if (currentLang === 'en') return item[`${propName}En`] || item[propName] || '';
-            if (currentLang === 'zh') return item[`${propName}Zh`] || item[propName] || '';
-            return item[propName] || '';
+        function getLocalizedText(item, field) {
+            if (currentLang === 'en') {
+                return item[field + 'En'] || item[field];
+            } else if (currentLang === 'zh') {
+                return item[field + 'Zh'] || item[field + 'En'] || item[field];
+            }
+            return item[field];
         }
 
         function renderHeader() {
-            document.getElementById("pageTitle").innerText = `${storeConfig.name} - ${currentLang === 'pt' ? 'Cardápio Digital' : (currentLang === 'en' ? 'Digital Menu' : '电子菜单')}`;
-            document.getElementById("storeLogo").innerText = storeConfig.logo || "🦀";
+            document.getElementById("pageTitle").innerText = `${storeConfig.name} - ${i18n[currentLang].digitalMenu}`;
+            document.getElementById("storeLogo").innerText = storeConfig.logo || "crab";
             document.getElementById("storeNameDisplay").innerText = storeConfig.name;
-            
-            const storeDesc = getI18nProp(storeConfig, 'description');
-            document.getElementById("storeDescDisplay").innerText = storeDesc || storeConfig.description;
-            
+            document.getElementById("storeDescDisplay").innerText = getLocalizedText(storeConfig, 'description');
             document.getElementById("storeHoursDisplay").innerHTML = `<i class="fa-regular fa-clock"></i> ${storeConfig.hours}`;
             document.getElementById("storeInstaDisplay").innerHTML = `<i class="fa-brands fa-instagram"></i> ${storeConfig.instagram}`;
             
@@ -1374,20 +1489,10 @@
             }
 
             document.getElementById("searchInput").placeholder = i18n[currentLang].searchPlaceholder;
-            
-            // Textos dinâmicos da modal de login
-            document.getElementById("lblLoginTitle").innerText = i18n[currentLang].loginTitle;
-            document.getElementById("lblLoginDesc").innerText = i18n[currentLang].loginDesc;
-            document.getElementById("lblLoginEmail").innerText = i18n[currentLang].loginEmailLabel;
-            document.getElementById("lblLoginPassword").innerText = i18n[currentLang].loginPasswordLabel;
-            document.getElementById("btnLoginSubmit").innerText = i18n[currentLang].loginSubmitBtn;
-
-            const lojistaBtnText = document.getElementById("lojistaBtnText");
-            lojistaBtnText.innerText = isAuthenticated ? i18n[currentLang].adminPanel : i18n[currentLang].lojistaMode;
         }
 
         function renderCategories() {
-            const rawCategories = [...new Set(products.map(p => getI18nProp(p, 'category')))];
+            const rawCategories = [...new Set(products.map(p => getLocalizedText(p, 'category')))];
             const categories = [i18n[currentLang].all, ...rawCategories];
             
             const container = document.getElementById("categoryContainer");
@@ -1399,8 +1504,7 @@
         }
 
         function selectCategory(category) {
-            const isAll = (category === i18n['pt'].all || category === i18n['en'].all || category === i18n['zh'].all);
-            currentCategory = isAll ? "Todos" : category;
+            currentCategory = (category === i18n['pt'].all || category === i18n['en'].all || category === i18n['zh'].all) ? "Todos" : category;
             renderCategories();
             renderProducts();
         }
@@ -1410,9 +1514,9 @@
             const searchVal = document.getElementById("searchInput").value.toLowerCase();
 
             const filteredProducts = products.filter(p => {
-                const name = getI18nProp(p, 'name');
-                const desc = getI18nProp(p, 'description');
-                const category = getI18nProp(p, 'category');
+                const name = getLocalizedText(p, 'name');
+                const desc = getLocalizedText(p, 'description');
+                const category = getLocalizedText(p, 'category');
 
                 const matchesCat = currentCategory === "Todos" || category === currentCategory;
                 const matchesSearch = name.toLowerCase().includes(searchVal) || desc.toLowerCase().includes(searchVal);
@@ -1420,22 +1524,22 @@
             });
 
             if (filteredProducts.length === 0) {
-                container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted);">${i18n[currentLang].noProductsFound}</div>`;
+                container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted);">${i18n[currentLang].noProducts}</div>`;
                 return;
             }
 
             const categoriesToDisplay = currentCategory === "Todos" 
-                ? [...new Set(filteredProducts.map(p => getI18nProp(p, 'category')))] 
+                ? [...new Set(filteredProducts.map(p => getLocalizedText(p, 'category')))] 
                 : [currentCategory];
 
             container.innerHTML = categoriesToDisplay.map(cat => {
-                const catItems = filteredProducts.filter(p => getI18nProp(p, 'category') === cat);
+                const catItems = filteredProducts.filter(p => getLocalizedText(p, 'category') === cat);
                 return `
                     <div class="section-title"><i class="fa-solid fa-utensils"></i> ${cat}</div>
                     <div class="product-grid">
                         ${catItems.map(p => {
-                            const name = getI18nProp(p, 'name');
-                            const desc = getI18nProp(p, 'description');
+                            const name = getLocalizedText(p, 'name');
+                            const desc = getLocalizedText(p, 'description');
                             const isAvailable = p.available !== false;
                             
                             return `
@@ -1464,44 +1568,50 @@
             renderProducts();
         }
 
-        // Alternador de Idiomas de 3 estados (PT -> EN -> ZH -> PT)
         async function toggleLanguage() {
             if (currentLang === 'pt') {
                 currentLang = 'en';
+                document.getElementById('langDisplay').innerText = '🇺🇸 EN';
             } else if (currentLang === 'en') {
                 currentLang = 'zh';
+                document.getElementById('langDisplay').innerText = '🇨🇳 ZH';
             } else {
                 currentLang = 'pt';
+                document.getElementById('langDisplay').innerText = '🇧🇷 PT';
             }
-
-            document.getElementById('langDisplay').innerText = i18n[currentLang].flag;
-
-            // Se mudou para Inglês ou Chinês, realiza auto-tradução de itens pendentes
+            
             if (currentLang === 'en' || currentLang === 'zh') {
-                const targetSuffix = currentLang === 'en' ? 'En' : 'Zh';
-                let needsTranslation = products.some(p => !p[`name${targetSuffix}`] || !p[`category${targetSuffix}`]);
+                showToast(i18n[currentLang].translating);
+                const targetPair = currentLang === 'en' ? 'pt|en' : 'pt|zh';
                 
-                if (needsTranslation) {
-                    showToast(i18n[currentLang].translatingMsg);
-                    for (let p of products) {
-                        const updateData = {};
-                        if (!p[`name${targetSuffix}`]) {
-                            updateData[`name${targetSuffix}`] = await translateText(p.name, currentLang);
-                        }
-                        if (!p[`description${targetSuffix}`]) {
-                            updateData[`description${targetSuffix}`] = await translateText(p.description, currentLang);
-                        }
-                        if (!p[`category${targetSuffix}`]) {
-                            updateData[`category${targetSuffix}`] = await translateText(p.category, currentLang);
-                        }
+                for (let p of products) {
+                    const nameKey = currentLang === 'en' ? 'nameEn' : 'nameZh';
+                    const descKey = currentLang === 'en' ? 'descriptionEn' : 'descriptionZh';
 
-                        if (Object.keys(updateData).length > 0) {
-                            try {
-                                await updateDoc(doc(db, "products", p.id), updateData);
-                            } catch(e) {
-                                console.error("Erro ao salvar tradução:", e);
+                    let updates = {};
+
+                    if (!p[nameKey] || p[nameKey] === p.name) {
+                        try {
+                            const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(p.name)}&langpair=${targetPair}`);
+                            const data = await res.json();
+                            if (data.responseData?.translatedText) {
+                                updates[nameKey] = data.responseData.translatedText;
                             }
-                        }
+                        } catch(e) {}
+                    }
+
+                    if (p.description && (!p[descKey] || p[descKey] === p.description)) {
+                        try {
+                            const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(p.description)}&langpair=${targetPair}`);
+                            const data = await res.json();
+                            if (data.responseData?.translatedText) {
+                                updates[descKey] = data.responseData.translatedText;
+                            }
+                        } catch(e) {}
+                    }
+
+                    if (Object.keys(updates).length > 0) {
+                        await updateDoc(doc(db, "products", p.id), updates);
                     }
                 }
             }
@@ -1510,6 +1620,88 @@
             renderCategories();
             renderProducts();
             updateCartUI();
+            updateStaticUILabels();
+        }
+
+        function updateStaticUILabels() {
+            const l = i18n[currentLang];
+            const lojistaBtnText = document.getElementById("lojistaBtnText");
+            if (auth.currentUser) {
+                lojistaBtnText.innerText = l.adminPanel;
+            } else {
+                lojistaBtnText.innerText = l.lojistaMode;
+            }
+
+            // Pin Modal
+            document.getElementById("loginTitleText").innerText = l.loginTitle;
+            document.getElementById("loginDescText").innerText = l.loginDesc;
+            document.getElementById("lblLoginEmail").innerText = l.emailLabel;
+            document.getElementById("lblLoginPassword").innerText = l.passwordLabel;
+            document.getElementById("btnLoginSubmit").innerText = l.enterBtn;
+
+            // Admin Modal & Tabs
+            document.getElementById("adminTitleText").innerText = l.adminPanel;
+            document.getElementById("tabConfigBtn").innerHTML = `<i class="fa-solid fa-store"></i> ${l.tabStore}`;
+            document.getElementById("tabCatalogBtn").innerHTML = `<i class="fa-solid fa-utensils"></i> ${l.tabCatalog}`;
+            document.getElementById("tabImportBtn").innerHTML = `<i class="fa-solid fa-file-import"></i> ${l.tabImport}`;
+            document.getElementById("tabQrBtn").innerHTML = `<i class="fa-solid fa-qrcode"></i> ${l.tabQr}`;
+
+            // Tab Config
+            document.getElementById("lblCfgStoreName").innerText = l.storeName;
+            document.getElementById("lblCfgLogo").innerText = l.storeLogo;
+            document.getElementById("lblCfgDesc").innerText = l.shortDescPt;
+            document.getElementById("lblCfgDescEn").innerText = l.shortDescEn;
+            document.getElementById("lblCfgDescZh").innerText = l.shortDescZh;
+            document.getElementById("lblCfgWhatsapp").innerText = l.whatsappLabel;
+            document.getElementById("lblCfgInstagram").innerText = l.instagramLabel;
+            document.getElementById("lblCfgHours").innerText = l.hoursLabel;
+            document.getElementById("lblCfgSalesMode").innerText = l.salesModeLabel;
+            document.getElementById("optSalesDirect").innerText = l.salesDirect;
+            document.getElementById("optSalesSimulate").innerText = l.salesSimulate;
+            document.getElementById("lblCfgAddress").innerText = l.addressLabel;
+            document.getElementById("lblCfgCoverUrl").innerText = l.coverUrlLabel;
+            document.getElementById("lblCfgCoverFile").innerText = l.coverFileLabel;
+
+            // Tab Catalog
+            if (!editingProductId) {
+                document.getElementById("catalogFormTitle").innerText = l.addNewProd;
+                document.getElementById("btnSaveProductText").innerText = l.btnCreateProd;
+            } else {
+                document.getElementById("catalogFormTitle").innerText = l.editProd;
+                document.getElementById("btnSaveProductText").innerText = l.btnUpdateProd;
+            }
+            document.getElementById("lblProdNamePt").innerText = l.prodNamePt;
+            document.getElementById("lblProdNameEn").innerText = l.prodNameEn;
+            document.getElementById("lblProdNameZh").innerText = l.prodNameZh;
+            document.getElementById("lblProdPrice").innerText = l.priceLabel;
+            document.getElementById("lblProdCategory").innerText = l.categoryLabel;
+            document.getElementById("lblProdDesc").innerText = l.prodDescPt;
+            document.getElementById("lblProdDescEn").innerText = l.prodDescEn;
+            document.getElementById("lblProdDescZh").innerText = l.prodDescZh;
+            document.getElementById("lblProdImgUrl").innerText = l.imgUrlLabel;
+            document.getElementById("lblProdImgFile").innerText = l.imgFileLabel;
+            document.getElementById("lblProdAvailable").innerText = l.prodAvailableCheck;
+            document.getElementById("btnCancelEditText").innerText = l.btnCancelEdit;
+            document.getElementById("lblRegisteredProds").innerText = l.registeredProds;
+
+            // Tab Import
+            document.getElementById("importTitleText").innerText = l.importTitle;
+            document.getElementById("importDescText").innerText = l.importDesc;
+            document.getElementById("lblImportCategory").innerText = l.importCatLabel;
+            document.getElementById("btnProcessImport").innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> ${l.btnProcessImport}`;
+            document.getElementById("importedDetectedText").innerText = l.importedDetected;
+
+            // Tab QR Code
+            document.getElementById("qrScanNoticeText").innerText = l.qrNotice;
+            document.getElementById("btnCopyLinkText").innerText = l.btnCopyLink;
+            document.getElementById("btnPrintQrText").innerText = l.btnPrintQr;
+
+            // Modal Footer
+            document.getElementById("btnExitPanelText").innerText = l.btnExitPanel;
+            document.getElementById("btnSaveSettings").innerText = l.btnSaveSettings;
+
+            // Printable Area
+            document.getElementById("printStoreSubText").innerText = l.printSubText;
         }
 
         function addToCart(productId) {
@@ -1524,9 +1716,8 @@
             }
 
             updateCartUI();
-            const prodName = getI18nProp(product, 'name');
-            const addedText = currentLang === 'pt' ? 'adicionado!' : (currentLang === 'en' ? 'added!' : '已添加！');
-            showToast(`${prodName} ${addedText}`);
+            const localizedName = getLocalizedText(product, 'name');
+            showToast(`${localizedName} ${currentLang === 'pt' ? 'adicionado!' : (currentLang === 'en' ? 'added!' : '已添加！')}`);
         }
 
         function changeQty(productId, delta) {
@@ -1570,7 +1761,7 @@
                 cartContainer.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:30px 0;">${i18n[currentLang].cartEmpty}</p>`;
             } else {
                 cartContainer.innerHTML = cart.map(item => {
-                    const name = getI18nProp(item, 'name');
+                    const name = getLocalizedText(item, 'name');
                     return `
                         <div class="cart-item">
                             <div>
@@ -1602,24 +1793,24 @@
 
         function sendOrder() {
             if (cart.length === 0) {
-                showToast(i18n[currentLang].emptyCartWarning);
+                showToast(i18n[currentLang].cartEmpty);
                 return;
             }
 
             const total = cart.reduce((acc, item) => acc + (parseFloat(item.price) * item.qty), 0);
 
             if (storeConfig.salesMode === "simulation") {
-                alert(`${i18n[currentLang].simulationSuccessMsg}\n\n${i18n[currentLang].total} ${formatCurrency(total)}`);
+                alert(`${i18n[currentLang].simulationSuccessMsg}\n\nTotal: ${formatCurrency(total)}`);
                 cart = [];
                 updateCartUI();
                 toggleCartModal(false);
             } else {
-                let msg = `*${i18n[currentLang].myCart} - ${storeConfig.name}*\n\n`;
+                let msg = `*Novo Pedido - ${storeConfig.name}*\n\n`;
                 cart.forEach(item => {
-                    const itemName = getI18nProp(item, 'name');
-                    msg += `• ${item.qty}x ${itemName} - ${formatCurrency(parseFloat(item.price) * item.qty)}\n`;
+                    const localizedName = getLocalizedText(item, 'name');
+                    msg += `• ${item.qty}x ${localizedName} - ${formatCurrency(parseFloat(item.price) * item.qty)}\n`;
                 });
-                msg += `\n*${i18n[currentLang].total} ${formatCurrency(total)}*`;
+                msg += `\n*Total: ${formatCurrency(total)}*`;
 
                 const phone = storeConfig.whatsapp.replace(/\D/g, '');
                 window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
@@ -1688,6 +1879,7 @@
             resetProductForm();
             renderAdminProductList();
             generateQRCode();
+            updateStaticUILabels();
             toggleModal("adminModal", true);
         }
 
@@ -1704,18 +1896,16 @@
             const nameEn = document.getElementById("prodNameEn").value.trim();
             const nameZh = document.getElementById("prodNameZh").value.trim();
             const price = parseFloat(document.getElementById("prodPrice").value);
-            const categoryPt = document.getElementById("prodCategory").value.trim();
-            const categoryEn = document.getElementById("prodCategoryEn").value.trim();
-            const categoryZh = document.getElementById("prodCategoryZh").value.trim();
-            const descPt = document.getElementById("prodDesc").value.trim();
+            const category = document.getElementById("prodCategory").value.trim();
+            const desc = document.getElementById("prodDesc").value.trim();
             const descEn = document.getElementById("prodDescEn").value.trim();
             const descZh = document.getElementById("prodDescZh").value.trim();
             const urlImg = document.getElementById("prodImgUrl").value.trim();
             const available = document.getElementById("prodAvailable").checked;
             const fileInput = document.getElementById("prodImgFile");
 
-            if (!namePt || isNaN(price) || !categoryPt) {
-                showToast("Preencha Nome, Preço e Categoria (PT)!");
+            if (!namePt || isNaN(price) || !category) {
+                showToast("Preencha Nome, Preço e Categoria!");
                 return;
             }
 
@@ -1734,14 +1924,14 @@
             const productData = {
                 name: namePt,
                 nameEn: nameEn || namePt,
-                nameZh: nameZh || namePt,
+                nameZh: nameZh || nameEn || namePt,
                 price: price,
-                category: categoryPt,
-                categoryEn: categoryEn || categoryPt,
-                categoryZh: categoryZh || categoryPt,
-                description: descPt,
-                descriptionEn: descEn || descPt,
-                descriptionZh: descZh || descPt,
+                category: category,
+                categoryEn: category,
+                categoryZh: category,
+                description: desc,
+                descriptionEn: descEn || desc,
+                descriptionZh: descZh || descEn || desc,
                 available: available,
                 image: imageUrl || ""
             };
@@ -1767,14 +1957,12 @@
             if (!prod) return;
 
             editingProductId = id;
-            document.getElementById("catalogFormTitle").innerText = "Editar Produto";
+            document.getElementById("catalogFormTitle").innerText = i18n[currentLang].editProd;
             document.getElementById("prodNamePt").value = prod.name || "";
             document.getElementById("prodNameEn").value = prod.nameEn || "";
             document.getElementById("prodNameZh").value = prod.nameZh || "";
             document.getElementById("prodPrice").value = prod.price || "";
             document.getElementById("prodCategory").value = prod.category || "";
-            document.getElementById("prodCategoryEn").value = prod.categoryEn || "";
-            document.getElementById("prodCategoryZh").value = prod.categoryZh || "";
             document.getElementById("prodDesc").value = prod.description || "";
             document.getElementById("prodDescEn").value = prod.descriptionEn || "";
             document.getElementById("prodDescZh").value = prod.descriptionZh || "";
@@ -1782,7 +1970,7 @@
             document.getElementById("prodAvailable").checked = prod.available !== false;
             document.getElementById("prodImgFile").value = "";
 
-            document.getElementById("btnSaveProductText").innerText = "Atualizar Produto";
+            document.getElementById("btnSaveProductText").innerText = i18n[currentLang].btnUpdateProd;
             document.getElementById("btnSaveProductIcon").className = "fa-solid fa-check";
             document.getElementById("btnCancelEdit").style.display = "inline-flex";
 
@@ -1791,14 +1979,12 @@
 
         function resetProductForm() {
             editingProductId = null;
-            document.getElementById("catalogFormTitle").innerText = "Adicionar Novo Produto";
+            document.getElementById("catalogFormTitle").innerText = i18n[currentLang].addNewProd;
             document.getElementById("prodNamePt").value = "";
             document.getElementById("prodNameEn").value = "";
             document.getElementById("prodNameZh").value = "";
             document.getElementById("prodPrice").value = "";
             document.getElementById("prodCategory").value = "";
-            document.getElementById("prodCategoryEn").value = "";
-            document.getElementById("prodCategoryZh").value = "";
             document.getElementById("prodDesc").value = "";
             document.getElementById("prodDescEn").value = "";
             document.getElementById("prodDescZh").value = "";
@@ -1806,7 +1992,7 @@
             document.getElementById("prodImgFile").value = "";
             document.getElementById("prodAvailable").checked = true;
 
-            document.getElementById("btnSaveProductText").innerText = "Cadastrar Produto";
+            document.getElementById("btnSaveProductText").innerText = i18n[currentLang].btnCreateProd;
             document.getElementById("btnSaveProductIcon").className = "fa-solid fa-plus";
             document.getElementById("btnCancelEdit").style.display = "none";
         }
@@ -1840,15 +2026,17 @@
             const container = document.getElementById("adminProductList");
             container.innerHTML = products.map(p => {
                 const isAvail = p.available !== false;
+                const localizedName = getLocalizedText(p, 'name');
+                const localizedCategory = getLocalizedText(p, 'category');
                 return `
                     <div class="admin-product-item">
                         <div class="admin-product-info">
-                            <h4>${p.name}</h4>
-                            <span>${formatCurrency(p.price)} | ${p.category}</span>
+                            <h4>${localizedName}</h4>
+                            <span>${formatCurrency(p.price)} | ${localizedCategory}</span>
                         </div>
                         <div style="display:flex; gap:6px;">
                             <button class="btn-toggle-sm ${isAvail ? 'available' : ''}" onclick="toggleProductAvailability('${p.id}', ${isAvail})">
-                                ${isAvail ? 'Disponível' : 'Esgotado'}
+                                ${isAvail ? i18n[currentLang].available : i18n[currentLang].outOfStock}
                             </button>
                             <button class="btn-edit-sm" onclick="editProduct('${p.id}')"><i class="fa-solid fa-pen"></i></button>
                             <button class="btn-danger-sm" onclick="deleteProduct('${p.id}')"><i class="fa-solid fa-trash"></i></button>
@@ -1914,7 +2102,7 @@
                                 categoryZh: categoryDefault,
                                 description: "Importado via cardápio",
                                 descriptionEn: "Imported via menu file",
-                                descriptionZh: "通过菜单导入",
+                                descriptionZh: "通过菜单文件导入",
                                 available: true,
                                 image: "",
                                 favorite: false,
@@ -2050,4 +2238,3 @@
     </script>
 </body>
 </html>
-
