@@ -213,7 +213,30 @@
             border-bottom: 2px solid var(--primary);
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: space-between;
+        }
+
+        .subcategories-container {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .subcat-btn {
+            background: #e2e8f0;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: pointer;
+        }
+
+        .subcat-btn.active {
+            background: var(--secondary);
+            color: white;
         }
 
         .product-grid {
@@ -864,7 +887,7 @@
         </div>
     </div>
 
-    <!-- Login Access Modal (Firebase Auth) -->
+    <!-- Login Access Modal -->
     <div class="modal modal-center" id="pinModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -994,8 +1017,12 @@
                             <input type="number" step="0.01" id="prodPrice" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for="prodCategory" id="lblProdCategory">Categoria</label>
-                            <input type="text" id="prodCategory" class="form-control" placeholder="Ex: Entradas">
+                            <label for="prodCategory" id="lblProdCategory">Categoria Principal</label>
+                            <input type="text" id="prodCategory" class="form-control" placeholder="Ex: Bebidas">
+                        </div>
+                        <div class="form-group">
+                            <label for="prodSubCategory" id="lblProdSubCategory">Subcategoria / Seção (Opcional)</label>
+                            <input type="text" id="prodSubCategory" class="form-control" placeholder="Ex: Drinks, Sucos">
                         </div>
                     </div>
                     <div class="form-group">
@@ -1036,7 +1063,12 @@
                         </button>
                     </div>
 
-                    <h4 id="lblRegisteredProds" style="margin-bottom:12px; font-size:1rem;">Produtos Cadastrados</h4>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <h4 id="lblRegisteredProds" style="font-size:1.0rem; margin:0;">Produtos Cadastrados</h4>
+                        <div style="width: 250px;">
+                            <input type="text" id="adminSearchInput" class="form-control" placeholder="Buscar para editar..." oninput="filterAdminProducts()" style="padding: 6px 10px; font-size: 0.8rem;">
+                        </div>
+                    </div>
                     <div id="adminProductList" style="max-height:250px; overflow-y:auto;"></div>
                 </div>
 
@@ -1046,7 +1078,7 @@
                         <i class="fa-solid fa-file-pdf"></i>
                         <h4 id="importTitleText">Importação Inteligente de Cardápio</h4>
                         <p id="importDescText" style="font-size:0.85rem; color:var(--text-muted); margin: 6px 0 15px;">
-                            Faça o upload de uma <strong>Imagem</strong> ou <strong>PDF do seu Cardápio</strong>. Nosso leitor óptico extrairá os itens e preços automaticamente para o seu banco de dados.
+                            Faça o upload de uma <strong>Imagem</strong> ou <strong>PDF do seu Cardápio</strong>. Nosso leitor óptico extrairá os itens e preços automaticamente.
                         </p>
 
                         <div class="form-group" style="max-width: 400px; margin: 0 auto;">
@@ -1104,1137 +1136,1270 @@
     </div>
 
     <!-- Toast Notification Container -->
-    <div class="toast-container" id="toastContainer"></div>
-
-    <!-- Application Script (Firebase Web SDK v10 Modular) -->
+    <div class="toast-container" id="toastContainer"></div
+    <!-- Firebase App (Modular SDK v10) & Main Logic Script -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { 
-            getFirestore, doc, collection, onSnapshot, setDoc, addDoc, updateDoc, deleteDoc, serverTimestamp 
-        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-        import { 
-            getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged 
-        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import { 
-            getStorage, ref, uploadBytes, getDownloadURL 
-        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
-        // Configuração do Firebase
+        // Substitua abaixo pelas suas credenciais reais do projeto Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyDrgTKjb5oow4K1B1lcO-7LtOCzoZj3iBI",
-            authDomain: "cardvirtual-11e1b.firebaseapp.com",
-            projectId: "cardvirtual-11e1b",
-            storageBucket: "cardvirtual-11e1b.firebasestorage.app",
-            messagingSenderId: "794498957123",
-            appId: "1:794498957123:web:9324afeffcdea6f817f9f6"
+            apiKey: "SUA_API_KEY",
+            authDomain: "SEU_AUTH_DOMAIN",
+            projectId: "SEU_PROJECT_ID",
+            storageBucket: "SEU_STORAGE_BUCKET",
+            messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+            appId: "SEU_APP_ID"
         };
 
-        // Inicialização do Firebase
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
         const auth = getAuth(app);
+        const db = getFirestore(app);
         const storage = getStorage(app);
 
-        // Helper de formatação monetária
-        const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
-
-        // Configurações Padrão de Fallback
-        const defaultStoreConfig = {
+        // Global App State
+        window.storeSettings = {
             name: "Cardápio Virtual",
-            logo: "crab",
-            description: "Praia do Futuro - Fortaleza/CE | Desde 1987",
+            logo: "🦀",
+            descriptionPt: "Praia do Futuro - Fortaleza/CE | Desde 1987",
             descriptionEn: "Praia do Futuro - Fortaleza/CE | Since 1987",
-            descriptionZh: "福塔莱萨/CE 福图罗海滩 | 始于 1987 年",
+            descriptionZh: "福塔雷萨未来海滩 | 始于 1987 年",
             whatsapp: "5585999999999",
-            address: "Av. Clóvis Arrais Maia, 4930 - Praia do Futuro, Fortaleza - CE",
-            hours: "10:00 - 22:00",
             instagram: "@cardapiovirtual",
-            coverUrl: "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1200&q=80",
+            hours: "10:00 - 22:00",
+            address: "Av. Clóvis Arrais Maia, 5500 - Praia do Futuro",
+            coverUrl: "",
             salesMode: "direct"
         };
 
-        const defaultProducts = [];
+        window.productsList = [];
+        window.cart = [];
+        window.currentCategory = 'all';
+        window.currentSubCategory = 'all';
+        window.currentLangIndex = 0;
+        window.languages = [
+            { code: 'pt', label: '🇧🇷 PT', name: 'Português' },
+            { code: 'en', label: '🇺🇸 EN', name: 'English' },
+            { code: 'zh', label: '🇨🇳 ZH', name: '中文' },
+            { code: 'fr', label: '🇫🇷 FR', name: 'Français' },
+            { code: 'it', label: '🇮🇹 IT', name: 'Italiano' },
+            { code: 'de', label: '🇩🇪 DE', name: 'Deutsch' },
+            { code: 'ja', label: '🇯🇵 JA', name: '日本語' },
+            { code: 'ko', label: '🇰🇷 KO', name: '한국어' }
+        ];
 
-        // Dicionário Multilíngue (UI Labels - PT, EN, ZH)
-        const i18n = {
+        window.editingProductId = null;
+        window.currentUser = null;
+
+        // Extended Multi-language Dictionary for Full UI
+        const translations = {
             pt: {
                 searchPlaceholder: "Buscar no cardápio...",
-                all: "Todos",
-                totalCommand: "Total da Comanda",
-                viewCart: "Ver Comanda",
-                myCart: "Sua Comanda",
-                cartEmpty: "Sua comanda está vazia.",
-                total: "Total:",
-                checkoutWhatsApp: "Finalizar Pedido (WhatsApp)",
-                checkoutSimulate: "Simular Conta",
-                add: "Adicionar",
-                popular: "Mais Pedido",
-                outOfStock: "Esgotado",
-                available: "Disponível",
-                lojistaMode: "Modo Lojista",
-                adminPanel: "Painel Lojista",
-                simulationNotice: "Modo Simulação: Apresente esta prévia de consumo ao garçom.",
-                orderSuccessMsg: "Pedido preparado! Redirecionando para o WhatsApp...",
-                simulationSuccessMsg: "Simulação de conta concluída com sucesso!",
-                noProducts: "Nenhum produto encontrado.",
-                translating: "Traduzindo conteúdo...",
-                digitalMenu: "Cardápio Digital",
-                // Admin Labels
-                loginTitle: "Acesso Lojista",
-                loginDesc: "Entre com seu e-mail e senha do Firebase Authentication para gerenciar o estabelecimento.",
-                emailLabel: "E-mail de Acesso",
-                passwordLabel: "Senha",
-                enterBtn: "Entrar",
-                tabStore: "Estabelecimento",
-                tabCatalog: "Catálogo de Produtos",
-                tabImport: "Importar PDF/Imagem",
-                tabQr: "QR Code & Divulgação",
-                storeName: "Nome da Loja",
-                storeLogo: "Logo / Emoji",
-                shortDescPt: "Descrição Curta (PT)",
-                shortDescEn: "Descrição (EN)",
-                shortDescZh: "Descrição (ZH)",
-                whatsappLabel: "WhatsApp (com DDD)",
-                instagramLabel: "Instagram",
-                hoursLabel: "Horário de Funcionamento",
-                salesModeLabel: "Modo de Vendas",
-                salesDirect: "Venda Direta (Pedido via WhatsApp)",
-                salesSimulate: "Simulação de Conta (Prévia para Garçom)",
-                addressLabel: "Endereço Completo",
-                coverUrlLabel: "URL da Foto de Capa",
-                coverFileLabel: "Ou Upload de Capa (Firebase Storage)",
-                addNewProd: "Adicionar Novo Produto",
-                editProd: "Editar Produto",
-                prodNamePt: "Nome (Português)",
-                prodNameEn: "Nome (Inglês - Opcional)",
-                prodNameZh: "Nome (Chinês - Opcional)",
-                priceLabel: "Preço (R$)",
-                categoryLabel: "Categoria",
-                prodDescPt: "Descrição (PT)",
-                prodDescEn: "Descrição (EN)",
-                prodDescZh: "Descrição (ZH)",
-                imgUrlLabel: "URL da Imagem",
-                imgFileLabel: "Ou Upload de Foto (Firebase Storage)",
-                prodAvailableCheck: "Produto Disponível para Venda",
-                btnCreateProd: "Cadastrar Produto",
-                btnUpdateProd: "Atualizar Produto",
-                btnCancelEdit: "Cancelar Edição",
-                registeredProds: "Produtos Cadastrados",
-                importTitle: "Importação Inteligente de Cardápio",
-                importDesc: "Faça o upload de uma Imagem ou PDF do seu Cardápio. Nosso leitor óptico extrairá os itens e preços automaticamente.",
-                importCatLabel: "Categoria Padrão para os Itens Importados",
+                cartLabelTotal: "Total da Comanda",
+                viewCartBtn: "Ver Comanda",
+                modalCartTitle: "Sua Comanda",
+                modalCartTotalLabel: "Total:",
+                checkoutBtn: "Finalizar Pedido",
+                loginTitleText: "Acesso Lojista",
+                loginDescText: "Entre com seu e-mail e senha do Firebase Authentication para gerenciar o estabelecimento.",
+                lblLoginEmail: "E-mail de Acesso",
+                lblLoginPassword: "Senha",
+                btnLoginSubmit: "Entrar",
+                adminTitleText: "Painel do Lojista",
+                tabConfigBtn: "Estabelecimento",
+                tabCatalogBtn: "Catálogo de Produtos",
+                tabImportBtn: "Importar PDF/Imagem",
+                tabQrBtn: "QR Code & Divulgação",
+                lblCfgStoreName: "Nome da Loja",
+                lblCfgLogo: "Logo / Emoji",
+                lblCfgDesc: "Descrição Curta (PT)",
+                lblCfgDescEn: "Descrição (EN)",
+                lblCfgDescZh: "Descrição (ZH)",
+                lblCfgWhatsapp: "WhatsApp (com DDD)",
+                lblCfgInstagram: "Instagram",
+                lblCfgHours: "Horário de Funcionamento",
+                lblCfgSalesMode: "Modo de Vendas",
+                optSalesDirect: "Venda Direta (Pedido via WhatsApp)",
+                optSalesSimulate: "Simulação de Conta (Prévia para Garçom)",
+                lblCfgAddress: "Endereço Completo",
+                lblCfgCoverUrl: "URL da Foto de Capa",
+                lblCfgCoverFile: "Ou Upload de Capa (Firebase Storage)",
+                catalogFormTitle: "Adicionar Novo Produto",
+                lblProdNamePt: "Nome (Português)",
+                lblProdNameEn: "Nome (Inglês - Opcional)",
+                lblProdNameZh: "Nome (Chinês - Opcional)",
+                lblProdPrice: "Preço (R$)",
+                lblProdCategory: "Categoria Principal",
+                lblProdSubCategory: "Subcategoria / Seção (Opcional)",
+                lblProdDesc: "Descrição (PT)",
+                lblProdDescEn: "Descrição (EN)",
+                lblProdDescZh: "Descrição (ZH)",
+                lblProdImgUrl: "URL da Imagem",
+                lblProdImgFile: "Ou Upload de Foto (Firebase Storage)",
+                lblProdAvailable: "Produto Disponível para Venda",
+                btnSaveProductText: "Cadastrar Produto",
+                btnCancelEditText: "Cancelar Edição",
+                lblRegisteredProds: "Produtos Cadastrados",
+                importTitleText: "Importação Inteligente de Cardápio",
+                importDescText: "Faça o upload de uma <strong>Imagem</strong> ou <strong>PDF do seu Cardápio</strong>. Nosso leitor óptico extrairá os itens e preços automaticamente.",
+                lblImportCategory: "Categoria Padrão para os Itens Importados",
                 btnProcessImport: "Processar e Importar",
-                importedDetected: "Itens Detectados:",
-                qrNotice: "Aponte a câmera para acessar o cardápio digital:",
-                btnCopyLink: "Copiar Link",
-                btnPrintQr: "Imprimir Placa QR Code",
-                btnExitPanel: "Sair do Painel",
+                importedDetectedText: "Itens Detectados:",
+                qrScanNoticeText: "Aponte a câmera para acessar o cardápio digital:",
+                btnCopyLinkText: "Copiar Link",
+                btnPrintQrText: "Imprimir Placa QR Code",
+                btnExitPanelText: "Sair do Painel",
                 btnSaveSettings: "Salvar Alterações",
-                printSubText: "Acesse nosso cardápio digital!"
+                lojistaBtnText: "Modo Lojista",
+                allCategories: "Todos",
+                addBtn: "Adicionar",
+                unavailable: "Indisponível",
+                popular: "Destaque"
             },
             en: {
                 searchPlaceholder: "Search menu...",
-                all: "All",
-                totalCommand: "Order Total",
-                viewCart: "View Bill",
-                myCart: "Your Order",
-                cartEmpty: "Your order is empty.",
-                total: "Total:",
-                checkoutWhatsApp: "Send Order (WhatsApp)",
-                checkoutSimulate: "Simulate Bill",
-                add: "Add",
-                popular: "Best Seller",
-                outOfStock: "Out of Stock",
-                available: "Available",
-                lojistaMode: "Store Manager",
-                adminPanel: "Store Panel",
-                simulationNotice: "Simulation Mode: Present this bill preview to your waiter.",
-                orderSuccessMsg: "Order prepared! Redirecting to WhatsApp...",
-                simulationSuccessMsg: "Bill simulation completed successfully!",
-                noProducts: "No products found.",
-                translating: "Translating content...",
-                digitalMenu: "Digital Menu",
-                // Admin Labels
-                loginTitle: "Store Login",
-                loginDesc: "Enter your Firebase Authentication email and password to manage the store.",
-                emailLabel: "Access Email",
-                passwordLabel: "Password",
-                enterBtn: "Login",
-                tabStore: "Store Settings",
-                tabCatalog: "Product Catalog",
-                tabImport: "Import PDF/Image",
-                tabQr: "QR Code & Promotion",
-                storeName: "Store Name",
-                storeLogo: "Logo / Emoji",
-                shortDescPt: "Short Description (PT)",
-                shortDescEn: "Description (EN)",
-                shortDescZh: "Description (ZH)",
-                whatsappLabel: "WhatsApp (with Country Code)",
-                instagramLabel: "Instagram",
-                hoursLabel: "Opening Hours",
-                salesModeLabel: "Sales Mode",
-                salesDirect: "Direct Sale (Order via WhatsApp)",
-                salesSimulate: "Bill Simulation (Preview for Waiter)",
-                addressLabel: "Full Address",
-                coverUrlLabel: "Cover Photo URL",
-                coverFileLabel: "Or Upload Cover (Firebase Storage)",
-                addNewProd: "Add New Product",
-                editProd: "Edit Product",
-                prodNamePt: "Name (Portuguese)",
-                prodNameEn: "Name (English - Optional)",
-                prodNameZh: "Name (Chinese - Optional)",
-                priceLabel: "Price (R$)",
-                categoryLabel: "Category",
-                prodDescPt: "Description (PT)",
-                prodDescEn: "Description (EN)",
-                prodDescZh: "Description (ZH)",
-                imgUrlLabel: "Image URL",
-                imgFileLabel: "Or Upload Photo (Firebase Storage)",
-                prodAvailableCheck: "Product Available for Sale",
-                btnCreateProd: "Register Product",
-                btnUpdateProd: "Update Product",
-                btnCancelEdit: "Cancel Edit",
-                registeredProds: "Registered Products",
-                importTitle: "Smart Menu Import",
-                importDesc: "Upload an Image or PDF of your menu. Our OCR engine will automatically extract items and prices.",
-                importCatLabel: "Default Category for Imported Items",
+                cartLabelTotal: "Total Bill",
+                viewCartBtn: "View Bill",
+                modalCartTitle: "Your Bill",
+                modalCartTotalLabel: "Total:",
+                checkoutBtn: "Complete Order",
+                loginTitleText: "Merchant Login",
+                loginDescText: "Sign in with your Firebase Authentication email and password to manage your store.",
+                lblLoginEmail: "Email",
+                lblLoginPassword: "Password",
+                btnLoginSubmit: "Sign In",
+                adminTitleText: "Merchant Dashboard",
+                tabConfigBtn: "Store Settings",
+                tabCatalogBtn: "Product Catalog",
+                tabImportBtn: "Import PDF/Image",
+                tabQrBtn: "QR Code & Sharing",
+                lblCfgStoreName: "Store Name",
+                lblCfgLogo: "Logo / Emoji",
+                lblCfgDesc: "Short Description (PT)",
+                lblCfgDescEn: "Description (EN)",
+                lblCfgDescZh: "Description (ZH)",
+                lblCfgWhatsapp: "WhatsApp (with country code)",
+                lblCfgInstagram: "Instagram",
+                lblCfgHours: "Working Hours",
+                lblCfgSalesMode: "Sales Mode",
+                optSalesDirect: "Direct Sale (WhatsApp Order)",
+                optSalesSimulate: "Bill Simulation (Waiter Preview)",
+                lblCfgAddress: "Full Address",
+                lblCfgCoverUrl: "Cover Image URL",
+                lblCfgCoverFile: "Or Cover Upload (Firebase Storage)",
+                catalogFormTitle: "Add New Product",
+                lblProdNamePt: "Name (Portuguese)",
+                lblProdNameEn: "Name (English - Optional)",
+                lblProdNameZh: "Name (Chinese - Optional)",
+                lblProdPrice: "Price ($)",
+                lblProdCategory: "Main Category",
+                lblProdSubCategory: "Subcategory / Section (Optional)",
+                lblProdDesc: "Description (PT)",
+                lblProdDescEn: "Description (EN)",
+                lblProdDescZh: "Description (ZH)",
+                lblProdImgUrl: "Image URL",
+                lblProdImgFile: "Or Photo Upload (Firebase Storage)",
+                lblProdAvailable: "Product Available for Sale",
+                btnSaveProductText: "Add Product",
+                btnCancelEditText: "Cancel Edit",
+                lblRegisteredProds: "Registered Products",
+                importTitleText: "Smart Menu Import",
+                importDescText: "Upload an <strong>Image</strong> or <strong>PDF</strong> of your menu. Our optical reader will automatically extract items and prices.",
+                lblImportCategory: "Default Category for Imported Items",
                 btnProcessImport: "Process and Import",
-                importedDetected: "Detected Items:",
-                qrNotice: "Point the camera to access the digital menu:",
-                btnCopyLink: "Copy Link",
-                btnPrintQr: "Print QR Code Sign",
-                btnExitPanel: "Exit Panel",
+                importedDetectedText: "Detected Items:",
+                qrScanNoticeText: "Scan the camera to access the digital menu:",
+                btnCopyLinkText: "Copy Link",
+                btnPrintQrText: "Print QR Code Sign",
+                btnExitPanelText: "Exit Dashboard",
                 btnSaveSettings: "Save Changes",
-                printSubText: "Access our digital menu!"
+                lojistaBtnText: "Merchant Mode",
+                allCategories: "All",
+                addBtn: "Add",
+                unavailable: "Unavailable",
+                popular: "Popular"
             },
             zh: {
                 searchPlaceholder: "搜索菜单...",
-                all: "全部",
-                totalCommand: "账单总计",
-                viewCart: "查看账单",
-                myCart: "您的点餐",
-                cartEmpty: "您的点餐单是空的。",
-                total: "总计:",
-                checkoutWhatsApp: "发送订单 (WhatsApp)",
-                checkoutSimulate: "模拟账单",
-                add: "添加",
-                popular: "最受欢迎",
-                outOfStock: "已售罄",
-                available: "有货",
-                lojistaMode: "商家模式",
-                adminPanel: "商家管理",
-                simulationNotice: "模拟模式：请将此账单预览出示给服务员。",
-                orderSuccessMsg: "订单已准备好！正在跳转至 WhatsApp...",
-                simulationSuccessMsg: "账单模拟成功完成！",
-                noProducts: "未找到相关产品。",
-                translating: "正在翻译内容...",
-                digitalMenu: "电子菜单",
-                // Admin Labels
-                loginTitle: "商家登录",
-                loginDesc: "请输入您的 Firebase 认证邮箱和密码以管理店铺。",
-                emailLabel: "登录邮箱",
-                passwordLabel: "密码",
-                enterBtn: "登录",
-                tabStore: "店铺设置",
-                tabCatalog: "产品目录",
-                tabImport: "导入 PDF/图片",
-                tabQr: "二维码与推广",
-                storeName: "店铺名称",
-                storeLogo: "标志 / 表情符号",
-                shortDescPt: "简短描述 (PT)",
-                shortDescEn: "描述 (EN)",
-                shortDescZh: "描述 (ZH)",
-                whatsappLabel: "WhatsApp (含国家代码)",
-                instagramLabel: "Instagram",
-                hoursLabel: "营业时间",
-                salesModeLabel: "销售模式",
-                salesDirect: "直接销售 (通过 WhatsApp 下单)",
-                salesSimulate: "账单模拟 (服务员预览)",
-                addressLabel: "详细地址",
-                coverUrlLabel: "封面图片 URL",
-                coverFileLabel: "或上传封面 (Firebase Storage)",
-                addNewProd: "添加新产品",
-                editProd: "编辑产品",
-                prodNamePt: "名称 (葡萄牙语)",
-                prodNameEn: "名称 (英语 - 可选)",
-                prodNameZh: "名称 (中文 - 可选)",
-                priceLabel: "价格 (R$)",
-                categoryLabel: "类别",
-                prodDescPt: "描述 (PT)",
-                prodDescEn: "描述 (EN)",
-                prodDescZh: "描述 (ZH)",
-                imgUrlLabel: "图片 URL",
-                imgFileLabel: "或上传照片 (Firebase Storage)",
-                prodAvailableCheck: "产品可供销售",
-                btnCreateProd: "注册产品",
-                btnUpdateProd: "更新产品",
-                btnCancelEdit: "取消编辑",
-                registeredProds: "已注册产品",
-                importTitle: "智能菜单导入",
-                importDesc: "上传您的菜单图片或 PDF。我们的 OCR 引擎将自动提取项目和价格。",
-                importCatLabel: "导入项目的默认类别",
+                cartLabelTotal: "总账单",
+                viewCartBtn: "查看账单",
+                modalCartTitle: "您的账单",
+                modalCartTotalLabel: "总计：",
+                checkoutBtn: "完成订单",
+                loginTitleText: "商家登录",
+                loginDescText: "使用您的 Firebase 邮箱和密码登录以管理店铺。",
+                lblLoginEmail: "邮箱",
+                lblLoginPassword: "密码",
+                btnLoginSubmit: "登录",
+                adminTitleText: "商家后台",
+                tabConfigBtn: "店铺设置",
+                tabCatalogBtn: "产品目录",
+                tabImportBtn: "导入 PDF/图片",
+                tabQrBtn: "二维码与分享",
+                lblCfgStoreName: "店铺名称",
+                lblCfgLogo: "标志 / Emoji",
+                lblCfgDesc: "简短描述 (PT)",
+                lblCfgDescEn: "描述 (EN)",
+                lblCfgDescZh: "描述 (ZH)",
+                lblCfgWhatsapp: "WhatsApp",
+                lblCfgInstagram: "Instagram",
+                lblCfgHours: "营业时间",
+                lblCfgSalesMode: "销售模式",
+                optSalesDirect: "直接销售（WhatsApp 订购）",
+                optSalesSimulate: "账单模拟（服务员预览）",
+                lblCfgAddress: "详细地址",
+                lblCfgCoverUrl: "封面图片网址",
+                lblCfgCoverFile: "或封面上传",
+                catalogFormTitle: "添加新产品",
+                lblProdNamePt: "名称 (葡萄牙语)",
+                lblProdNameEn: "名称 (英语)",
+                lblProdNameZh: "名称 (中文)",
+                lblProdPrice: "价格",
+                lblProdCategory: "主分类",
+                lblProdSubCategory: "子分类 / 分区",
+                lblProdDesc: "描述 (PT)",
+                lblProdDescEn: "描述 (EN)",
+                lblProdDescZh: "描述 (ZH)",
+                lblProdImgUrl: "图片网址",
+                lblProdImgFile: "或照片上传",
+                lblProdAvailable: "产品有售",
+                btnSaveProductText: "添加产品",
+                btnCancelEditText: "取消编辑",
+                lblRegisteredProds: "已注册产品",
+                importTitleText: "智能菜单导入",
+                importDescText: "上传您的菜单<strong>图片</strong>或<strong>PDF</strong>，光学阅读器将自动提取项目和价格。",
+                lblImportCategory: "导入项目的默认分类",
                 btnProcessImport: "处理并导入",
-                importedDetected: "检测到的项目:",
-                qrNotice: "扫描二维码以访问电子菜单：",
-                btnCopyLink: "复制链接",
-                btnPrintQr: "打印二维码标牌",
-                btnExitPanel: "退出面板",
+                importedDetectedText: "检测到的项目：",
+                qrScanNoticeText: "扫描相机访问数字菜单：",
+                btnCopyLinkText: "复制链接",
+                btnPrintQrText: "打印二维码标牌",
+                btnExitPanelText: "退出后台",
                 btnSaveSettings: "保存更改",
-                printSubText: "访问我们的电子菜单！"
+                lojistaBtnText: "商家模式",
+                allCategories: "全部",
+                addBtn: "添加",
+                unavailable: "不可用",
+                popular: "推荐"
+            },
+            fr: {
+                searchPlaceholder: "Rechercher dans le menu...",
+                cartLabelTotal: "Total de l'addition",
+                viewCartBtn: "Voir l'addition",
+                modalCartTitle: "Votre Addition",
+                modalCartTotalLabel: "Total :",
+                checkoutBtn: "Finaliser la commande",
+                loginTitleText: "Connexion Marchand",
+                loginDescText: "Connectez-vous avec vos identifiants Firebase pour gérer votre établissement.",
+                lblLoginEmail: "E-mail",
+                lblLoginPassword: "Mot de passe",
+                btnLoginSubmit: "Se connecter",
+                adminTitleText: "Tableau de Bord",
+                tabConfigBtn: "Paramètres",
+                tabCatalogBtn: "Catalogue",
+                tabImportBtn: "Importer PDF/Image",
+                tabQrBtn: "QR Code & Partage",
+                lblCfgStoreName: "Nom du Restaurant",
+                lblCfgLogo: "Logo / Emoji",
+                lblCfgDesc: "Description courte (PT)",
+                lblCfgDescEn: "Description (EN)",
+                lblCfgDescZh: "Description (ZH)",
+                lblCfgWhatsapp: "WhatsApp",
+                lblCfgInstagram: "Instagram",
+                lblCfgHours: "Horaires",
+                lblCfgSalesMode: "Mode de Vente",
+                optSalesDirect: "Vente directe (WhatsApp)",
+                optSalesSimulate: "Simulation de compte (Serveur)",
+                lblCfgAddress: "Adresse complète",
+                lblCfgCoverUrl: "URL de couverture",
+                lblCfgCoverFile: "Ou fichier de couverture",
+                catalogFormTitle: "Ajouter un produit",
+                lblProdNamePt: "Nom (Portugais)",
+                lblProdNameEn: "Nom (Anglais)",
+                lblProdNameZh: "Nom (Chinois)",
+                lblProdPrice: "Prix",
+                lblProdCategory: "Catégorie Principale",
+                lblProdSubCategory: "Sous-catégorie / Section",
+                lblProdDesc: "Description (PT)",
+                lblProdDescEn: "Description (EN)",
+                lblProdDescZh: "Description (ZH)",
+                lblProdImgUrl: "URL de l'image",
+                lblProdImgFile: "Ou Fichier image",
+                lblProdAvailable: "Produit disponible",
+                btnSaveProductText: "Ajouter le produit",
+                btnCancelEditText: "Annuler",
+                lblRegisteredProds: "Produits Enregistrés",
+                importTitleText: "Importation Intelligente",
+                importDescText: "Téléchargez une <strong>Image</strong> ou un <strong>PDF</strong> de votre menu pour extraire automatiquement les articles.",
+                lblImportCategory: "Catégorie par défaut",
+                btnProcessImport: "Traiter et Importer",
+                importedDetectedText: "Éléments détectés :",
+                qrScanNoticeText: "Scannez pour accéder au menu numérique :",
+                btnCopyLinkText: "Copier le lien",
+                btnPrintQrText: "Imprimer le QR Code",
+                btnExitPanelText: "Quitter",
+                btnSaveSettings: "Enregistrer",
+                lojistaBtnText: "Mode Marchand",
+                allCategories: "Tous",
+                addBtn: "Ajouter",
+                unavailable: "Indisponible",
+                popular: "Populaire"
+            },
+            it: {
+                searchPlaceholder: "Cerca nel menu...",
+                cartLabelTotal: "Totale Conto",
+                viewCartBtn: "Vedi Conto",
+                modalCartTitle: "Il Tuo Conto",
+                modalCartTotalLabel: "Totale:",
+                checkoutBtn: "Completa Ordine",
+                loginTitleText: "Accesso Commerciante",
+                loginDescText: "Accedi con le credenziali Firebase per gestire la tua attività.",
+                lblLoginEmail: "E-mail",
+                lblLoginPassword: "Password",
+                btnLoginSubmit: "Accedi",
+                adminTitleText: "Pannello di Controllo",
+                tabConfigBtn: "Impostazioni",
+                tabCatalogBtn: "Catalogo",
+                tabImportBtn: "Importa PDF/Immagine",
+                tabQrBtn: "QR Code e Condivisione",
+                lblCfgStoreName: "Nome Negozio",
+                lblCfgLogo: "Logo / Emoji",
+                lblCfgDesc: "Breve descrizione (PT)",
+                lblCfgDescEn: "Descrizione (EN)",
+                lblCfgDescZh: "Descrizione (ZH)",
+                lblCfgWhatsapp: "WhatsApp",
+                lblCfgInstagram: "Instagram",
+                lblCfgHours: "Orari",
+                lblCfgSalesMode: "Modalità Vendita",
+                optSalesDirect: "Vendita Diretta (WhatsApp)",
+                optSalesSimulate: "Simulazione Conto (Cameriere)",
+                lblCfgAddress: "Indirizzo",
+                lblCfgCoverUrl: "URL Copertina",
+                lblCfgCoverFile: "O carica file copertina",
+                catalogFormTitle: "Aggiungi Prodotto",
+                lblProdNamePt: "Nome (Portoghese)",
+                lblProdNameEn: "Nome (Inglese)",
+                lblProdNameZh: "Nome (Cinese)",
+                lblProdPrice: "Prezzo",
+                lblProdCategory: "Categoria Principale",
+                lblProdSubCategory: "Sottocategoria / Sezione",
+                lblProdDesc: "Descrizione (PT)",
+                lblProdDescEn: "Descrizione (EN)",
+                lblProdDescZh: "Descrizione (ZH)",
+                lblProdImgUrl: "URL Immagine",
+                lblProdImgFile: "O carica immagine",
+                lblProdAvailable: "Disponibile per la vendita",
+                btnSaveProductText: "Aggiungi Prodotto",
+                btnCancelEditText: "Annulla Modifica",
+                lblRegisteredProds: "Prodotti Registrati",
+                importTitleText: "Importazione Intelligente Menu",
+                importDescText: "Carica un'<strong>Immagine</strong> o un <strong>PDF</strong> del tuo menu.",
+                lblImportCategory: "Categoria Predefinita",
+                btnProcessImport: "Elabora e Importa",
+                importedDetectedText: "Elementi Rilevati:",
+                qrScanNoticeText: "Inquadra per accedere al menu digitale:",
+                btnCopyLinkText: "Copia Link",
+                btnPrintQrText: "Stampa QR Code",
+                btnExitPanelText: "Esci",
+                btnSaveSettings: "Salva Modifiche",
+                lojistaBtnText: "Modalità Negozio",
+                allCategories: "Tutti",
+                addBtn: "Aggiungi",
+                unavailable: "Non disponibile",
+                popular: "Popolare"
+            },
+            de: {
+                searchPlaceholder: "Speisekarte durchsuchen...",
+                cartLabelTotal: "Gesamtsumme",
+                viewCartBtn: "Rechnung ansehen",
+                modalCartTitle: "Ihre Rechnung",
+                modalCartTotalLabel: "Gesamt:",
+                checkoutBtn: "Bestellung abschließen",
+                loginTitleText: "Händler-Login",
+                loginDescText: "Melden Sie sich mit Ihren Firebase-Anmeldedaten an.",
+                lblLoginEmail: "E-Mail",
+                lblLoginPassword: "Passwort",
+                btnLoginSubmit: "Anmelden",
+                adminTitleText: "Händler-Dashboard",
+                tabConfigBtn: "Einstellungen",
+                tabCatalogBtn: "Produktkatalog",
+                tabImportBtn: "PDF/Bild importieren",
+                tabQrBtn: "QR-Code & Teilen",
+                lblCfgStoreName: "Geschäftsname",
+                lblCfgLogo: "Logo / Emoji",
+                lblCfgDesc: "Kurzbeschreibung (PT)",
+                lblCfgDescEn: "Beschreibung (EN)",
+                lblCfgDescZh: "Beschreibung (ZH)",
+                lblCfgWhatsapp: "WhatsApp",
+                lblCfgInstagram: "Instagram",
+                lblCfgHours: "Öffnungszeiten",
+                lblCfgSalesMode: "Verkaufsmodus",
+                optSalesDirect: "Direktverkauf (WhatsApp)",
+                optSalesSimulate: "Rechnungssimulation (Kellner)",
+                lblCfgAddress: "Vollständige Adresse",
+                lblCfgCoverUrl: "Titelbild-URL",
+                lblCfgCoverFile: "Oder Datei-Upload",
+                catalogFormTitle: "Neues Produkt hinzufügen",
+                lblProdNamePt: "Name (Portugiesisch)",
+                lblProdNameEn: "Name (Englisch)",
+                lblProdNameZh: "Name (Chinesisch)",
+                lblProdPrice: "Preis",
+                lblProdCategory: "Hauptkategorie",
+                lblProdSubCategory: "Unterkategorie / Sektion",
+                lblProdDesc: "Beschreibung (PT)",
+                lblProdDescEn: "Beschreibung (EN)",
+                lblProdDescZh: "Beschreibung (ZH)",
+                lblProdImgUrl: "Bild-URL",
+                lblProdImgFile: "Oder Bild-Upload",
+                lblProdAvailable: "Produkt verfügbar",
+                btnSaveProductText: "Produkt hinzufügen",
+                btnCancelEditText: "Abbrechen",
+                lblRegisteredProds: "Registrierte Produkte",
+                importTitleText: "Intelligenter Menü-Import",
+                importDescText: "Laden Sie ein <strong>Bild</strong> oder <strong>PDF</strong> hoch.",
+                lblImportCategory: "Standardkategorie",
+                btnProcessImport: "Verarbeiten und importieren",
+                importedDetectedText: "Erkannte Elemente:",
+                qrScanNoticeText: "Scannen Sie den QR-Code:",
+                btnCopyLinkText: "Link kopieren",
+                btnPrintQrText: "QR-Code drucken",
+                btnExitPanelText: "Dashboard verlassen",
+                btnSaveSettings: "Änderungen speichern",
+                lojistaBtnText: "Händlermodus",
+                allCategories: "Alle",
+                addBtn: "Hinzufügen",
+                unavailable: "Nicht verfügbar",
+                popular: "Beliebt"
+            },
+            ja: {
+                searchPlaceholder: "メニューを検索...",
+                cartLabelTotal: "合計金額",
+                viewCartBtn: "注文内容を見る",
+                modalCartTitle: "ご注文内容",
+                modalCartTotalLabel: "合計：",
+                checkoutBtn: "注文を確定する",
+                loginTitleText: "管理者ログイン",
+                loginDescText: "Firebaseの認証情報でログインしてください。",
+                lblLoginEmail: "メールアドレス",
+                lblLoginPassword: "パスワード",
+                btnLoginSubmit: "ログイン",
+                adminTitleText: "管理者ダッシュボード",
+                tabConfigBtn: "店舗設定",
+                tabCatalogBtn: "商品カタログ",
+                tabImportBtn: "PDF/画像インポート",
+                tabQrBtn: "QRコードと共有",
+                lblCfgStoreName: "店舗名",
+                lblCfgLogo: "ロゴ / 絵文字",
+                lblCfgDesc: "簡単な説明 (PT)",
+                lblCfgDescEn: "説明 (EN)",
+                lblCfgDescZh: "説明 (ZH)",
+                lblCfgWhatsapp: "WhatsApp",
+                lblCfgInstagram: "Instagram",
+                lblCfgHours: "営業時間",
+                lblCfgSalesMode: "販売モード",
+                optSalesDirect: "直接販売 (WhatsApp注文)",
+                optSalesSimulate: "会計シミュレーション",
+                lblCfgAddress: "住所",
+                lblCfgCoverUrl: "カバー画像URL",
+                lblCfgCoverFile: "またはファイルアップロード",
+                catalogFormTitle: "新商品の追加",
+                lblProdNamePt: "名前 (ポルトガル語)",
+                lblProdNameEn: "名前 (英語)",
+                lblProdNameZh: "名前 (中国語)",
+                lblProdPrice: "価格",
+                lblProdCategory: "メインカテゴリ",
+                lblProdSubCategory: "サブカテゴリ / セクション",
+                lblProdDesc: "説明 (PT)",
+                lblProdDescEn: "説明 (EN)",
+                lblProdDescZh: "説明 (ZH)",
+                lblProdImgUrl: "画像URL",
+                lblProdImgFile: "または画像アップロード",
+                lblProdAvailable: "販売可能",
+                btnSaveProductText: "商品を追加",
+                btnCancelEditText: "キャンセル",
+                lblRegisteredProds: "登録済み商品",
+                importTitleText: "スマートメニューインポート",
+                importDescText: "メニューの<strong>画像</strong>または<strong>PDF</strong>をアップロードしてください。",
+                lblImportCategory: "デフォルトカテゴリ",
+                btnProcessImport: "処理してインポート",
+                importedDetectedText: "検出されたアイテム：",
+                qrScanNoticeText: "デジタルメニューにアクセス：",
+                btnCopyLinkText: "リンクをコピー",
+                btnPrintQrText: "QRコードを印刷",
+                btnExitPanelText: "ダッシュボードを閉じる",
+                btnSaveSettings: "変更を保存",
+                lojistaBtnText: "管理者モード",
+                allCategories: "すべて",
+                addBtn: "追加",
+                unavailable: "売り切れ",
+                popular: "人気"
+            },
+            ko: {
+                searchPlaceholder: "메뉴 검색...",
+                cartLabelTotal: "총 주문금액",
+                viewCartBtn: "주문 내역 보기",
+                modalCartTitle: "주문 내역",
+                modalCartTotalLabel: "합계:",
+                checkoutBtn: "주문 완료",
+                loginTitleText: "관리자 로그인",
+                loginDescText: "Firebase 인증 정보로 로그인하세요.",
+                lblLoginEmail: "이메일",
+                lblLoginPassword: "비밀번호",
+                btnLoginSubmit: "로그인",
+                adminTitleText: "관리자 대시보드",
+                tabConfigBtn: "매장 설정",
+                tabCatalogBtn: "상품 카탈로그",
+                tabImportBtn: "PDF/이미지 가져오기",
+                tabQrBtn: "QR 코드 및 공유",
+                lblCfgStoreName: "매장 이름",
+                lblCfgLogo: "로고 / 이모지",
+                lblCfgDesc: "간단한 설명 (PT)",
+                lblCfgDescEn: "설명 (EN)",
+                lblCfgDescZh: "설명 (ZH)",
+                lblCfgWhatsapp: "WhatsApp",
+                lblCfgInstagram: "Instagram",
+                lblCfgHours: "영업 시간",
+                lblCfgSalesMode: "판매 모드",
+                optSalesDirect: "직접 판매 (WhatsApp 주문)",
+                optSalesSimulate: "계산 시뮬레이션",
+                lblCfgAddress: "상세 주소",
+                lblCfgCoverUrl: "커버 이미지 URL",
+                lblCfgCoverFile: "또는 파일 업로드",
+                catalogFormTitle: "새 상품 추가",
+                lblProdNamePt: "이름 (포르투갈어)",
+                lblProdNameEn: "이름 (영어)",
+                lblProdNameZh: "이름 (중국어)",
+                lblProdPrice: "가격",
+                lblProdCategory: "메인 카테고리",
+                lblProdSubCategory: "하위 카테고리 / 섹션",
+                lblProdDesc: "설명 (PT)",
+                lblProdDescEn: "설명 (EN)",
+                lblProdDescZh: "설명 (ZH)",
+                lblProdImgUrl: "이미지 URL",
+                lblProdImgFile: "또는 이미지 업로드",
+                lblProdAvailable: "판매 가능",
+                btnSaveProductText: "상품 추가",
+                btnCancelEditText: "취소",
+                lblRegisteredProds: "등록된 상품",
+                importTitleText: "스마트 메뉴 가져오기",
+                importDescText: "메뉴의 <strong>이미지</strong>나 <strong>PDF</strong>를 업로드하세요.",
+                lblImportCategory: "기본 카테고리",
+                btnProcessImport: "처리 및 가져오기",
+                importedDetectedText: "감지된 항목:",
+                qrScanNoticeText: "디지털 메뉴 접속 QR 코드:",
+                btnCopyLinkText: "링크 복사",
+                btnPrintQrText: "QR 코드 인쇄",
+                btnExitPanelText: "대시보드 나가기",
+                btnSaveSettings: "변경사항 저장",
+                lojistaBtnText: "관리자 모드",
+                allCategories: "전체",
+                addBtn: "추가",
+                unavailable: "품절",
+                popular: "인기"
             }
         };
 
-        // Estado Global da Aplicação
-        let storeConfig = { ...defaultStoreConfig };
-        let products = [];
-        let cart = [];
-        let currentCategory = "Todos";
-        let currentLang = 'pt'; // 'pt' | 'en' | 'zh'
-        let isAuthenticated = false;
-        let editingProductId = null;
+        // UI Translation Applicator
+        function applyTranslations() {
+            const lang = window.languages[window.currentLangIndex].code;
+            const t = translations[lang] || translations['pt'];
 
-        // Inicialização
-        document.addEventListener("DOMContentLoaded", () => {
-            initAuthListener();
-            initFirestoreListeners();
-
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    toggleCartModal(false);
-                    toggleModal('pinModal', false);
-                    toggleModal('adminModal', false);
-                }
-            });
-
-            window.onclick = (e) => {
-                if (e.target.classList.contains('modal')) {
-                    e.target.classList.remove('active');
-                }
-            };
-        });
-
-        // 1. Escutador de Autenticação
-        function initAuthListener() {
-            onAuthStateChanged(auth, (user) => {
-                isAuthenticated = !!user;
-                const lojistaBtnText = document.getElementById("lojistaBtnText");
-                if (user) {
-                    lojistaBtnText.innerText = i18n[currentLang].adminPanel;
-                } else {
-                    lojistaBtnText.innerText = i18n[currentLang].lojistaMode;
-                }
-            });
+            document.getElementById('langDisplay').innerText = window.languages[window.currentLangIndex].label;
+            document.getElementById('searchInput').placeholder = t.searchPlaceholder;
+            document.getElementById('adminSearchInput').placeholder = lang === 'pt' ? 'Buscar para editar...' : 'Search to edit...';
+            document.getElementById('cartLabelTotal').innerText = t.cartLabelTotal;
+            document.getElementById('viewCartBtn').innerText = t.viewCartBtn;
+            document.getElementById('modalCartTitle').innerText = t.modalCartTitle;
+            document.getElementById('modalCartTotalLabel').innerText = t.modalCartTotalLabel;
+            document.getElementById('checkoutBtn').innerText = t.checkoutBtn;
+            document.getElementById('loginTitleText').innerText = t.loginTitleText;
+            document.getElementById('loginDescText').innerText = t.loginDescText;
+            document.getElementById('lblLoginEmail').innerText = t.lblLoginEmail;
+            document.getElementById('lblLoginPassword').innerText = t.lblLoginPassword;
+            document.getElementById('btnLoginSubmit').innerText = t.btnLoginSubmit;
+            document.getElementById('adminTitleText').innerText = t.adminTitleText;
+            document.getElementById('tabConfigBtn').innerHTML = `<i class="fa-solid fa-store"></i> ${t.tabConfigBtn}`;
+            document.getElementById('tabCatalogBtn').innerHTML = `<i class="fa-solid fa-utensils"></i> ${t.tabCatalogBtn}`;
+            document.getElementById('tabImportBtn').innerHTML = `<i class="fa-solid fa-file-import"></i> ${t.tabImportBtn}`;
+            document.getElementById('tabQrBtn').innerHTML = `<i class="fa-solid fa-qrcode"></i> ${t.tabQrBtn}`;
+            document.getElementById('lblCfgStoreName').innerText = t.lblCfgStoreName;
+            document.getElementById('lblCfgLogo').innerText = t.lblCfgLogo;
+            document.getElementById('lblCfgDesc').innerText = t.lblCfgDesc;
+            document.getElementById('lblCfgDescEn').innerText = t.lblCfgDescEn;
+            document.getElementById('lblCfgDescZh').innerText = t.lblCfgDescZh;
+            document.getElementById('lblCfgWhatsapp').innerText = t.lblCfgWhatsapp;
+            document.getElementById('lblCfgInstagram').innerText = t.lblCfgInstagram;
+            document.getElementById('lblCfgHours').innerText = t.lblCfgHours;
+            document.getElementById('lblCfgSalesMode').innerText = t.lblCfgSalesMode;
+            document.getElementById('optSalesDirect').innerText = t.optSalesDirect;
+            document.getElementById('optSalesSimulate').innerText = t.optSalesSimulate;
+            document.getElementById('lblCfgAddress').innerText = t.lblCfgAddress;
+            document.getElementById('lblCfgCoverUrl').innerText = t.lblCfgCoverUrl;
+            document.getElementById('lblCfgCoverFile').innerText = t.lblCfgCoverFile;
+            document.getElementById('catalogFormTitle').innerText = t.catalogFormTitle;
+            document.getElementById('lblProdNamePt').innerText = t.lblProdNamePt;
+            document.getElementById('lblProdNameEn').innerText = t.lblProdNameEn;
+            document.getElementById('lblProdNameZh').innerText = t.lblProdNameZh;
+            document.getElementById('lblProdPrice').innerText = t.lblProdPrice;
+            document.getElementById('lblProdCategory').innerText = t.lblProdCategory;
+            document.getElementById('lblProdSubCategory').innerText = t.lblProdSubCategory;
+            document.getElementById('lblProdDesc').innerText = t.lblProdDesc;
+            document.getElementById('lblProdDescEn').innerText = t.lblProdDescEn;
+            document.getElementById('lblProdDescZh').innerText = t.lblProdDescZh;
+            document.getElementById('lblProdImgUrl').innerText = t.lblProdImgUrl;
+            document.getElementById('lblProdImgFile').innerText = t.lblProdImgFile;
+            document.getElementById('lblProdAvailable').innerText = t.lblProdAvailable;
+            document.getElementById('btnSaveProductText').innerText = t.btnSaveProductText;
+            document.getElementById('btnCancelEditText').innerText = t.btnCancelEditText;
+            document.getElementById('lblRegisteredProds').innerText = t.lblRegisteredProds;
+            document.getElementById('importTitleText').innerText = t.importTitleText;
+            document.getElementById('importDescText').innerHTML = t.importDescText;
+            document.getElementById('lblImportCategory').innerText = t.lblImportCategory;
+            document.getElementById('btnProcessImport').innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> ${t.btnProcessImport}`;
+            document.getElementById('importedDetectedText').innerText = t.importedDetectedText;
+            document.getElementById('qrScanNoticeText').innerText = t.qrScanNoticeText;
+            document.getElementById('btnCopyLinkText').innerText = t.btnCopyLinkText;
+            document.getElementById('btnPrintQrText').innerText = t.btnPrintQrText;
+            document.getElementById('btnExitPanelText').innerText = t.btnExitPanelText;
+            document.getElementById('btnSaveSettings').innerText = t.btnSaveSettings;
+            document.getElementById('lojistaBtnText').innerText = t.lojistaBtnText;
         }
 
-        // 2. Escutadores Firestore
-        function initFirestoreListeners() {
+        window.toggleLanguage = function() {
+            window.currentLangIndex = (window.currentLangIndex + 1) % window.languages.length;
+            applyTranslations();
+            renderMenu();
+        };
+
+        // Toast Notification Helper
+        window.showToast = function(message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerText = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        };
+
+        // Firebase Listeners & Initial Load
+        function initFirebaseListeners() {
+            // Store Settings Listener
             onSnapshot(doc(db, "store_config", "settings"), (docSnap) => {
                 if (docSnap.exists()) {
-                    storeConfig = { ...defaultStoreConfig, ...docSnap.data() };
-                } else {
-                    setDoc(doc(db, "store_config", "settings"), defaultStoreConfig);
+                    window.storeSettings = docSnap.data();
+                    updateHeaderUI();
                 }
-                renderHeader();
-                updateCartUI();
-                updateStaticUILabels();
-            }, (error) => {
-                showToast("Erro ao carregar configurações: " + error.message);
             });
 
+            // Products Listener
             onSnapshot(collection(db, "products"), (snapshot) => {
-                if (!snapshot.empty) {
-                    products = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                } else {
-                    seedInitialProducts();
-                }
-                renderCategories();
-                renderProducts();
-                if (isAuthenticated) renderAdminProductList();
-            }, (error) => {
-                showToast("Erro ao carregar produtos: " + error.message);
+                window.productsList = [];
+                snapshot.forEach((docSnap) => {
+                    window.productsList.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                renderMenu();
+                renderAdminProductList();
             });
         }
 
-        async function seedInitialProducts() {
-            for (let prod of defaultProducts) {
-                await addDoc(collection(db, "products"), { ...prod, createdAt: serverTimestamp() });
-            }
-        }
+        function updateHeaderUI() {
+            const s = window.storeSettings;
+            const lang = window.languages[window.currentLangIndex].code;
 
-        async function uploadFileToStorage(file, pathFolder) {
-            const storageRef = ref(storage, `${pathFolder}/${Date.now()}_${file.name}`);
-            const snapshot = await uploadBytes(storageRef, file);
-            return await getDownloadURL(snapshot.ref);
-        }
-
-        function getLocalizedText(item, field) {
-            if (currentLang === 'en') {
-                return item[field + 'En'] || item[field];
-            } else if (currentLang === 'zh') {
-                return item[field + 'Zh'] || item[field + 'En'] || item[field];
-            }
-            return item[field];
-        }
-
-        function renderHeader() {
-            document.getElementById("pageTitle").innerText = `${storeConfig.name} - ${i18n[currentLang].digitalMenu}`;
-            document.getElementById("storeLogo").innerText = storeConfig.logo || "crab";
-            document.getElementById("storeNameDisplay").innerText = storeConfig.name;
-            document.getElementById("storeDescDisplay").innerText = getLocalizedText(storeConfig, 'description');
-            document.getElementById("storeHoursDisplay").innerHTML = `<i class="fa-regular fa-clock"></i> ${storeConfig.hours}`;
-            document.getElementById("storeInstaDisplay").innerHTML = `<i class="fa-brands fa-instagram"></i> ${storeConfig.instagram}`;
+            document.getElementById('pageTitle').innerText = s.name || "Cardápio Virtual";
+            document.getElementById('storeLogo').innerText = s.logo || "🦀";
+            document.getElementById('storeNameDisplay').innerText = s.name || "Cardápio Virtual";
             
-            if (storeConfig.coverUrl) {
-                document.getElementById("headerBg").style.backgroundImage = `url('${storeConfig.coverUrl}')`;
+            let desc = s.descriptionPt;
+            if (lang === 'en' && s.descriptionEn) desc = s.descriptionEn;
+            if (lang === 'zh' && s.descriptionZh) desc = s.descriptionZh;
+            document.getElementById('storeDescDisplay').innerText = desc || s.descriptionPt || "";
+            document.getElementById('storeHoursDisplay').innerHTML = `<i class="fa-regular fa-clock"></i> ${s.hours || '10:00 - 22:00'}`;
+            document.getElementById('storeInstaDisplay').innerHTML = `<i class="fa-brands fa-instagram"></i> ${s.instagram || '@cardapiovirtual'}`;
+
+            if (s.coverUrl) {
+                const headerBg = document.getElementById('headerBg');
+                headerBg.style.backgroundImage = `url('${s.coverUrl}')`;
             }
 
-            document.getElementById("searchInput").placeholder = i18n[currentLang].searchPlaceholder;
+            document.getElementById('printStoreName').innerText = s.name || "Cardápio Virtual";
+            document.getElementById('printStoreUrl').innerText = window.location.href;
         }
 
-        function renderCategories() {
-            const rawCategories = [...new Set(products.map(p => getLocalizedText(p, 'category')))];
-            const categories = [i18n[currentLang].all, ...rawCategories];
-            
-            const container = document.getElementById("categoryContainer");
-            container.innerHTML = categories.map(cat => `
-                <button class="cat-btn ${cat === currentCategory || (currentCategory === 'Todos' && cat === i18n[currentLang].all) ? 'active' : ''}" onclick="selectCategory('${cat}')">
-                    ${cat}
-                </button>
-            `).join('');
-        }
+        // Render Menu with Subdivisions & Alphabetical Order
+        window.renderMenu = function() {
+            const container = document.getElementById('menuContainer');
+            const catContainer = document.getElementById('categoryContainer');
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            const lang = window.languages[window.currentLangIndex].code;
+            const t = translations[lang] || translations['pt'];
 
-        function selectCategory(category) {
-            currentCategory = (category === i18n['pt'].all || category === i18n['en'].all || category === i18n['zh'].all) ? "Todos" : category;
-            renderCategories();
-            renderProducts();
-        }
+            // Categories extraction
+            const categoriesSet = new Set();
+            window.productsList.forEach(p => { if (p.category) categoriesSet.add(p.category); });
+            const categories = ['all', ...Array.from(categoriesSet)];
 
-        function renderProducts() {
-            const container = document.getElementById("menuContainer");
-            const searchVal = document.getElementById("searchInput").value.toLowerCase();
+            // Render Category buttons
+            catContainer.innerHTML = categories.map(cat => {
+                const activeClass = (window.currentCategory === cat) ? 'active' : '';
+                const label = cat === 'all' ? t.allCategories : cat;
+                return `<button class="cat-btn ${activeClass}" onclick="selectCategory('${cat}')">${label}</button>`;
+            }).join('');
 
-            const filteredProducts = products.filter(p => {
-                const name = getLocalizedText(p, 'name');
-                const desc = getLocalizedText(p, 'description');
-                const category = getLocalizedText(p, 'category');
-
-                const matchesCat = currentCategory === "Todos" || category === currentCategory;
-                const matchesSearch = name.toLowerCase().includes(searchVal) || desc.toLowerCase().includes(searchVal);
-                return matchesCat && matchesSearch;
+            // Filter Products
+            let filtered = window.productsList.filter(p => {
+                const name = (p.namePt || '').toLowerCase();
+                const desc = (p.descPt || '').toLowerCase();
+                const matchesSearch = name.includes(searchVal) || desc.includes(searchVal);
+                const matchesCat = (window.currentCategory === 'all' || p.category === window.currentCategory);
+                const matchesSubCat = (window.currentSubCategory === 'all' || p.subCategory === window.currentSubCategory);
+                return matchesSearch && matchesCat && matchesSubCat;
             });
 
-            if (filteredProducts.length === 0) {
-                container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted);">${i18n[currentLang].noProducts}</div>`;
+            // Alphabetical Sorting within groups
+            filtered.sort((a, b) => (a.namePt || '').localeCompare(b.namePt || ''));
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted);"><i class="fa-solid fa-utensils" style="font-size:2rem; margin-bottom:10px;"></i><p>Nenhum produto encontrado.</p></div>`;
                 return;
             }
 
-            const categoriesToDisplay = currentCategory === "Todos" 
-                ? [...new Set(filteredProducts.map(p => getLocalizedText(p, 'category')))] 
-                : [currentCategory];
+            // Group by Category and Subcategory
+            const grouped = {};
+            filtered.forEach(p => {
+                const cat = p.category || 'Geral';
+                const subCat = p.subCategory || 'Geral';
+                if (!grouped[cat]) grouped[cat] = {};
+                if (!grouped[cat][subCat]) grouped[cat][subCat] = [];
+                grouped[cat][subCat].push(p);
+            });
 
-            container.innerHTML = categoriesToDisplay.map(cat => {
-                const catItems = filteredProducts.filter(p => getLocalizedText(p, 'category') === cat);
-                return `
-                    <div class="section-title"><i class="fa-solid fa-utensils"></i> ${cat}</div>
-                    <div class="product-grid">
-                        ${catItems.map(p => {
-                            const name = getLocalizedText(p, 'name');
-                            const desc = getLocalizedText(p, 'description');
-                            const isAvailable = p.available !== false;
-                            
-                            return `
-                                <div class="product-card ${!isAvailable ? 'unavailable' : ''}">
-                                    ${!isAvailable ? `<span class="badge-out-stock">${i18n[currentLang].outOfStock}</span>` : (p.favorite ? `<span class="badge-popular">${i18n[currentLang].popular}</span>` : '')}
-                                    ${p.image ? `<img src="${p.image}" class="product-img" alt="${name}" onerror="this.style.display='none'">` : ''}
+            let html = '';
+            for (const cat in grouped) {
+                html += `<div class="section-title"><span>${cat}</span></div>`;
+                
+                // Subcategories tabs if any exist other than 'Geral'
+                const subCats = Object.keys(grouped[cat]);
+                if (subCats.length > 1 || (subCats.length === 1 && subCats[0] !== 'Geral')) {
+                    html += `<div class="subcategories-container">`;
+                    html += `<button class="subcat-btn ${window.currentSubCategory === 'all' ? 'active' : ''}" onclick="selectSubCategory('all')">${t.allCategories}</button>`;
+                    subCats.forEach(sub => {
+                        html += `<button class="subcat-btn ${window.currentSubCategory === sub ? 'active' : ''}" onclick="selectSubCategory('${sub}')">${sub}</button>`;
+                    });
+                    html += `</div>`;
+                }
+
+                for (const subCat in grouped[cat]) {
+                    html += `<div class="product-grid">`;
+                    grouped[cat][subCat].forEach(p => {
+                        let name = p.namePt || '';
+                        let desc = p.descPt || '';
+                        if (lang === 'en') {
+                            name = p.nameEn || name;
+                            desc = p.descEn || desc;
+                        } else if (lang === 'zh') {
+                            name = p.nameZh || name;
+                            desc = p.descZh || desc;
+                        } else if (lang !== 'pt') {
+                            // Automatic Fallback simulation for other languages
+                            name = p.nameEn || name;
+                            desc = p.descEn || desc;
+                        }
+
+                        const priceFormatted = Number(p.price || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                        const unavailableClass = p.available === false ? 'unavailable' : '';
+                        const popularBadge = p.popular ? `<span class="badge-popular">${t.popular}</span>` : '';
+                        const outStockBadge = p.available === false ? `<span class="badge-out-stock">${t.unavailable}</span>` : '';
+
+                        html += `
+                            <div class="product-card ${unavailableClass}">
+                                ${popularBadge}
+                                ${outStockBadge}
+                                <div>
+                                    ${p.imgUrl ? `<img src="${p.imgUrl}" class="product-img" alt="${name}">` : `<div class="product-img" style="display:flex;align-items:center;justify-content:center;color:#ccc;"><i class="fa-solid fa-camera"></i></div>`}
                                     <div class="product-info">
                                         <h3>${name}</h3>
                                         <p>${desc}</p>
                                     </div>
-                                    <div class="product-bottom">
-                                        <span class="price">${formatCurrency(p.price)}</span>
-                                        <button class="add-btn" ${!isAvailable ? 'disabled' : ''} onclick="addToCart('${p.id}')">
-                                            <i class="fa-solid fa-plus"></i> ${i18n[currentLang].add}
-                                        </button>
-                                    </div>
                                 </div>
-                            `;
-                        }).join('')}
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function filterProducts() {
-            renderProducts();
-        }
-
-        async function toggleLanguage() {
-            if (currentLang === 'pt') {
-                currentLang = 'en';
-                document.getElementById('langDisplay').innerText = '🇺🇸 EN';
-            } else if (currentLang === 'en') {
-                currentLang = 'zh';
-                document.getElementById('langDisplay').innerText = '🇨🇳 ZH';
-            } else {
-                currentLang = 'pt';
-                document.getElementById('langDisplay').innerText = '🇧🇷 PT';
-            }
-            
-            if (currentLang === 'en' || currentLang === 'zh') {
-                showToast(i18n[currentLang].translating);
-                const targetPair = currentLang === 'en' ? 'pt|en' : 'pt|zh';
-                
-                for (let p of products) {
-                    const nameKey = currentLang === 'en' ? 'nameEn' : 'nameZh';
-                    const descKey = currentLang === 'en' ? 'descriptionEn' : 'descriptionZh';
-
-                    let updates = {};
-
-                    if (!p[nameKey] || p[nameKey] === p.name) {
-                        try {
-                            const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(p.name)}&langpair=${targetPair}`);
-                            const data = await res.json();
-                            if (data.responseData?.translatedText) {
-                                updates[nameKey] = data.responseData.translatedText;
-                            }
-                        } catch(e) {}
-                    }
-
-                    if (p.description && (!p[descKey] || p[descKey] === p.description)) {
-                        try {
-                            const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(p.description)}&langpair=${targetPair}`);
-                            const data = await res.json();
-                            if (data.responseData?.translatedText) {
-                                updates[descKey] = data.responseData.translatedText;
-                            }
-                        } catch(e) {}
-                    }
-
-                    if (Object.keys(updates).length > 0) {
-                        await updateDoc(doc(db, "products", p.id), updates);
-                    }
+                                <div class="product-bottom">
+                                    <span class="price">${priceFormatted}</span>
+                                    <button class="add-btn" ${p.available === false ? 'disabled' : ''} onclick="addToCart('${p.id}')">
+                                        <i class="fa-solid fa-plus"></i> ${t.addBtn}
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
                 }
             }
 
-            renderHeader();
-            renderCategories();
-            renderProducts();
-            updateCartUI();
-            updateStaticUILabels();
-        }
+            container.innerHTML = html;
+        };
 
-        function updateStaticUILabels() {
-            const l = i18n[currentLang];
-            const lojistaBtnText = document.getElementById("lojistaBtnText");
-            if (auth.currentUser) {
-                lojistaBtnText.innerText = l.adminPanel;
-            } else {
-                lojistaBtnText.innerText = l.lojistaMode;
-            }
+        window.selectCategory = function(cat) {
+            window.currentCategory = cat;
+            window.currentSubCategory = 'all';
+            renderMenu();
+        };
 
-            // Pin Modal
-            document.getElementById("loginTitleText").innerText = l.loginTitle;
-            document.getElementById("loginDescText").innerText = l.loginDesc;
-            document.getElementById("lblLoginEmail").innerText = l.emailLabel;
-            document.getElementById("lblLoginPassword").innerText = l.passwordLabel;
-            document.getElementById("btnLoginSubmit").innerText = l.enterBtn;
+        window.selectSubCategory = function(sub) {
+            window.currentSubCategory = sub;
+            renderMenu();
+        };
 
-            // Admin Modal & Tabs
-            document.getElementById("adminTitleText").innerText = l.adminPanel;
-            document.getElementById("tabConfigBtn").innerHTML = `<i class="fa-solid fa-store"></i> ${l.tabStore}`;
-            document.getElementById("tabCatalogBtn").innerHTML = `<i class="fa-solid fa-utensils"></i> ${l.tabCatalog}`;
-            document.getElementById("tabImportBtn").innerHTML = `<i class="fa-solid fa-file-import"></i> ${l.tabImport}`;
-            document.getElementById("tabQrBtn").innerHTML = `<i class="fa-solid fa-qrcode"></i> ${l.tabQr}`;
+        window.filterProducts = function() {
+            renderMenu();
+        };
 
-            // Tab Config
-            document.getElementById("lblCfgStoreName").innerText = l.storeName;
-            document.getElementById("lblCfgLogo").innerText = l.storeLogo;
-            document.getElementById("lblCfgDesc").innerText = l.shortDescPt;
-            document.getElementById("lblCfgDescEn").innerText = l.shortDescEn;
-            document.getElementById("lblCfgDescZh").innerText = l.shortDescZh;
-            document.getElementById("lblCfgWhatsapp").innerText = l.whatsappLabel;
-            document.getElementById("lblCfgInstagram").innerText = l.instagramLabel;
-            document.getElementById("lblCfgHours").innerText = l.hoursLabel;
-            document.getElementById("lblCfgSalesMode").innerText = l.salesModeLabel;
-            document.getElementById("optSalesDirect").innerText = l.salesDirect;
-            document.getElementById("optSalesSimulate").innerText = l.salesSimulate;
-            document.getElementById("lblCfgAddress").innerText = l.addressLabel;
-            document.getElementById("lblCfgCoverUrl").innerText = l.coverUrlLabel;
-            document.getElementById("lblCfgCoverFile").innerText = l.coverFileLabel;
+        // Cart Management
+        window.addToCart = function(productId) {
+            const product = window.productsList.find(p => p.id === productId);
+            if (!product) return;
 
-            // Tab Catalog
-            if (!editingProductId) {
-                document.getElementById("catalogFormTitle").innerText = l.addNewProd;
-                document.getElementById("btnSaveProductText").innerText = l.btnCreateProd;
-            } else {
-                document.getElementById("catalogFormTitle").innerText = l.editProd;
-                document.getElementById("btnSaveProductText").innerText = l.btnUpdateProd;
-            }
-            document.getElementById("lblProdNamePt").innerText = l.prodNamePt;
-            document.getElementById("lblProdNameEn").innerText = l.prodNameEn;
-            document.getElementById("lblProdNameZh").innerText = l.prodNameZh;
-            document.getElementById("lblProdPrice").innerText = l.priceLabel;
-            document.getElementById("lblProdCategory").innerText = l.categoryLabel;
-            document.getElementById("lblProdDesc").innerText = l.prodDescPt;
-            document.getElementById("lblProdDescEn").innerText = l.prodDescEn;
-            document.getElementById("lblProdDescZh").innerText = l.prodDescZh;
-            document.getElementById("lblProdImgUrl").innerText = l.imgUrlLabel;
-            document.getElementById("lblProdImgFile").innerText = l.imgFileLabel;
-            document.getElementById("lblProdAvailable").innerText = l.prodAvailableCheck;
-            document.getElementById("btnCancelEditText").innerText = l.btnCancelEdit;
-            document.getElementById("lblRegisteredProds").innerText = l.registeredProds;
-
-            // Tab Import
-            document.getElementById("importTitleText").innerText = l.importTitle;
-            document.getElementById("importDescText").innerText = l.importDesc;
-            document.getElementById("lblImportCategory").innerText = l.importCatLabel;
-            document.getElementById("btnProcessImport").innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> ${l.btnProcessImport}`;
-            document.getElementById("importedDetectedText").innerText = l.importedDetected;
-
-            // Tab QR Code
-            document.getElementById("qrScanNoticeText").innerText = l.qrNotice;
-            document.getElementById("btnCopyLinkText").innerText = l.btnCopyLink;
-            document.getElementById("btnPrintQrText").innerText = l.btnPrintQr;
-
-            // Modal Footer
-            document.getElementById("btnExitPanelText").innerText = l.btnExitPanel;
-            document.getElementById("btnSaveSettings").innerText = l.btnSaveSettings;
-
-            // Printable Area
-            document.getElementById("printStoreSubText").innerText = l.printSubText;
-        }
-
-        function addToCart(productId) {
-            const product = products.find(p => p.id === productId);
-            if (!product || product.available === false) return;
-
-            const existing = cart.find(item => item.id === productId);
+            const existing = window.cart.find(item => item.id === productId);
             if (existing) {
-                existing.qty++;
+                existing.qty += 1;
             } else {
-                cart.push({ ...product, qty: 1 });
+                window.cart.push({ ...product, qty: 1 });
             }
-
             updateCartUI();
-            const localizedName = getLocalizedText(product, 'name');
-            showToast(`${localizedName} ${currentLang === 'pt' ? 'adicionado!' : (currentLang === 'en' ? 'added!' : '已添加！')}`);
-        }
+            showToast(`${product.namePt} adicionado à comanda!`);
+        };
 
-        function changeQty(productId, delta) {
-            const item = cart.find(i => i.id === productId);
+        window.updateCartQty = function(productId, delta) {
+            const item = window.cart.find(i => i.id === productId);
             if (!item) return;
-
             item.qty += delta;
             if (item.qty <= 0) {
-                cart = cart.filter(i => i.id !== productId);
+                window.cart = window.cart.filter(i => i.id !== productId);
             }
-
             updateCartUI();
-        }
+        };
 
         function updateCartUI() {
-            const totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
-            const totalPrice = cart.reduce((acc, item) => acc + (parseFloat(item.price) * item.qty), 0);
+            const totalCount = window.cart.reduce((sum, i) => sum + i.qty, 0);
+            const totalPrice = window.cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
 
-            document.getElementById("cartBadge").innerText = totalQty;
-            document.getElementById("cartTotalBar").innerText = formatCurrency(totalPrice);
-            document.getElementById("cartTotalModal").innerText = formatCurrency(totalPrice);
+            document.getElementById('cartBadge').innerText = totalCount;
+            const formattedTotal = totalPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('cartTotalBar').innerText = formattedTotal;
+            document.getElementById('cartTotalModal').innerText = formattedTotal;
 
-            document.getElementById("cartLabelTotal").innerText = i18n[currentLang].totalCommand;
-            document.getElementById("viewCartBtn").innerText = i18n[currentLang].viewCart;
-            document.getElementById("modalCartTitle").innerText = i18n[currentLang].myCart;
-            document.getElementById("modalCartTotalLabel").innerText = i18n[currentLang].total;
-
-            const checkoutBtn = document.getElementById("checkoutBtn");
-            const simContainer = document.getElementById("simulationBannerContainer");
-
-            if (storeConfig.salesMode === "simulation") {
-                checkoutBtn.innerText = i18n[currentLang].checkoutSimulate;
-                simContainer.innerHTML = `<div class="simulation-banner"><i class="fa-solid fa-circle-info"></i> ${i18n[currentLang].simulationNotice}</div>`;
+            const container = document.getElementById('cartItemsContainer');
+            if (window.cart.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted);"><p>Sua comanda está vazia.</p></div>`;
             } else {
-                checkoutBtn.innerText = i18n[currentLang].checkoutWhatsApp;
-                simContainer.innerHTML = "";
-            }
-
-            const cartContainer = document.getElementById("cartItemsContainer");
-            if (cart.length === 0) {
-                cartContainer.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:30px 0;">${i18n[currentLang].cartEmpty}</p>`;
-            } else {
-                cartContainer.innerHTML = cart.map(item => {
-                    const name = getLocalizedText(item, 'name');
-                    return `
-                        <div class="cart-item">
-                            <div>
-                                <div class="cart-item-title">${name}</div>
-                                <div class="cart-item-price">${formatCurrency(item.price)}</div>
-                            </div>
-                            <div class="qty-controls">
-                                <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
-                                <span>${item.qty}</span>
-                                <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
-                            </div>
+                container.innerHTML = window.cart.map(item => `
+                    <div class="cart-item">
+                        <div>
+                            <div class="cart-item-title">${item.namePt}</div>
+                            <div class="cart-item-price">R$ ${Number(item.price).toFixed(2)} x ${item.qty}</div>
                         </div>
-                    `;
-                }).join('');
-            }
-        }
-
-        function toggleCartModal(show) {
-            const modal = document.getElementById("cartModal");
-            if (show) modal.classList.add("active");
-            else modal.classList.remove("active");
-        }
-
-        function toggleModal(modalId, show) {
-            const modal = document.getElementById(modalId);
-            if (show) modal.classList.add("active");
-            else modal.classList.remove("active");
-        }
-
-        function sendOrder() {
-            if (cart.length === 0) {
-                showToast(i18n[currentLang].cartEmpty);
-                return;
+                        <div class="qty-controls">
+                            <button class="qty-btn" onclick="updateCartQty('${item.id}', -1)">-</button>
+                            <span>${item.qty}</span>
+                            <button class="qty-btn" onclick="updateCartQty('${item.id}', 1)">+</button>
+                        </div>
+                    </div>
+                `).join('');
             }
 
-            const total = cart.reduce((acc, item) => acc + (parseFloat(item.price) * item.qty), 0);
-
-            if (storeConfig.salesMode === "simulation") {
-                alert(`${i18n[currentLang].simulationSuccessMsg}\n\nTotal: ${formatCurrency(total)}`);
-                cart = [];
-                updateCartUI();
-                toggleCartModal(false);
+            const simContainer = document.getElementById('simulationBannerContainer');
+            if (window.storeSettings.salesMode === 'simulation') {
+                simContainer.innerHTML = `<div class="simulation-banner"><i class="fa-solid fa-triangle-exclamation"></i> Modo Simulação: Este pedido será gerado como pré-conta para o garçom.</div>`;
             } else {
-                let msg = `*Novo Pedido - ${storeConfig.name}*\n\n`;
-                cart.forEach(item => {
-                    const localizedName = getLocalizedText(item, 'name');
-                    msg += `• ${item.qty}x ${localizedName} - ${formatCurrency(parseFloat(item.price) * item.qty)}\n`;
-                });
-                msg += `\n*Total: ${formatCurrency(total)}*`;
+                simContainer.innerHTML = '';
+            }
+        }
 
-                const phone = storeConfig.whatsapp.replace(/\D/g, '');
-                window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
-                
-                showToast(i18n[currentLang].orderSuccessMsg);
-                cart = [];
+        window.toggleCartModal = function(show) {
+            const modal = document.getElementById('cartModal');
+            if (show) {
+                modal.classList.add('active');
                 updateCartUI();
-                toggleCartModal(false);
-            }
-        }
-
-        function handleLojistaClick() {
-            if (isAuthenticated) {
-                openAdminPanel();
             } else {
-                document.getElementById("loginEmail").value = "";
-                document.getElementById("loginPassword").value = "";
-                toggleModal("pinModal", true);
-                document.getElementById("loginEmail").focus();
+                modal.classList.remove('active');
             }
-        }
+        };
 
-        async function verifyLogin() {
-            const email = document.getElementById("loginEmail").value.trim();
-            const password = document.getElementById("loginPassword").value;
-
-            if (!email || !password) {
-                showToast("Preencha e-mail e senha!");
-                return;
-            }
-
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                toggleModal("pinModal", false);
-                openAdminPanel();
-                showToast("Autenticado com sucesso!");
-            } catch (error) {
-                showToast("Erro na autenticação: " + error.message);
-            }
-        }
-
-        async function logoutAdmin() {
-            try {
-                await signOut(auth);
-                toggleModal("adminModal", false);
-                showToast("Sessão encerrada.");
-            } catch (error) {
-                showToast("Erro ao sair: " + error.message);
-            }
-        }
-
-        function openAdminPanel() {
-            document.getElementById("cfgStoreName").value = storeConfig.name || "";
-            document.getElementById("cfgLogo").value = storeConfig.logo || "";
-            document.getElementById("cfgDesc").value = storeConfig.description || "";
-            document.getElementById("cfgDescEn").value = storeConfig.descriptionEn || "";
-            document.getElementById("cfgDescZh").value = storeConfig.descriptionZh || "";
-            document.getElementById("cfgWhatsapp").value = storeConfig.whatsapp || "";
-            document.getElementById("cfgInstagram").value = storeConfig.instagram || "";
-            document.getElementById("cfgHours").value = storeConfig.hours || "";
-            document.getElementById("cfgSalesMode").value = storeConfig.salesMode || "direct";
-            document.getElementById("cfgAddress").value = storeConfig.address || "";
-            document.getElementById("cfgCoverUrl").value = storeConfig.coverUrl || "";
-            document.getElementById("cfgCoverFile").value = "";
-
-            resetProductForm();
-            renderAdminProductList();
-            generateQRCode();
-            updateStaticUILabels();
-            toggleModal("adminModal", true);
-        }
-
-        function switchAdminTab(tabId, event) {
-            document.querySelectorAll(".admin-tab").forEach(t => t.classList.remove("active"));
-            document.querySelectorAll(".admin-tab-content").forEach(c => c.style.display = "none");
+        window.sendOrder = function() {
+            if (window.cart.length === 0) return;
             
-            if (event) event.currentTarget.classList.add("active");
-            document.getElementById(tabId).style.display = "block";
+            let text = `*Novo Pedido - ${window.storeSettings.name || 'Cardápio Virtual'}*%0A%0A`;
+            window.cart.forEach(item => {
+                text += `• ${item.qty}x ${item.namePt} - R$ ${(item.price * item.qty).toFixed(2)}%0A`;
+            });
+            const totalPrice = window.cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            text += `%0A*Total: R$ ${totalPrice.toFixed(2)}*%0A`;
+
+            if (window.storeSettings.salesMode === 'simulation') {
+                text += `%0A*(Pré-conta solicitada pelo cliente na mesa)*`;
+            }
+
+            const whatsappNumber = window.storeSettings.whatsapp || '5585999999999';
+            const url = `https://wa.me/${whatsappNumber}?text=${text}`;
+            window.open(url, '_blank');
+        };
+
+        // Merchant Authentication & Panel Modals
+        window.handleLojistaClick = function() {
+            if (window.currentUser) {
+                toggleModal('adminModal', true);
+                loadAdminSettingsIntoForm();
+            } else {
+                toggleModal('pinModal', true);
+            }
+        };
+
+        window.toggleModal = function(modalId, show) {
+            const modal = document.getElementById(modalId);
+            if (show) modal.classList.add('active');
+            else modal.classList.remove('active');
+        };
+
+        window.verifyLogin = async function() {
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPassword').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+                toggleModal('pinModal', false);
+                toggleModal('adminModal', true);
+                loadAdminSettingsIntoForm();
+                showToast("Login realizado com sucesso!");
+            } catch (error) {
+                showToast("Erro de autenticação: Verifique e-mail e senha.");
+            }
+        };
+
+        window.logoutAdmin = async function() {
+            await signOut(auth);
+            toggleModal('adminModal', false);
+            showToast("Sessão encerrada.");
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            window.currentUser = user;
+        });
+
+        window.switchAdminTab = function(tabId, event) {
+            document.querySelectorAll('.admin-tab-content').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.admin-tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).style.display = 'block';
+            event.currentTarget.classList.add('active');
+
+            if (tabId === 'tabQr') {
+                generateQrCode();
+            }
+        };
+
+        function loadAdminSettingsIntoForm() {
+            const s = window.storeSettings;
+            document.getElementById('cfgStoreName').value = s.name || '';
+            document.getElementById('cfgLogo').value = s.logo || '';
+            document.getElementById('cfgDesc').value = s.descriptionPt || '';
+            document.getElementById('cfgDescEn').value = s.descriptionEn || '';
+            document.getElementById('cfgDescZh').value = s.descriptionZh || '';
+            document.getElementById('cfgWhatsapp').value = s.whatsapp || '';
+            document.getElementById('cfgInstagram').value = s.instagram || '';
+            document.getElementById('cfgHours').value = s.hours || '';
+            document.getElementById('cfgSalesMode').value = s.salesMode || 'direct';
+            document.getElementById('cfgAddress').value = s.address || '';
+            document.getElementById('cfgCoverUrl').value = s.coverUrl || '';
         }
 
-        async function saveProduct() {
-            const namePt = document.getElementById("prodNamePt").value.trim();
-            const nameEn = document.getElementById("prodNameEn").value.trim();
-            const nameZh = document.getElementById("prodNameZh").value.trim();
-            const price = parseFloat(document.getElementById("prodPrice").value);
-            const category = document.getElementById("prodCategory").value.trim();
-            const desc = document.getElementById("prodDesc").value.trim();
-            const descEn = document.getElementById("prodDescEn").value.trim();
-            const descZh = document.getElementById("prodDescZh").value.trim();
-            const urlImg = document.getElementById("prodImgUrl").value.trim();
-            const available = document.getElementById("prodAvailable").checked;
-            const fileInput = document.getElementById("prodImgFile");
+        window.saveAdminSettings = async function() {
+            try {
+                let coverUrl = document.getElementById('cfgCoverUrl').value;
+                const coverFile = document.getElementById('cfgCoverFile').files[0];
+                if (coverFile) {
+                    const fileRef = storageRef(storage, `covers/${Date.now()}_${coverFile.name}`);
+                    const snapshot = await uploadBytes(fileRef, coverFile);
+                    coverUrl = await getDownloadURL(snapshot.ref);
+                }
 
-            if (!namePt || isNaN(price) || !category) {
-                showToast("Preencha Nome, Preço e Categoria!");
+                const newSettings = {
+                    name: document.getElementById('cfgStoreName').value,
+                    logo: document.getElementById('cfgLogo').value,
+                    descriptionPt: document.getElementById('cfgDesc').value,
+                    descriptionEn: document.getElementById('cfgDescEn').value,
+                    descriptionZh: document.getElementById('cfgDescZh').value,
+                    whatsapp: document.getElementById('cfgWhatsapp').value,
+                    instagram: document.getElementById('cfgInstagram').value,
+                    hours: document.getElementById('cfgHours').value,
+                    salesMode: document.getElementById('cfgSalesMode').value,
+                    address: document.getElementById('cfgAddress').value,
+                    coverUrl: coverUrl
+                };
+
+                await setDoc(doc(db, "store_config", "settings"), newSettings, { merge: true });
+                showToast("Configurações salvas com sucesso!");
+            } catch (err) {
+                showToast("Erro ao salvar configurações.");
+            }
+        };
+
+        // Product CRUD & Fast Admin Search
+        window.saveProduct = async function() {
+            const namePt = document.getElementById('prodNamePt').value;
+            const price = parseFloat(document.getElementById('prodPrice').value);
+            if (!namePt || isNaN(price)) {
+                showToast("Preencha o nome e o preço do produto.");
                 return;
             }
 
-            let imageUrl = urlImg;
-
-            if (fileInput.files[0]) {
-                try {
-                    showToast("Enviando foto para o Storage...");
-                    imageUrl = await uploadFileToStorage(fileInput.files[0], "products");
-                } catch (e) {
-                    showToast("Erro no envio da foto: " + e.message);
-                    return;
-                }
+            let imgUrl = document.getElementById('prodImgUrl').value;
+            const imgFile = document.getElementById('prodImgFile').files[0];
+            if (imgFile) {
+                const fileRef = storageRef(storage, `products/${Date.now()}_${imgFile.name}`);
+                const snapshot = await uploadBytes(fileRef, imgFile);
+                imgUrl = await getDownloadURL(snapshot.ref);
             }
 
             const productData = {
-                name: namePt,
-                nameEn: nameEn || namePt,
-                nameZh: nameZh || nameEn || namePt,
-                price: price,
-                category: category,
-                categoryEn: category,
-                categoryZh: category,
-                description: desc,
-                descriptionEn: descEn || desc,
-                descriptionZh: descZh || descEn || desc,
-                available: available,
-                image: imageUrl || ""
+                namePt,
+                nameEn: document.getElementById('prodNameEn').value,
+                nameZh: document.getElementById('prodNameZh').value,
+                price,
+                category: document.getElementById('prodCategory').value || 'Geral',
+                subCategory: document.getElementById('prodSubCategory').value || 'Geral',
+                descPt: document.getElementById('prodDesc').value,
+                descEn: document.getElementById('prodDescEn').value,
+                descZh: document.getElementById('prodDescZh').value,
+                imgUrl,
+                available: document.getElementById('prodAvailable').checked
             };
 
-            try {
-                if (editingProductId) {
-                    await updateDoc(doc(db, "products", editingProductId), productData);
-                    showToast("Produto atualizado!");
-                } else {
-                    productData.favorite = false;
-                    productData.createdAt = serverTimestamp();
-                    await addDoc(collection(db, "products"), productData);
-                    showToast("Produto cadastrado!");
-                }
-                resetProductForm();
-            } catch (error) {
-                showToast("Erro ao salvar produto: " + error.message);
+            if (window.editingProductId) {
+                await updateDoc(doc(db, "products", window.editingProductId), productData);
+                showToast("Produto atualizado com sucesso!");
+                cancelEditProduct();
+            } else {
+                await addDoc(collection(db, "products"), productData);
+                showToast("Produto cadastrado com sucesso!");
+                clearProductForm();
             }
-        }
+        };
 
-        function editProduct(id) {
-            const prod = products.find(p => p.id === id);
-            if (!prod) return;
+        window.renderAdminProductList = function() {
+            const listEl = document.getElementById('adminProductList');
+            const searchVal = (document.getElementById('adminSearchInput').value || '').toLowerCase();
+            
+            const filtered = window.productsList.filter(p => (p.namePt || '').toLowerCase().includes(searchVal));
 
-            editingProductId = id;
-            document.getElementById("catalogFormTitle").innerText = i18n[currentLang].editProd;
-            document.getElementById("prodNamePt").value = prod.name || "";
-            document.getElementById("prodNameEn").value = prod.nameEn || "";
-            document.getElementById("prodNameZh").value = prod.nameZh || "";
-            document.getElementById("prodPrice").value = prod.price || "";
-            document.getElementById("prodCategory").value = prod.category || "";
-            document.getElementById("prodDesc").value = prod.description || "";
-            document.getElementById("prodDescEn").value = prod.descriptionEn || "";
-            document.getElementById("prodDescZh").value = prod.descriptionZh || "";
-            document.getElementById("prodImgUrl").value = prod.image || "";
-            document.getElementById("prodAvailable").checked = prod.available !== false;
-            document.getElementById("prodImgFile").value = "";
-
-            document.getElementById("btnSaveProductText").innerText = i18n[currentLang].btnUpdateProd;
-            document.getElementById("btnSaveProductIcon").className = "fa-solid fa-check";
-            document.getElementById("btnCancelEdit").style.display = "inline-flex";
-
-            document.getElementById("catalogFormTitle").scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function resetProductForm() {
-            editingProductId = null;
-            document.getElementById("catalogFormTitle").innerText = i18n[currentLang].addNewProd;
-            document.getElementById("prodNamePt").value = "";
-            document.getElementById("prodNameEn").value = "";
-            document.getElementById("prodNameZh").value = "";
-            document.getElementById("prodPrice").value = "";
-            document.getElementById("prodCategory").value = "";
-            document.getElementById("prodDesc").value = "";
-            document.getElementById("prodDescEn").value = "";
-            document.getElementById("prodDescZh").value = "";
-            document.getElementById("prodImgUrl").value = "";
-            document.getElementById("prodImgFile").value = "";
-            document.getElementById("prodAvailable").checked = true;
-
-            document.getElementById("btnSaveProductText").innerText = i18n[currentLang].btnCreateProd;
-            document.getElementById("btnSaveProductIcon").className = "fa-solid fa-plus";
-            document.getElementById("btnCancelEdit").style.display = "none";
-        }
-
-        function cancelEditProduct() {
-            resetProductForm();
-            showToast("Edição cancelada.");
-        }
-
-        async function deleteProduct(id) {
-            if (confirm("Deseja remover este produto do banco de dados?")) {
-                try {
-                    await deleteDoc(doc(db, "products", id));
-                    showToast("Produto removido!");
-                } catch (error) {
-                    showToast("Erro ao remover: " + error.message);
-                }
+            if (filtered.length === 0) {
+                listEl.innerHTML = `<p style="font-size:0.8rem; color:var(--text-muted); text-align:center; padding:10px;">Nenhum produto encontrado.</p>`;
+                return;
             }
-        }
 
-        async function toggleProductAvailability(id, currentStatus) {
-            try {
-                await updateDoc(doc(db, "products", id), { available: !currentStatus });
-                showToast("Status alterado!");
-            } catch (error) {
-                showToast("Erro ao alterar disponibilidade: " + error.message);
-            }
-        }
-
-        function renderAdminProductList() {
-            const container = document.getElementById("adminProductList");
-            container.innerHTML = products.map(p => {
-                const isAvail = p.available !== false;
-                const localizedName = getLocalizedText(p, 'name');
-                const localizedCategory = getLocalizedText(p, 'category');
-                return `
-                    <div class="admin-product-item">
-                        <div class="admin-product-info">
-                            <h4>${localizedName}</h4>
-                            <span>${formatCurrency(p.price)} | ${localizedCategory}</span>
-                        </div>
-                        <div style="display:flex; gap:6px;">
-                            <button class="btn-toggle-sm ${isAvail ? 'available' : ''}" onclick="toggleProductAvailability('${p.id}', ${isAvail})">
-                                ${isAvail ? i18n[currentLang].available : i18n[currentLang].outOfStock}
-                            </button>
-                            <button class="btn-edit-sm" onclick="editProduct('${p.id}')"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn-danger-sm" onclick="deleteProduct('${p.id}')"><i class="fa-solid fa-trash"></i></button>
-                        </div>
+            listEl.innerHTML = filtered.map(p => `
+                <div class="admin-product-item">
+                    <div class="admin-product-info">
+                        <h4>${p.namePt}</h4>
+                        <span>R$ ${Number(p.price).toFixed(2)} | ${p.category} ${p.subCategory !== 'Geral' ? ' > ' + p.subCategory : ''}</span>
                     </div>
-                `;
-            }).join('');
+                    <div style="display:flex; gap:6px;">
+                        <button class="btn-toggle-sm ${p.available !== false ? 'available' : ''}" onclick="toggleProductStock('${p.id}', ${p.available !== false})">${p.available !== false ? 'Disponível' : 'Indisponível'}</button>
+                        <button class="btn-edit-sm" onclick="startEditProduct('${p.id}')"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn-danger-sm" onclick="deleteProduct('${p.id}')"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        window.filterAdminProducts = function() {
+            renderAdminProductList();
+        };
+
+        window.startEditProduct = function(id) {
+            const p = window.productsList.find(item => item.id === id);
+            if (!p) return;
+            window.editingProductId = id;
+            document.getElementById('prodNamePt').value = p.namePt || '';
+            document.getElementById('prodNameEn').value = p.nameEn || '';
+            document.getElementById('prodNameZh').value = p.nameZh || '';
+            document.getElementById('prodPrice').value = p.price || '';
+            document.getElementById('prodCategory').value = p.category || '';
+            document.getElementById('prodSubCategory').value = p.subCategory || '';
+            document.getElementById('prodDesc').value = p.descPt || '';
+            document.getElementById('prodDescEn').value = p.descEn || '';
+            document.getElementById('prodDescZh').value = p.descZh || '';
+            document.getElementById('prodImgUrl').value = p.imgUrl || '';
+            document.getElementById('prodAvailable').checked = p.available !== false;
+
+            document.getElementById('catalogFormTitle').innerText = "Editar Produto";
+            document.getElementById('btnSaveProductText').innerText = "Salvar Alterações";
+            document.getElementById('btnCancelEdit').style.display = 'inline-block';
+        };
+
+        window.cancelEditProduct = function() {
+            window.editingProductId = null;
+            clearProductForm();
+            document.getElementById('catalogFormTitle').innerText = "Adicionar Novo Produto";
+            document.getElementById('btnSaveProductText').innerText = "Cadastrar Produto";
+            document.getElementById('btnCancelEdit').style.display = 'none';
+        };
+
+        function clearProductForm() {
+            document.getElementById('prodNamePt').value = '';
+            document.getElementById('prodNameEn').value = '';
+            document.getElementById('prodNameZh').value = '';
+            document.getElementById('prodPrice').value = '';
+            document.getElementById('prodCategory').value = '';
+            document.getElementById('prodSubCategory').value = '';
+            document.getElementById('prodDesc').value = '';
+            document.getElementById('prodDescEn').value = '';
+            document.getElementById('prodDescZh').value = '';
+            document.getElementById('prodImgUrl').value = '';
+            document.getElementById('prodImgFile').value = '';
+            document.getElementById('prodAvailable').checked = true;
         }
 
-        // Importador de Cardápio por PDF ou Imagem
-        async function processMenuImport() {
-            const fileInput = document.getElementById("menuImportFile");
-            const categoryDefault = document.getElementById("importCategoryDefault").value.trim() || "Geral";
-            const progressBar = document.getElementById("importProgressBar");
-            const progressFill = document.getElementById("importProgressFill");
-            const statusText = document.getElementById("importStatusText");
-            const previewArea = document.getElementById("importedPreviewArea");
-            const itemsList = document.getElementById("importedItemsList");
+        window.toggleProductStock = async function(id, currentStatus) {
+            await updateDoc(doc(db, "products", id), { available: !currentStatus });
+            showToast("Status de disponibilidade atualizado!");
+        };
 
-            if (!fileInput.files[0]) {
+        window.deleteProduct = async function(id) {
+            if (confirm("Deseja realmente excluir este produto?")) {
+                await deleteDoc(doc(db, "products", id));
+                showToast("Produto excluído.");
+            }
+        };
+
+        // Smart Menu Import via Tesseract.js OCR
+        window.processMenuImport = async function() {
+            const fileInput = document.getElementById('menuImportFile');
+            const defaultCategory = document.getElementById('importCategoryDefault').value || 'Geral';
+            if (fileInput.files.length === 0) {
                 showToast("Selecione um arquivo de imagem ou PDF.");
                 return;
             }
 
             const file = fileInput.files[0];
-            progressBar.style.display = "block";
-            progressFill.style.width = "0%";
-            statusText.innerText = "Iniciando leitura óptica (OCR)...";
+            const progressBar = document.getElementById('importProgressBar');
+            const progressFill = document.getElementById('importProgressFill');
+            const statusText = document.getElementById('importStatusText');
+            
+            progressBar.style.display = 'block';
+            statusText.innerText = "Lendo arquivo com Inteligência OCR...";
 
             try {
                 const worker = await Tesseract.createWorker('por');
-                
-                statusText.innerText = "Lendo texto e preços do arquivo...";
-                progressFill.style.width = "40%";
-
                 const ret = await worker.recognize(file);
-                const text = ret.data.text;
-
-                progressFill.style.width = "70%";
-                statusText.innerText = "Extraindo produtos e salvando...";
-
                 await worker.terminate();
 
+                const text = ret.data.text;
                 const lines = text.split('\n');
-                const priceRegex = /(?:R\$\s*)?(\d+[.,]\d{2})/i;
-                let addedCount = 0;
-                let previewHTML = "";
+                const detectedItems = [];
 
-                for (let line of lines) {
+                // Regex matcher for Price (ex: R$ 15,90 or 15.90)
+                const priceRegex = /(?:R\$\s*)?(\d+([.,]\d{2}))/i;
+
+                lines.forEach(line => {
                     const match = line.match(priceRegex);
                     if (match) {
-                        const price = parseFloat(match[1].replace(',', '.'));
-                        const name = line.replace(priceRegex, '').replace(/[^\w\sÀ-ú]/gi, '').trim();
-
+                        const priceStr = match[1].replace(',', '.');
+                        const price = parseFloat(priceStr);
+                        const name = line.replace(match[0], '').trim();
                         if (name.length > 2 && !isNaN(price)) {
-                            const newProduct = {
-                                name: name,
-                                nameEn: name,
-                                nameZh: name,
-                                price: price,
-                                category: categoryDefault,
-                                categoryEn: categoryDefault,
-                                categoryZh: categoryDefault,
-                                description: "Importado via cardápio",
-                                descriptionEn: "Imported via menu file",
-                                descriptionZh: "通过菜单文件导入",
-                                available: true,
-                                image: "",
-                                favorite: false,
-                                createdAt: serverTimestamp()
-                            };
-
-                            await addDoc(collection(db, "products"), newProduct);
-                            addedCount++;
-                            previewHTML += `<div>• <strong>${name}</strong> - R$ ${price.toFixed(2)}</div>`;
+                            detectedItems.push({ name, price, category: defaultCategory });
                         }
                     }
-                }
+                });
 
-                progressFill.style.width = "100%";
-                if (addedCount > 0) {
-                    statusText.innerText = `Sucesso! ${addedCount} produtos importados.`;
-                    showToast(`${addedCount} produtos cadastrados com sucesso!`);
-                    previewArea.style.display = "block";
-                    itemsList.innerHTML = previewHTML;
+                document.getElementById('importedPreviewArea').style.display = 'block';
+                const listEl = document.getElementById('importedItemsList');
+                
+                if (detectedItems.length === 0) {
+                    listEl.innerHTML = `<p style="color:var(--text-muted); font-size:0.85rem;">Nenhum item com preço claro foi detectado automaticamente. Tente uma imagem mais nítida.</p>`;
                 } else {
-                    statusText.innerText = "Nenhum preço/produto com padrão válido detectado na imagem.";
-                    showToast("Não foi possível reconhecer o formato de preço.");
+                    listEl.innerHTML = detectedItems.map((item, idx) => `
+                        <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #eee; font-size:0.85rem;">
+                            <span><strong>${item.name}</strong> (${item.category})</span>
+                            <span style="color:var(--secondary); font-weight:bold;">R$ ${item.price.toFixed(2)}</span>
+                        </div>
+                    `).join('') + `
+                        <button class="add-btn" style="margin-top:10px; width:100%; justify-content:center;" onclick="confirmImportedItems(${encodeURIComponent(JSON.stringify(detectedItems))})">Confirmar e Salvar no Firestore</button>
+                    `;
                 }
 
+                statusText.innerText = "Processamento concluído com sucesso!";
+                progressFill.style.width = '100%';
             } catch (err) {
-                showToast("Erro ao processar o arquivo: " + err.message);
-                statusText.innerText = "Erro no processamento.";
-            } finally {
-                setTimeout(() => { progressBar.style.display = "none"; }, 3000);
+                statusText.innerText = "Erro ao processar arquivo OCR.";
+                showToast("Erro no reconhecimento óptico.");
             }
-        }
+        };
 
-        async function saveAdminSettings() {
-            const coverFileInput = document.getElementById("cfgCoverFile");
-            let coverUrl = document.getElementById("cfgCoverUrl").value.trim();
-
-            if (coverFileInput.files[0]) {
-                try {
-                    showToast("Enviando foto de capa para o Storage...");
-                    coverUrl = await uploadFileToStorage(coverFileInput.files[0], "covers");
-                } catch (e) {
-                    showToast("Erro no upload da capa: " + e.message);
-                    return;
-                }
+        window.confirmImportedItems = async function(itemsEncoded) {
+            const items = JSON.parse(decodeURIComponent(itemsEncoded));
+            for (const item of items) {
+                await addDoc(collection(db, "products"), {
+                    namePt: item.name,
+                    price: item.price,
+                    category: item.category,
+                    subCategory: 'Geral',
+                    descPt: 'Importado via OCR',
+                    available: true
+                });
             }
+            showToast(`${items.length} produtos importados com sucesso!`);
+            document.getElementById('importedPreviewArea').style.display = 'none';
+        };
 
-            const updatedSettings = {
-                name: document.getElementById("cfgStoreName").value.trim(),
-                logo: document.getElementById("cfgLogo").value.trim(),
-                description: document.getElementById("cfgDesc").value.trim(),
-                descriptionEn: document.getElementById("cfgDescEn").value.trim(),
-                descriptionZh: document.getElementById("cfgDescZh").value.trim(),
-                whatsapp: document.getElementById("cfgWhatsapp").value.trim(),
-                instagram: document.getElementById("cfgInstagram").value.trim(),
-                hours: document.getElementById("cfgHours").value.trim(),
-                salesMode: document.getElementById("cfgSalesMode").value,
-                address: document.getElementById("cfgAddress").value.trim(),
-                coverUrl: coverUrl
-            };
-
-            try {
-                await setDoc(doc(db, "store_config", "settings"), updatedSettings, { merge: true });
-                toggleModal("adminModal", false);
-                showToast("Configurações salvas!");
-            } catch (error) {
-                showToast("Erro ao salvar configurações: " + error.message);
-            }
-        }
-
-        function generateQRCode() {
-            const container = document.getElementById("qrcodeContainer");
-            container.innerHTML = "";
+        // QR Code & Printing
+        function generateQrCode() {
             const url = window.location.href;
+            document.getElementById('qrUrlInput').value = url;
             
-            new QRCode(container, { text: url, width: 180, height: 180 });
+            const container = document.getElementById('qrcodeContainer');
+            container.innerHTML = '';
+            new QRCode(container, {
+                text: url,
+                width: 180,
+                height: 180,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
 
-            document.getElementById("qrUrlInput").value = url;
-            document.getElementById("printStoreName").innerText = storeConfig.name;
-            document.getElementById("printStoreUrl").innerText = url;
-
-            const printContainer = document.getElementById("printQrCode");
-            printContainer.innerHTML = "";
-            new QRCode(printContainer, { text: url, width: 250, height: 250 });
+            const printContainer = document.getElementById('printQrCode');
+            printContainer.innerHTML = '';
+            new QRCode(printContainer, {
+                text: url,
+                width: 250,
+                height: 250,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
         }
 
-        function copyStoreUrl() {
-            const input = document.getElementById("qrUrlInput");
+        window.copyStoreUrl = function() {
+            const input = document.getElementById('qrUrlInput');
             input.select();
             navigator.clipboard.writeText(input.value);
-            showToast("Link copiado!");
-        }
+            showToast("Link copiado para a área de transferência!");
+        };
 
-        function printQrSheet() {
+        window.printQrSheet = function() {
             window.print();
-        }
+        };
 
-        function showToast(msg) {
-            const container = document.getElementById("toastContainer");
-            const toast = document.createElement("div");
-            toast.className = "toast";
-            toast.innerText = msg;
-            container.appendChild(toast);
-
-            setTimeout(() => toast.classList.add("show"), 10);
-            setTimeout(() => {
-                toast.classList.remove("show");
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        // Exportação global de funções chamadas por eventos HTML inline
-        window.toggleLanguage = toggleLanguage;
-        window.handleLojistaClick = handleLojistaClick;
-        window.verifyLogin = verifyLogin;
-        window.logoutAdmin = logoutAdmin;
-        window.toggleModal = toggleModal;
-        window.toggleCartModal = toggleCartModal;
-        window.selectCategory = selectCategory;
-        window.filterProducts = filterProducts;
-        window.addToCart = addToCart;
-        window.changeQty = changeQty;
-        window.sendOrder = sendOrder;
-        window.switchAdminTab = switchAdminTab;
-        window.saveProduct = saveProduct;
-        window.editProduct = editProduct;
-        window.cancelEditProduct = cancelEditProduct;
-        window.deleteProduct = deleteProduct;
-        window.toggleProductAvailability = toggleProductAvailability;
-        window.copyStoreUrl = copyStoreUrl;
-        window.printQrSheet = printQrSheet;
-        window.saveAdminSettings = saveAdminSettings;
-        window.processMenuImport = processMenuImport;
+        // Initialize App on Load
+        window.addEventListener('DOMContentLoaded', () => {
+            applyTranslations();
+            initFirebaseListeners();
+        });
     </script>
 </body>
 </html>
+
