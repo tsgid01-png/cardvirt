@@ -3,27 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">Cardápio Virtual</title>
-    <!-- Google Fonts, Font Awesome Icons, QRCode.js & Tesseract.js (OCR) CDN -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Cardápio Digital & Sistema de Gestão</title>
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- QRCodeJS Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Tesseract.js for OCR Menu Import -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-    
+
     <style>
         :root {
-            --primary: #c82333;
-            --primary-dark: #9f1a27;
-            --secondary: #0056b3;
-            --accent: #ff9900;
-            --success: #28a745;
-            --bg-light: #f8f9fa;
-            --card-bg: #ffffff;
-            --text-dark: #2c3e50;
-            --text-muted: #6c757d;
-            --border-color: #e9ecef;
-            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --primary: #FF4757;
+            --primary-dark: #FF6B81;
+            --secondary: #2ED573;
+            --dark: #2F3542;
+            --light: #F1F2F6;
+            --white: #FFFFFF;
+            --gray: #A4B0BE;
+            --border: #CED6E0;
             --radius: 12px;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
 
         * {
@@ -31,2255 +32,1136 @@
             margin: 0;
             padding: 0;
             font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-            padding-bottom: 90px;
+            background-color: #F8F9FA;
+            color: var(--dark);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
         }
 
-        /* Top Bar & Header */
-        .top-nav {
-            background: rgba(0, 0, 0, 0.45);
-            padding: 10px 15px;
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--white);
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+        }
+
+        /* Header & Cover */
+        .store-header {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            background-color: var(--gray);
+            background-size: cover;
+            background-position: center;
+        }
+
+        .store-header-overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7));
+        }
+
+        .header-top-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 10px;
             z-index: 10;
         }
 
-        .top-nav-btn {
-            background: rgba(255, 255, 255, 0.25);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            backdrop-filter: blur(8px);
-            transition: all 0.2s;
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            color: var(--dark);
+            transition: 0.2s;
         }
 
-        .top-nav-btn:hover {
-            background: rgba(255, 255, 255, 0.4);
+        .icon-btn:hover {
+            background: var(--white);
+            transform: scale(1.05);
         }
 
-        header {
-            background: linear-gradient(135deg, var(--primary) 0%, #8b0000 100%);
-            background-size: cover;
-            background-position: center;
-            color: white;
-            padding: 3.8rem 1rem 1.8rem;
+        .store-info-box {
+            padding: 20px;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
             position: relative;
-        }
-
-        header::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 1;
-        }
-
-        .header-content {
-            position: relative;
-            z-index: 2;
+            margin-top: -30px;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            z-index: 5;
         }
 
         .store-logo {
-            font-size: 2.5rem;
-            margin-bottom: 4px;
-            display: inline-block;
-        }
-
-        header h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
-        header p {
-            font-size: 0.85rem;
-            opacity: 0.95;
-            margin-top: 4px;
-        }
-
-        .store-info-pills {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-            font-size: 0.75rem;
-        }
-
-        .store-pill {
-            background: rgba(255,255,255,0.25);
-            padding: 4px 12px;
-            border-radius: 12px;
-            backdrop-filter: blur(4px);
-        }
-
-        /* Controls: Search & Category Filter */
-        .controls {
-            position: sticky;
-            top: 0;
-            z-index: 90;
-            background: white;
-            padding: 10px 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
-
-        .search-box {
-            position: relative;
-            margin-bottom: 10px;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 10px 15px 10px 40px;
-            border: 1px solid #ddd;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            outline: none;
-            transition: all 0.3s;
-        }
-
-        .search-box input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(200, 35, 51, 0.15);
-        }
-
-        .search-box i {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 3px solid var(--white);
+            object-fit: cover;
             position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: var(--shadow);
+            background: var(--white);
         }
 
-        .categories {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding-bottom: 5px;
-            scrollbar-width: none;
-        }
-
-        .categories::-webkit-scrollbar { display: none; }
-
-        .cat-btn {
-            background: #e9ecef;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            white-space: nowrap;
-            color: var(--text-dark);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .cat-btn.active {
-            background: var(--primary);
-            color: white;
-        }
-
-        /* Main Menu Grid */
-        .container {
-            max-width: 1100px;
-            margin: 20px auto;
-            padding: 0 15px;
-        }
-
-        .section-title {
+        .store-title {
             font-size: 1.25rem;
             font-weight: 700;
-            color: var(--primary-dark);
-            margin: 25px 0 12px;
-            padding-bottom: 5px;
-            border-bottom: 2px solid var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            margin-top: 25px;
+            color: var(--dark);
         }
 
-        .subcategories-container {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            margin-bottom: 12px;
-        }
-
-        .subcat-btn {
-            background: #e2e8f0;
-            border: none;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-dark);
-            cursor: pointer;
-        }
-
-        .subcat-btn.active {
-            background: var(--secondary);
-            color: white;
-        }
-
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 15px;
-        }
-
-        .product-card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 15px;
-            box-shadow: var(--shadow);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            position: relative;
-            transition: transform 0.2s, opacity 0.2s;
-            overflow: hidden;
-        }
-
-        .product-card:hover {
-            transform: translateY(-2px);
-        }
-
-        .product-card.unavailable {
-            opacity: 0.65;
-            filter: grayscale(0.7);
-        }
-
-        .product-img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            background-color: #f0f0f0;
-        }
-
-        .badge-popular {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: var(--accent);
-            color: #fff;
-            font-size: 0.7rem;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 10px;
-            text-transform: uppercase;
-            z-index: 2;
-        }
-
-        .badge-out-stock {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: #6c757d;
-            color: #fff;
-            font-size: 0.7rem;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 10px;
-            text-transform: uppercase;
-            z-index: 2;
-        }
-
-        .product-info h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 6px;
-            padding-right: 40px;
-        }
-
-        .product-info p {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-            line-height: 1.3;
-        }
-
-        .product-bottom {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 10px;
-        }
-
-        .price {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--secondary);
-        }
-
-        .add-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 8px;
-            font-weight: 600;
+        .store-desc {
             font-size: 0.85rem;
-            cursor: pointer;
-            transition: background 0.2s;
+            color: #666;
+            margin: 6px 0 12px;
+            line-height: 1.4;
+        }
+
+        .store-meta {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            font-size: 0.75rem;
+            color: #555;
+            margin-bottom: 12px;
+        }
+
+        .store-meta span {
             display: flex;
             align-items: center;
             gap: 5px;
         }
 
-        .add-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        .add-btn:hover:not(:disabled) {
-            background: var(--primary-dark);
-        }
-
-        /* Skeleton Loading */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: skeleton-loading 1.5s infinite;
-            border-radius: 8px;
-        }
-
-        @keyframes skeleton-loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
-        .skeleton-card {
-            height: 220px;
-            border-radius: var(--radius);
-        }
-
-        /* Cart Floating Bar */
-        .cart-bar {
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            background: #ffffff;
-            box-shadow: 0 -4px 15px rgba(0,0,0,0.12);
+        /* Controls / Search */
+        .controls-bar {
             padding: 12px 20px;
+            display: flex;
+            gap: 10px;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        .search-input-wrapper i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 12px 10px 36px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            font-size: 0.85rem;
+            outline: none;
+            background: #F8F9FA;
+        }
+
+        .lang-select {
+            padding: 0 10px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: #F8F9FA;
+            font-size: 0.85rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Categories Bar */
+        .categories-container {
+            display: flex;
+            gap: 8px;
+            padding: 12px 20px;
+            overflow-x: auto;
+            background: var(--white);
+            scrollbar-width: none;
+        }
+
+        .categories-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .cat-chip {
+            padding: 6px 14px;
+            background: var(--light);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: 0.2s;
+            color: var(--dark);
+        }
+
+        .cat-chip.active {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        /* Main Content / Products List */
+        .content-area {
+            flex: 1;
+            padding: 15px 20px 90px 20px;
+            overflow-y: auto;
+        }
+
+        .category-section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 15px 0 10px 0;
+            color: var(--dark);
+        }
+
+        .product-card {
+            display: flex;
+            gap: 12px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .product-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: var(--light);
+        }
+
+        .product-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .product-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .product-desc {
+            font-size: 0.75rem;
+            color: #666;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin: 4px 0;
+        }
+
+        .product-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            z-index: 100;
         }
 
-        .cart-info {
+        .product-price {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .add-btn {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .add-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.1);
+        }
+
+        /* Floating Cart Bar */
+        .floating-cart {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px);
+            max-width: 440px;
+            background: var(--dark);
+            color: var(--white);
+            padding: 14px 20px;
+            border-radius: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 99;
+            transition: 0.3s;
+        }
+
+        .floating-cart.hidden {
+            display: none;
+        }
+
+        .cart-info-left {
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
-        .cart-icon-wrapper {
-            position: relative;
-            font-size: 1.5rem;
-            color: var(--primary);
-        }
-
         .cart-badge {
-            position: absolute;
-            top: -8px; right: -10px;
-            background: var(--accent);
-            color: white;
-            font-size: 0.75rem;
-            font-weight: 700;
-            border-radius: 50%;
-            width: 20px; height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .cart-total-text {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        .cart-total-amount {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text-dark);
-        }
-
-        .view-cart-btn {
             background: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        /* Modals */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            z-index: 300;
-            backdrop-filter: blur(2px);
-        }
-
-        .modal.active {
+            color: var(--white);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
             display: flex;
-        }
-
-        .modal-cart {
-            justify-content: flex-end;
-        }
-
-        .modal-cart .modal-content {
-            background: white;
-            width: 100%;
-            max-width: 450px;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            animation: slideLeft 0.3s ease-out;
-        }
-
-        @keyframes slideLeft {
-            from { transform: translateX(100%); }
-            to { transform: translateX(0); }
-        }
-
-        .modal-center {
-            justify-content: center;
             align-items: center;
-            padding: 15px;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
         }
 
-        .modal-center .modal-content {
-            background: white;
-            border-radius: var(--radius);
+        /* Modals & Sheets */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: var(--white);
             width: 100%;
-            max-width: 500px;
+            max-width: 480px;
             max-height: 90vh;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            padding: 24px;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            animation: popIn 0.25s ease-out;
-            overflow: hidden;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.1, 1, 0.1, 1);
+            overflow-y: auto;
         }
 
-        .modal-center .modal-content.large {
-            max-width: 850px;
-        }
-
-        @keyframes popIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
+        .modal-overlay.active .modal-card {
+            transform: translateY(0);
         }
 
         .modal-header {
-            padding: 15px 20px;
-            background: var(--primary);
-            color: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 16px;
         }
 
-        .modal-header h2 {
-            font-size: 1.15rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 700;
         }
 
-        .close-btn {
-            background: none;
+        .close-modal {
+            background: var(--light);
             border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        .modal-body {
-            padding: 20px;
-            overflow-y: auto;
-            flex: 1;
-        }
-
-        .modal-footer {
-            padding: 15px 20px;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-            background: #f8f9fa;
-        }
-
-        /* Cart Items */
-        .cart-items {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px 20px;
-        }
-
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .cart-item-title {
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .cart-item-price {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .qty-controls {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .qty-btn {
-            background: #e9ecef;
-            border: none;
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            font-weight: 700;
             cursor: pointer;
-        }
-
-        .checkout-btn {
-            width: 100%;
-            background: var(--success);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            color: var(--dark);
         }
 
-        .simulation-banner {
-            background: #fff3cd;
-            color: #856404;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            margin-bottom: 12px;
-            border-left: 4px solid #ffeba2;
-        }
-
-        /* Admin Tabs & Form Styles */
-        .admin-tabs {
-            display: flex;
-            border-bottom: 2px solid var(--border-color);
-            margin-bottom: 20px;
-            gap: 10px;
-            overflow-x: auto;
-        }
-
-        .admin-tab {
-            padding: 10px 15px;
-            border: none;
-            background: none;
-            font-weight: 600;
-            color: var(--text-muted);
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            margin-bottom: -2px;
-            white-space: nowrap;
-        }
-
-        .admin-tab.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-        }
-
+        /* Form Controls */
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .form-group label {
             display: block;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: 600;
-            margin-bottom: 5px;
-            color: var(--text-dark);
+            color: #555;
+            margin-bottom: 4px;
         }
 
         .form-control {
             width: 100%;
             padding: 10px 12px;
-            border: 1px solid #ced4da;
+            border: 1px solid var(--border);
             border-radius: 8px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             outline: none;
+            background: #FAFAFA;
         }
 
         .form-control:focus {
             border-color: var(--primary);
+            background: var(--white);
         }
 
-        .form-row {
-            display: flex;
-            gap: 15px;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        .admin-product-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px;
-            background: var(--bg-light);
-            border-radius: 8px;
-            margin-bottom: 8px;
-            border: 1px solid var(--border-color);
-        }
-
-        .admin-product-info h4 {
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .admin-product-info span {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        .btn-danger-sm {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        .btn-edit-sm {
-            background: var(--secondary);
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        .btn-toggle-sm {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        .btn-toggle-sm.available {
-            background: var(--success);
-        }
-
-        /* Import Box Styles */
-        .import-box {
-            border: 2px dashed #0056b3;
-            background: #f0f7ff;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .import-box i {
-            font-size: 2.2rem;
-            color: #0056b3;
-            margin-bottom: 10px;
-        }
-
-        .progress-bar {
+        .btn-primary-full {
             width: 100%;
-            background: #e9ecef;
-            height: 10px;
-            border-radius: 5px;
-            overflow: hidden;
+            padding: 12px;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: 0.2s;
             margin-top: 10px;
-            display: none;
         }
 
-        .progress-fill {
-            height: 100%;
-            background: var(--success);
-            width: 0%;
-            transition: width 0.3s;
+        .btn-primary-full:hover {
+            background: var(--primary-dark);
         }
 
-        /* Toast Notification */
-        .toast-container {
+        /* Toast Alert */
+        .toast {
             position: fixed;
             top: 20px;
-            right: 20px;
-            z-index: 999;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .toast {
-            background: #323232;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            opacity: 0;
-            transform: translateY(-20px);
-            transition: all 0.3s;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--dark);
+            color: var(--white);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            z-index: 2000;
+            transition: transform 0.3s ease;
+            box-shadow: var(--shadow);
+            white-space: nowrap;
         }
 
         .toast.show {
-            opacity: 1;
-            transform: translateY(0);
+            transform: translateX(-50%) translateY(0);
         }
 
-        /* QR Code & Print Styling */
-        #qrcodeContainer, #printQrCode {
+        /* Admin Management Items */
+        .admin-product-item {
             display: flex;
-            justify-content: center;
-            margin: 20px 0;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid var(--border);
+            gap: 10px;
         }
 
-        #qrcodeContainer img, #printQrCode img {
-            border: 8px solid white;
-            box-shadow: var(--shadow);
-            border-radius: 8px;
-            margin: 0 auto;
+        .admin-product-info h4 {
+            font-size: 0.85rem;
         }
 
-        #printableArea {
-            display: none;
+        .admin-product-info span {
+            font-size: 0.75rem;
+            color: #666;
         }
 
+        .btn-edit-sm { background: #3498DB; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; }
+        .btn-danger-sm { background: #E74C3C; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; }
+        .btn-toggle-sm { background: var(--gray); color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; }
+        .btn-toggle-sm.available { background: var(--secondary); }
+
+        /* Print / QR Area Styles */
         @media print {
-            body > *:not(#printableArea) {
-                display: none !important;
-            }
-            #printableArea {
-                display: block !important;
-                position: absolute;
-                left: 0; top: 0;
-                width: 100%;
-                text-align: center;
-                padding: 40px;
-            }
+            body * { visibility: hidden; }
+            #qrPrintSection, #qrPrintSection * { visibility: visible; }
+            #qrPrintSection { position: absolute; left: 0; top: 0; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header Navigation & Store Info -->
-    <header id="headerBg">
-        <div class="top-nav">
-            <button class="top-nav-btn" onclick="toggleLanguage()">
-                <span id="langDisplay">🇧🇷 PT</span>
-            </button>
-            <button class="top-nav-btn" onclick="handleLojistaClick()">
-                <i class="fa-solid fa-user-gear"></i> <span id="lojistaBtnText">Modo Lojista</span>
-            </button>
-        </div>
-
-        <div class="header-content">
-            <div class="store-logo" id="storeLogo">🦀</div>
-            <h1 id="storeNameDisplay">Cardápio Virtual</h1>
-            <p id="storeDescDisplay">Praia do Futuro - Fortaleza/CE | Desde 1987</p>
-            
-            <div class="store-info-pills">
-                <span class="store-pill" id="storeHoursDisplay"><i class="fa-regular fa-clock"></i> 10:00 - 22:00</span>
-                <span class="store-pill" id="storeInstaDisplay"><i class="fa-brands fa-instagram"></i> @cardapiovirtual</span>
+    <div class="app-container">
+        <!-- Store Header -->
+        <div id="storeHeader" class="store-header" style="background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80');">
+            <div class="store-header-overlay"></div>
+            <div class="header-top-actions">
+                <button class="icon-btn" onclick="openQrModal()" title="QR Code / Mesa"><i class="fa-solid fa-qrcode"></i></button>
+                <button class="icon-btn" onclick="openAdminModal()" title="Painel Admin"><i class="fa-solid fa-lock"></i></button>
             </div>
         </div>
-    </header>
 
-    <!-- Controls: Search & Category Filter -->
-    <div class="controls">
-        <div class="search-box">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="searchInput" placeholder="Buscar no cardápio..." oninput="filterProducts()">
-        </div>
-        <div class="categories" id="categoryContainer"></div>
-    </div>
-
-    <!-- Main Content Grid -->
-    <div class="container" id="menuContainer">
-        <!-- Skeleton Loading State Initial -->
-        <div class="product-grid">
-            <div class="skeleton skeleton-card"></div>
-            <div class="skeleton skeleton-card"></div>
-            <div class="skeleton skeleton-card"></div>
-        </div>
-    </div>
-
-    <!-- Cart Floating Bar -->
-    <div class="cart-bar">
-        <div class="cart-info">
-            <div class="cart-icon-wrapper">
-                <i class="fa-solid fa-cart-shopping"></i>
-                <span class="cart-badge" id="cartBadge">0</span>
-            </div>
-            <div>
-                <div class="cart-total-text" id="cartLabelTotal">Total da Comanda</div>
-                <div class="cart-total-amount" id="cartTotalBar">R$ 0,00</div>
+        <!-- Store Info -->
+        <div class="store-info-box">
+            <img id="storeLogoImg" src="https://images.unsplash.com/photo-1571091718767-18b5b1457add?auto=format&fit=crop&w=200&q=80" alt="Logo" class="store-logo">
+            <h1 id="storeNameText" class="store-title">Restaurante Sabor & Arte</h1>
+            <p id="storeDescText" class="store-desc">O melhor da culinária artesanal com ingredientes frescos e selecionados.</p>
+            <div class="store-meta">
+                <span><i class="fa-solid fa-clock" style="color:var(--secondary)"></i> <span id="storeHours">11:00 - 23:00</span></span>
+                <span><i class="fa-solid fa-location-dot" style="color:var(--primary)"></i> <span id="storeAddress">Salão Principal</span></span>
             </div>
         </div>
-        <button class="view-cart-btn" id="viewCartBtn" onclick="toggleCartModal(true)">Ver Comanda</button>
+
+        <!-- Controls Bar -->
+        <div class="controls-bar">
+            <div class="search-input-wrapper">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Buscar no cardápio..." oninput="filterProducts()">
+            </div>
+            <select id="langSelect" class="lang-select" onchange="changeLanguage(this.value)">
+                <option value="pt">PT</option>
+                <option value="en">EN</option>
+                <option value="zh">中文</option>
+            </select>
+        </div>
+
+        <!-- Categories Filter -->
+        <div id="categoriesContainer" class="categories-container">
+            <div class="cat-chip active" onclick="filterCategory('all', this)">Todos</div>
+        </div>
+
+        <!-- Main Product Feed -->
+        <div id="contentArea" class="content-area">
+            <!-- Dynamic Products Injected Here -->
+        </div>
+
+        <!-- Floating Cart Bar -->
+        <div id="floatingCart" class="floating-cart hidden" onclick="openCartModal()">
+            <div class="cart-info-left">
+                <div id="cartBadge" class="cart-badge">0</div>
+                <div>
+                    <div style="font-size:0.8rem; font-weight:600;" data-i18n="viewCart">Ver Carrinho</div>
+                    <div id="cartSubTotal" style="font-size:0.75rem; color:var(--gray);">R$ 0,00</div>
+                </div>
+            </div>
+            <div style="font-size:0.9rem; font-weight:700;"><i class="fa-solid fa-chevron-right"></i></div>
+        </div>
     </div>
 
-    <!-- Cart Modal (Drawer) -->
-    <div class="modal modal-cart" id="cartModal">
-        <div class="modal-content">
+    <!-- Product Details Modal -->
+    <div id="productModal" class="modal-overlay" onclick="toggleModal('productModal', false)">
+        <div class="modal-card" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h2 id="modalCartTitle">Sua Comanda</h2>
-                <button class="close-btn" onclick="toggleCartModal(false)">&times;</button>
+                <h3 id="modalProdName" class="modal-title">Detalhes do Item</h3>
+                <button class="close-modal" onclick="toggleModal('productModal', false)"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="cart-items" id="cartItemsContainer"></div>
-            <div class="modal-footer">
-                <div id="simulationBannerContainer"></div>
-                <div style="display:flex; justify-content:space-between; font-size:1.1rem; font-weight:bold;">
-                    <span id="modalCartTotalLabel">Total:</span>
-                    <span id="cartTotalModal">R$ 0,00</span>
-                </div>
-                <button class="checkout-btn" id="checkoutBtn" onclick="sendOrder()">Finalizar Pedido</button>
+            <img id="modalProdImg" src="" style="width:100%; height:180px; border-radius:10px; object-fit:cover; margin-bottom:12px; display:none;">
+            <p id="modalProdDesc" style="font-size:0.85rem; color:#666; margin-bottom:15px;"></p>
+            <div class="form-group">
+                <label data-i18n="observations">Observações (opcional)</label>
+                <input type="text" id="modalProdObs" class="form-control" placeholder="Ex: Sem cebola, ponto da carne...">
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
+                <div style="font-size:1.1rem; font-weight:700; color:var(--primary);" id="modalProdPrice">R$ 0,00</div>
+                <button class="btn-primary-full" style="width:auto; padding:10px 24px; margin:0;" onclick="confirmAddToCart()" data-i18n="addToCart">Adicionar</button>
             </div>
         </div>
     </div>
 
-    <!-- Login Access Modal -->
-    <div class="modal modal-center" id="pinModal">
-        <div class="modal-content">
+    <!-- Cart Modal -->
+    <div id="cartModal" class="modal-overlay" onclick="toggleModal('cartModal', false)">
+        <div class="modal-card" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h2><i class="fa-solid fa-lock"></i> <span id="loginTitleText">Acesso Lojista</span></h2>
-                <button class="close-btn" onclick="toggleModal('pinModal', false)">&times;</button>
+                <h3 class="modal-title" data-i18n="yourOrder">Seu Pedido</h3>
+                <button class="close-modal" onclick="toggleModal('cartModal', false)"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="modal-body">
-                <p id="loginDescText" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:15px; line-height:1.4;">
-                    Entre com seu e-mail e senha do Firebase Authentication para gerenciar o estabelecimento.
-                </p>
-                <div class="form-group">
-                    <label for="loginEmail" id="lblLoginEmail">E-mail de Acesso</label>
-                    <input type="email" id="loginEmail" class="form-control" placeholder="admin@cardapiovirtual.com.br">
-                </div>
-                <div class="form-group">
-                    <label for="loginPassword" id="lblLoginPassword">Senha</label>
-                    <input type="password" id="loginPassword" class="form-control" placeholder="Digite sua senha" onkeyup="if(event.key==='Enter') verifyLogin()">
-                </div>
+            <div class="form-group">
+                <label data-i18n="orderType">Modo de Pedido</label>
+                <select id="orderTypeSelect" class="form-control">
+                    <option value="mesa" data-i18n="dineIn">Consumir no Local / Mesa</option>
+                    <option value="delivery" data-i18n="delivery">Entrega em Domicílio (Delivery)</option>
+                    <option value="retirada" data-i18n="pickup">Retirar no Balcão</option>
+                </select>
             </div>
-            <div class="modal-footer" style="text-align:right;">
-                <button class="add-btn" id="btnLoginSubmit" style="width:100%; justify-content:center;" onclick="verifyLogin()">Entrar</button>
+            <div class="form-group">
+                <label data-i18n="clientName">Seu Nome / Mesa</label>
+                <input type="text" id="clientNameInput" class="form-control" placeholder="Ex: João (Mesa 04)">
+            </div>
+            <div id="cartItemsList" style="max-height: 180px; overflow-y: auto; margin: 10px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 10px 0;">
+                <!-- Cart Items -->
+            </div>
+            <div style="display:flex; justify-content:space-between; font-weight:700; font-size:1rem; margin-bottom:15px;">
+                <span data-i18n="total">Total:</span>
+                <span id="cartTotalPrice" style="color:var(--primary);">R$ 0,00</span>
+            </div>
+            <button class="btn-primary-full" onclick="checkoutOrder()"><i class="fa-brands fa-whatsapp"></i> <span data-i18n="sendWhatsapp">Enviar Pedido via WhatsApp</span></button>
+        </div>
+    </div>
+
+    <!-- QR Code / Table Modal -->
+    <div id="qrModal" class="modal-overlay" onclick="toggleModal('qrModal', false)">
+        <div class="modal-card" onclick="event.stopPropagation()" style="align-items: center; text-align: center;">
+            <div class="modal-header" style="width: 100%;">
+                <h3 class="modal-title">QR Code do Cardápio</h3>
+                <button class="close-modal" onclick="toggleModal('qrModal', false)"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p style="font-size:0.85rem; color:#666; margin-bottom:15px;">Escaneie o código abaixo para acessar este cardápio diretamente no celular:</p>
+            <div id="qrcodeContainer" style="background: white; padding: 10px; border-radius: 10px; box-shadow: var(--shadow); margin-bottom: 15px;"></div>
+            <input type="text" id="qrUrlInput" class="form-control" readonly style="text-align: center; margin-bottom: 10px;">
+            <div style="display:flex; gap:10px; width:100%;">
+                <button class="btn-primary-full" style="margin:0;" onclick="copyStoreUrl()"><i class="fa-solid fa-copy"></i> Copiar Link</button>
+                <button class="btn-primary-full" style="margin:0; background:var(--dark);" onclick="printQrSheet()"><i class="fa-solid fa-print"></i> Imprimir</button>
             </div>
         </div>
     </div>
 
     <!-- Admin Panel Modal -->
-    <div class="modal modal-center" id="adminModal">
-        <div class="modal-content large">
+    <div id="adminModal" class="modal-overlay" onclick="toggleModal('adminModal', false)">
+        <div class="modal-card" onclick="event.stopPropagation()" style="max-height: 95vh;">
             <div class="modal-header">
-                <h2><i class="fa-solid fa-sliders"></i> <span id="adminTitleText">Painel do Lojista</span></h2>
-                <button class="close-btn" onclick="toggleModal('adminModal', false)">&times;</button>
+                <h3 class="modal-title"><i class="fa-solid fa-lock"></i> Painel de Gestão</h3>
+                <button class="close-modal" onclick="toggleModal('adminModal', false)"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="modal-body">
-                <!-- Admin Tabs -->
-                <div class="admin-tabs">
-                    <button class="admin-tab active" onclick="switchAdminTab('tabConfig', event)" id="tabConfigBtn"><i class="fa-solid fa-store"></i> Estabelecimento</button>
-                    <button class="admin-tab" onclick="switchAdminTab('tabCatalog', event)" id="tabCatalogBtn"><i class="fa-solid fa-utensils"></i> Catálogo de Produtos</button>
-                    <button class="admin-tab" onclick="switchAdminTab('tabImport', event)" id="tabImportBtn"><i class="fa-solid fa-file-import"></i> Importar PDF/Imagem</button>
-                    <button class="admin-tab" onclick="switchAdminTab('tabQr', event)" id="tabQrBtn"><i class="fa-solid fa-qrcode"></i> QR Code & Divulgação</button>
-                </div>
 
-                <!-- Tab 1: Configurações do Estabelecimento -->
-                <div id="tabConfig" class="admin-tab-content">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="cfgStoreName" id="lblCfgStoreName">Nome da Loja</label>
-                            <input type="text" id="cfgStoreName" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="cfgLogo" id="lblCfgLogo">Logo / Emoji</label>
-                            <input type="text" id="cfgLogo" class="form-control" placeholder="Ex: 🦀">
-                        </div>
+            <!-- Admin Tabs -->
+            <div style="display:flex; gap:5px; margin-bottom:15px; border-bottom:1px solid var(--border); padding-bottom:8px;">
+                <button class="cat-chip active" onclick="switchAdminTab('products', this)">Produtos</button>
+                <button class="cat-chip" onclick="switchAdminTab('import', this)">Leitor OCR</button>
+                <button class="cat-chip" onclick="switchAdminTab('settings', this)">Loja</button>
+            </div>
+
+            <!-- Tab: Products -->
+            <div id="adminTabProducts" class="admin-tab-content">
+                <div style="background:#F1F2F6; padding:12px; border-radius:8px; margin-bottom:15px;">
+                    <h4 id="catalogFormTitle" style="font-size:0.9rem; margin-bottom:8px;">Adicionar Novo Produto</h4>
+                    <input type="hidden" id="editingProductId">
+                    <div class="form-group"><label>Nome do Produto (PT)*</label><input type="text" id="prodNamePt" class="form-control"></div>
+                    <div style="display:flex; gap:8px;">
+                        <div class="form-group" style="flex:1;"><label>Preço (R$)*</label><input type="number" step="0.01" id="prodPrice" class="form-control"></div>
+                        <div class="form-group" style="flex:1;"><label>Categoria*</label><input type="text" id="prodCategory" class="form-control" placeholder="Ex: Pratos"></div>
                     </div>
-                    <div class="form-group">
-                        <label for="cfgDesc" id="lblCfgDesc">Descrição Curta (PT)</label>
-                        <input type="text" id="cfgDesc" class="form-control">
+                    <div class="form-group"><label>URL da Imagem</label><input type="text" id="prodImgUrl" class="form-control" placeholder="https://..."></div>
+                    <div class="form-group"><label>Descrição</label><input type="text" id="prodDesc" class="form-control"></div>
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; font-size:0.85rem;">
+                        <input type="checkbox" id="prodAvailable" checked> Produto Disponível no Cardápio
                     </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="cfgDescEn" id="lblCfgDescEn">Descrição (EN)</label>
-                            <input type="text" id="cfgDescEn" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="cfgDescZh" id="lblCfgDescZh">Descrição (ZH)</label>
-                            <input type="text" id="cfgDescZh" class="form-control">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="cfgWhatsapp" id="lblCfgWhatsapp">WhatsApp (com DDD)</label>
-                            <input type="text" id="cfgWhatsapp" class="form-control" placeholder="5585999999999">
-                        </div>
-                        <div class="form-group">
-                            <label for="cfgInstagram" id="lblCfgInstagram">Instagram</label>
-                            <input type="text" id="cfgInstagram" class="form-control" placeholder="@sualoja">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="cfgHours" id="lblCfgHours">Horário de Funcionamento</label>
-                            <input type="text" id="cfgHours" class="form-control" placeholder="10:00 - 22:00">
-                        </div>
-                        <div class="form-group">
-                            <label for="cfgSalesMode" id="lblCfgSalesMode">Modo de Vendas</label>
-                            <select id="cfgSalesMode" class="form-control">
-                                <option value="direct" id="optSalesDirect">Venda Direta (Pedido via WhatsApp)</option>
-                                <option value="simulation" id="optSalesSimulate">Simulação de Conta (Prévia para Garçom)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="cfgAddress" id="lblCfgAddress">Endereço Completo</label>
-                        <input type="text" id="cfgAddress" class="form-control">
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="cfgCoverUrl" id="lblCfgCoverUrl">URL da Foto de Capa</label>
-                            <input type="text" id="cfgCoverUrl" class="form-control" placeholder="https://...">
-                        </div>
-                        <div class="form-group">
-                            <label for="cfgCoverFile" id="lblCfgCoverFile">Ou Upload de Capa (Firebase Storage)</label>
-                            <input type="file" id="cfgCoverFile" accept="image/*" class="form-control">
-                        </div>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn-primary-full" style="margin:0;" onclick="saveProduct()" id="btnSaveProductText">Cadastrar Produto</button>
+                        <button class="btn-primary-full" style="margin:0; background:var(--gray); display:none;" id="btnCancelEdit" onclick="cancelEditProduct()">Cancelar</button>
                     </div>
                 </div>
 
-                <!-- Tab 2: Gerenciamento do Catálogo -->
-                <div id="tabCatalog" class="admin-tab-content" style="display:none;">
-                    <h4 id="catalogFormTitle" style="margin-bottom:12px; font-size:1rem;">Adicionar Novo Produto</h4>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="prodNamePt" id="lblProdNamePt">Nome (Português)</label>
-                            <input type="text" id="prodNamePt" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="prodNameEn" id="lblProdNameEn">Nome (Inglês - Opcional)</label>
-                            <input type="text" id="prodNameEn" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="prodNameZh" id="lblProdNameZh">Nome (Chinês - Opcional)</label>
-                            <input type="text" id="prodNameZh" class="form-control">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="prodPrice" id="lblProdPrice">Preço (R$)</label>
-                            <input type="number" step="0.01" id="prodPrice" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="prodCategory" id="lblProdCategory">Categoria Principal</label>
-                            <input type="text" id="prodCategory" class="form-control" placeholder="Ex: Bebidas">
-                        </div>
-                        <div class="form-group">
-                            <label for="prodSubCategory" id="lblProdSubCategory">Subcategoria / Seção (Opcional)</label>
-                            <input type="text" id="prodSubCategory" class="form-control" placeholder="Ex: Drinks, Sucos">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="prodDesc" id="lblProdDesc">Descrição (PT)</label>
-                        <textarea id="prodDesc" class="form-control" rows="2"></textarea>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="prodDescEn" id="lblProdDescEn">Descrição (EN)</label>
-                            <textarea id="prodDescEn" class="form-control" rows="2"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="prodDescZh" id="lblProdDescZh">Descrição (ZH)</label>
-                            <textarea id="prodDescZh" class="form-control" rows="2"></textarea>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="prodImgUrl" id="lblProdImgUrl">URL da Imagem</label>
-                            <input type="text" id="prodImgUrl" class="form-control" placeholder="https://...">
-                        </div>
-                        <div class="form-group">
-                            <label for="prodImgFile" id="lblProdImgFile">Ou Upload de Foto (Firebase Storage)</label>
-                            <input type="file" id="prodImgFile" accept="image/*" class="form-control">
-                        </div>
-                    </div>
-                    <div class="form-group" style="display:flex; align-items:center; gap:8px;">
-                        <input type="checkbox" id="prodAvailable" checked style="width:18px; height:18px;">
-                        <label for="prodAvailable" id="lblProdAvailable" style="margin:0; cursor:pointer;">Produto Disponível para Venda</label>
-                    </div>
-
-                    <div style="display:flex; gap:10px; margin-bottom:20px;">
-                        <button class="add-btn" id="btnSaveProduct" onclick="saveProduct()">
-                            <i class="fa-solid fa-plus" id="btnSaveProductIcon"></i> <span id="btnSaveProductText">Cadastrar Produto</span>
-                        </button>
-                        <button class="cat-btn" id="btnCancelEdit" style="display:none;" onclick="cancelEditProduct()">
-                            <i class="fa-solid fa-xmark"></i> <span id="btnCancelEditText">Cancelar Edição</span>
-                        </button>
-                    </div>
-
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <h4 id="lblRegisteredProds" style="font-size:1.0rem; margin:0;">Produtos Cadastrados</h4>
-                        <div style="width: 250px;">
-                            <input type="text" id="adminSearchInput" class="form-control" placeholder="Buscar para editar..." oninput="filterAdminProducts()" style="padding: 6px 10px; font-size: 0.8rem;">
-                        </div>
-                    </div>
-                    <div id="adminProductList" style="max-height:250px; overflow-y:auto;"></div>
+                <div class="form-group">
+                    <input type="text" id="adminSearchInput" class="form-control" placeholder="Filtrar produtos cadastrados..." oninput="filterAdminProducts()">
                 </div>
-
-                <!-- Tab 3: Importador Automático por PDF/Imagem -->
-                <div id="tabImport" class="admin-tab-content" style="display:none;">
-                    <div class="import-box">
-                        <i class="fa-solid fa-file-pdf"></i>
-                        <h4 id="importTitleText">Importação Inteligente de Cardápio</h4>
-                        <p id="importDescText" style="font-size:0.85rem; color:var(--text-muted); margin: 6px 0 15px;">
-                            Faça o upload de uma <strong>Imagem</strong> ou <strong>PDF do seu Cardápio</strong>. Nosso leitor óptico extrairá os itens e preços automaticamente.
-                        </p>
-
-                        <div class="form-group" style="max-width: 400px; margin: 0 auto;">
-                            <label for="importCategoryDefault" id="lblImportCategory">Categoria Padrão para os Itens Importados</label>
-                            <input type="text" id="importCategoryDefault" class="form-control" value="Geral" placeholder="Ex: Bebidas, Refeições">
-                        </div>
-
-                        <div class="form-group" style="max-width: 400px; margin: 15px auto 0;">
-                            <input type="file" id="menuImportFile" accept="image/*,application/pdf" class="form-control">
-                        </div>
-
-                        <button class="add-btn" id="btnProcessImport" style="margin: 15px auto 0; justify-content:center;" onclick="processMenuImport()">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i> Processar e Importar
-                        </button>
-
-                        <div class="progress-bar" id="importProgressBar">
-                            <div class="progress-fill" id="importProgressFill"></div>
-                        </div>
-                        <p id="importStatusText" style="font-size:0.8rem; margin-top:8px; color:var(--text-muted);"></p>
-                    </div>
-
-                    <div id="importedPreviewArea" style="display:none;">
-                        <h4 id="importedDetectedText">Itens Detectados:</h4>
-                        <div id="importedItemsList" style="max-height: 200px; overflow-y: auto; margin-top: 10px; background: #fff; padding: 10px; border: 1px solid #ddd; border-radius: 8px;"></div>
-                    </div>
-                </div>
-
-                <!-- Tab 4: QR Code & Divulgação -->
-                <div id="tabQr" class="admin-tab-content" style="display:none; text-align:center;">
-                    <p id="qrScanNoticeText" style="font-size:0.9rem; color:var(--text-muted);">Aponte a câmera para acessar o cardápio digital:</p>
-                    <div id="qrcodeContainer"></div>
-                    <div class="form-group" style="max-width:400px; margin:0 auto 15px;">
-                        <input type="text" id="qrUrlInput" class="form-control" readonly>
-                    </div>
-                    <div style="display:flex; justify-content:center; gap:10px;">
-                        <button class="cat-btn" onclick="copyStoreUrl()"><i class="fa-solid fa-copy"></i> <span id="btnCopyLinkText">Copiar Link</span></button>
-                        <button class="cat-btn active" onclick="printQrSheet()"><i class="fa-solid fa-print"></i> <span id="btnPrintQrText">Imprimir Placa QR Code</span></button>
-                    </div>
+                <div id="adminProductList" style="max-height:220px; overflow-y:auto; border:1px solid var(--border); border-radius:8px;">
+                    <!-- Items list -->
                 </div>
             </div>
 
-            <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
-                <button class="btn-danger-sm" onclick="logoutAdmin()"><i class="fa-solid fa-right-from-bracket"></i> <span id="btnExitPanelText">Sair do Painel</span></button>
-                <button class="checkout-btn" id="btnSaveSettings" style="width:auto; padding:8px 20px;" onclick="saveAdminSettings()">Salvar Alterações</button>
+            <!-- Tab: OCR Import -->
+            <div id="adminTabImport" class="admin-tab-content" style="display:none;">
+                <p style="font-size:0.8rem; color:#666; margin-bottom:12px;">Envie uma foto de um cardápio impresso ou PDF para extrair automaticamente os itens e preços usando Inteligência Artificial (OCR).</p>
+                <div class="form-group">
+                    <label>Selecionar Foto do Cardápio</label>
+                    <input type="file" id="menuImportFile" class="form-control" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label>Categoria Padrão para os Itens Importados</label>
+                    <input type="text" id="importCategoryDefault" class="form-control" value="Destaques">
+                </div>
+                <button class="btn-primary-full" onclick="processMenuImport()"><i class="fa-solid fa-wand-magic-sparkles"></i> Processar Leitura Inteligente</button>
+                
+                <div id="importProgressBar" style="margin-top:12px; display:none;">
+                    <div style="background:var(--light); border-radius:10px; height:8px; overflow:hidden;">
+                        <div id="importProgressFill" style="background:var(--secondary); width:0%; height:100%; transition:0.3s;"></div>
+                    </div>
+                    <p id="importStatusText" style="font-size:0.75rem; color:#666; margin-top:4px; text-align:center;">Lendo imagem...</p>
+                </div>
+
+                <div id="importedPreviewArea" style="margin-top:15px; display:none;">
+                    <h4 style="font-size:0.85rem; margin-bottom:6px;">Itens Detectados:</h4>
+                    <div id="importedItemsList" style="max-height:180px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:8px;"></div>
+                </div>
+            </div>
+
+            <!-- Tab: Settings -->
+            <div id="adminTabSettings" class="admin-tab-content" style="display:none;">
+                <div class="form-group"><label>Nome do Estabelecimento</label><input type="text" id="cfgStoreName" class="form-control"></div>
+                <div class="form-group"><label>URL do Logotipo</label><input type="text" id="cfgLogo" class="form-control"></div>
+                <div class="form-group"><label>URL da Capa (Header)</label><input type="text" id="cfgCoverUrl" class="form-control"></div>
+                <div class="form-group"><label>Descrição (PT)</label><input type="text" id="cfgDesc" class="form-control"></div>
+                <div class="form-group"><label>WhatsApp para Pedidos (com DDI e DDD)</label><input type="text" id="cfgWhatsapp" class="form-control" placeholder="5585999999999"></div>
+                <div class="form-group"><label>Horário de Funcionamento</label><input type="text" id="cfgHours" class="form-control"></div>
+                <button class="btn-primary-full" onclick="saveStoreSettings()">Salvar Configurações</button>
             </div>
         </div>
     </div>
 
-    <!-- Printable QR Code Template -->
-    <div id="printableArea">
-        <h1 id="printStoreName" style="font-size:2.5rem; margin-bottom:10px;">Cardápio Virtual</h1>
-        <p id="printStoreSubText" style="font-size:1.2rem; color:#555; margin-bottom:30px;">Acesse nosso cardápio digital!</p>
-        <div id="printQrCode"></div>
-        <p id="printStoreUrl" style="font-size:1.1rem; margin-top:20px; font-weight:bold;"></p>
+    <!-- Hidden Print Section for QR Sheet -->
+    <div id="qrPrintSection" style="display:none;">
+        <h2>Cardápio Digital</h2>
+        <div id="printQrCode" style="margin: 20px 0;"></div>
+        <p>Escaneie com a câmera do seu celular para ver o cardápio e fazer pedidos!</p>
     </div>
 
-    <!-- Toast Notification Container -->
-    <div class="toast-container" id="toastContainer"></div
-    <!-- Firebase App (Modular SDK v10) & Main Logic Script -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+    <!-- Toast Alert -->
+    <div id="toast" class="toast">Ação realizada com sucesso!</div>
 
-        // Substitua abaixo pelas suas credenciais reais do projeto Firebase
-        const firebaseConfig = {
-            apiKey: "SUA_API_KEY",
-            authDomain: "SEU_AUTH_DOMAIN",
-            projectId: "SEU_PROJECT_ID",
-            storageBucket: "SEU_STORAGE_BUCKET",
-            messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-            appId: "SEU_APP_ID"
+    <script>
+        // Store Data & State (Fully Local & Client-Ready)
+        let storeSettings = {
+            name: "Restaurante Sabor & Arte",
+            description: "O melhor da culinária artesanal com ingredientes frescos e selecionados.",
+            logo: "https://images.unsplash.com/photo-1571091718767-18b5b1457add?auto=format&fit=crop&w=200&q=80",
+            coverUrl: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80",
+            whatsapp: "5585988888888",
+            hours: "11:00 - 23:00",
+            address: "Salão Principal"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
-
-        // Global App State
-        window.storeSettings = {
-            name: "Cardápio Virtual",
-            logo: "🦀",
-            descriptionPt: "Praia do Futuro - Fortaleza/CE | Desde 1987",
-            descriptionEn: "Praia do Futuro - Fortaleza/CE | Since 1987",
-            descriptionZh: "福塔雷萨未来海滩 | 始于 1987 年",
-            whatsapp: "5585999999999",
-            instagram: "@cardapiovirtual",
-            hours: "10:00 - 22:00",
-            address: "Av. Clóvis Arrais Maia, 5500 - Praia do Futuro",
-            coverUrl: "",
-            salesMode: "direct"
-        };
-
-        window.productsList = [];
-        window.cart = [];
-        window.currentCategory = 'all';
-        window.currentSubCategory = 'all';
-        window.currentLangIndex = 0;
-        window.languages = [
-            { code: 'pt', label: '🇧🇷 PT', name: 'Português' },
-            { code: 'en', label: '🇺🇸 EN', name: 'English' },
-            { code: 'zh', label: '🇨🇳 ZH', name: '中文' },
-            { code: 'fr', label: '🇫🇷 FR', name: 'Français' },
-            { code: 'it', label: '🇮🇹 IT', name: 'Italiano' },
-            { code: 'de', label: '🇩🇪 DE', name: 'Deutsch' },
-            { code: 'ja', label: '🇯🇵 JA', name: '日本語' },
-            { code: 'ko', label: '🇰🇷 KO', name: '한국어' }
+        let productsList = [
+            { id: "1", namePt: "Hambúrguer Artesanal Smash", nameEn: "Smash Burger", nameZh: "手工汉堡", price: 32.90, category: "Burgers", descPt: "Pão brioche selado na manteiga, blend 160g de carne angus, queijo cheddar cremoso e bacon crocante.", imgUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: "2", namePt: "Pizza Margherita Especial", nameEn: "Margherita Pizza", nameZh: "玛格丽特披萨", price: 54.90, category: "Pizzas", descPt: "Molho de tomate rústico italiano, mozzarella de búfala fresca, manjericão colhido na hora e azeite extra virgem.", imgUrl: "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: "3", namePt: "Batata Frita Rústica com Cheddar", nameEn: "Rustic Fries", nameZh: "特色薯条", price: 24.90, category: "Porções", descPt: "Batatas fritas sequinhas e crocantes cobertas com molho cheddar cremoso e bacon em cubos.", imgUrl: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=400&q=80", available: true },
+            { id: "4", namePt: "Refrigerante Lata 350ml", nameEn: "Soda Can", nameZh: "罐装饮料", price: 7.00, category: "Bebidas", descPt: "Coca-Cola, Guaraná Antarctica ou Sprite gelados.", imgUrl: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=400&q=80", available: true }
         ];
 
-        window.editingProductId = null;
-        window.currentUser = null;
+        let cart = [];
+        let currentCategory = 'all';
+        let currentLang = 'pt';
+        let selectedProductForModal = null;
+        let editingProductId = null;
 
-        // Extended Multi-language Dictionary for Full UI
         const translations = {
-            pt: {
-                searchPlaceholder: "Buscar no cardápio...",
-                cartLabelTotal: "Total da Comanda",
-                viewCartBtn: "Ver Comanda",
-                modalCartTitle: "Sua Comanda",
-                modalCartTotalLabel: "Total:",
-                checkoutBtn: "Finalizar Pedido",
-                loginTitleText: "Acesso Lojista",
-                loginDescText: "Entre com seu e-mail e senha do Firebase Authentication para gerenciar o estabelecimento.",
-                lblLoginEmail: "E-mail de Acesso",
-                lblLoginPassword: "Senha",
-                btnLoginSubmit: "Entrar",
-                adminTitleText: "Painel do Lojista",
-                tabConfigBtn: "Estabelecimento",
-                tabCatalogBtn: "Catálogo de Produtos",
-                tabImportBtn: "Importar PDF/Imagem",
-                tabQrBtn: "QR Code & Divulgação",
-                lblCfgStoreName: "Nome da Loja",
-                lblCfgLogo: "Logo / Emoji",
-                lblCfgDesc: "Descrição Curta (PT)",
-                lblCfgDescEn: "Descrição (EN)",
-                lblCfgDescZh: "Descrição (ZH)",
-                lblCfgWhatsapp: "WhatsApp (com DDD)",
-                lblCfgInstagram: "Instagram",
-                lblCfgHours: "Horário de Funcionamento",
-                lblCfgSalesMode: "Modo de Vendas",
-                optSalesDirect: "Venda Direta (Pedido via WhatsApp)",
-                optSalesSimulate: "Simulação de Conta (Prévia para Garçom)",
-                lblCfgAddress: "Endereço Completo",
-                lblCfgCoverUrl: "URL da Foto de Capa",
-                lblCfgCoverFile: "Ou Upload de Capa (Firebase Storage)",
-                catalogFormTitle: "Adicionar Novo Produto",
-                lblProdNamePt: "Nome (Português)",
-                lblProdNameEn: "Nome (Inglês - Opcional)",
-                lblProdNameZh: "Nome (Chinês - Opcional)",
-                lblProdPrice: "Preço (R$)",
-                lblProdCategory: "Categoria Principal",
-                lblProdSubCategory: "Subcategoria / Seção (Opcional)",
-                lblProdDesc: "Descrição (PT)",
-                lblProdDescEn: "Descrição (EN)",
-                lblProdDescZh: "Descrição (ZH)",
-                lblProdImgUrl: "URL da Imagem",
-                lblProdImgFile: "Ou Upload de Foto (Firebase Storage)",
-                lblProdAvailable: "Produto Disponível para Venda",
-                btnSaveProductText: "Cadastrar Produto",
-                btnCancelEditText: "Cancelar Edição",
-                lblRegisteredProds: "Produtos Cadastrados",
-                importTitleText: "Importação Inteligente de Cardápio",
-                importDescText: "Faça o upload de uma <strong>Imagem</strong> ou <strong>PDF do seu Cardápio</strong>. Nosso leitor óptico extrairá os itens e preços automaticamente.",
-                lblImportCategory: "Categoria Padrão para os Itens Importados",
-                btnProcessImport: "Processar e Importar",
-                importedDetectedText: "Itens Detectados:",
-                qrScanNoticeText: "Aponte a câmera para acessar o cardápio digital:",
-                btnCopyLinkText: "Copiar Link",
-                btnPrintQrText: "Imprimir Placa QR Code",
-                btnExitPanelText: "Sair do Painel",
-                btnSaveSettings: "Salvar Alterações",
-                lojistaBtnText: "Modo Lojista",
-                allCategories: "Todos",
-                addBtn: "Adicionar",
-                unavailable: "Indisponível",
-                popular: "Destaque"
-            },
-            en: {
-                searchPlaceholder: "Search menu...",
-                cartLabelTotal: "Total Bill",
-                viewCartBtn: "View Bill",
-                modalCartTitle: "Your Bill",
-                modalCartTotalLabel: "Total:",
-                checkoutBtn: "Complete Order",
-                loginTitleText: "Merchant Login",
-                loginDescText: "Sign in with your Firebase Authentication email and password to manage your store.",
-                lblLoginEmail: "Email",
-                lblLoginPassword: "Password",
-                btnLoginSubmit: "Sign In",
-                adminTitleText: "Merchant Dashboard",
-                tabConfigBtn: "Store Settings",
-                tabCatalogBtn: "Product Catalog",
-                tabImportBtn: "Import PDF/Image",
-                tabQrBtn: "QR Code & Sharing",
-                lblCfgStoreName: "Store Name",
-                lblCfgLogo: "Logo / Emoji",
-                lblCfgDesc: "Short Description (PT)",
-                lblCfgDescEn: "Description (EN)",
-                lblCfgDescZh: "Description (ZH)",
-                lblCfgWhatsapp: "WhatsApp (with country code)",
-                lblCfgInstagram: "Instagram",
-                lblCfgHours: "Working Hours",
-                lblCfgSalesMode: "Sales Mode",
-                optSalesDirect: "Direct Sale (WhatsApp Order)",
-                optSalesSimulate: "Bill Simulation (Waiter Preview)",
-                lblCfgAddress: "Full Address",
-                lblCfgCoverUrl: "Cover Image URL",
-                lblCfgCoverFile: "Or Cover Upload (Firebase Storage)",
-                catalogFormTitle: "Add New Product",
-                lblProdNamePt: "Name (Portuguese)",
-                lblProdNameEn: "Name (English - Optional)",
-                lblProdNameZh: "Name (Chinese - Optional)",
-                lblProdPrice: "Price ($)",
-                lblProdCategory: "Main Category",
-                lblProdSubCategory: "Subcategory / Section (Optional)",
-                lblProdDesc: "Description (PT)",
-                lblProdDescEn: "Description (EN)",
-                lblProdDescZh: "Description (ZH)",
-                lblProdImgUrl: "Image URL",
-                lblProdImgFile: "Or Photo Upload (Firebase Storage)",
-                lblProdAvailable: "Product Available for Sale",
-                btnSaveProductText: "Add Product",
-                btnCancelEditText: "Cancel Edit",
-                lblRegisteredProds: "Registered Products",
-                importTitleText: "Smart Menu Import",
-                importDescText: "Upload an <strong>Image</strong> or <strong>PDF</strong> of your menu. Our optical reader will automatically extract items and prices.",
-                lblImportCategory: "Default Category for Imported Items",
-                btnProcessImport: "Process and Import",
-                importedDetectedText: "Detected Items:",
-                qrScanNoticeText: "Scan the camera to access the digital menu:",
-                btnCopyLinkText: "Copy Link",
-                btnPrintQrText: "Print QR Code Sign",
-                btnExitPanelText: "Exit Dashboard",
-                btnSaveSettings: "Save Changes",
-                lojistaBtnText: "Merchant Mode",
-                allCategories: "All",
-                addBtn: "Add",
-                unavailable: "Unavailable",
-                popular: "Popular"
-            },
-            zh: {
-                searchPlaceholder: "搜索菜单...",
-                cartLabelTotal: "总账单",
-                viewCartBtn: "查看账单",
-                modalCartTitle: "您的账单",
-                modalCartTotalLabel: "总计：",
-                checkoutBtn: "完成订单",
-                loginTitleText: "商家登录",
-                loginDescText: "使用您的 Firebase 邮箱和密码登录以管理店铺。",
-                lblLoginEmail: "邮箱",
-                lblLoginPassword: "密码",
-                btnLoginSubmit: "登录",
-                adminTitleText: "商家后台",
-                tabConfigBtn: "店铺设置",
-                tabCatalogBtn: "产品目录",
-                tabImportBtn: "导入 PDF/图片",
-                tabQrBtn: "二维码与分享",
-                lblCfgStoreName: "店铺名称",
-                lblCfgLogo: "标志 / Emoji",
-                lblCfgDesc: "简短描述 (PT)",
-                lblCfgDescEn: "描述 (EN)",
-                lblCfgDescZh: "描述 (ZH)",
-                lblCfgWhatsapp: "WhatsApp",
-                lblCfgInstagram: "Instagram",
-                lblCfgHours: "营业时间",
-                lblCfgSalesMode: "销售模式",
-                optSalesDirect: "直接销售（WhatsApp 订购）",
-                optSalesSimulate: "账单模拟（服务员预览）",
-                lblCfgAddress: "详细地址",
-                lblCfgCoverUrl: "封面图片网址",
-                lblCfgCoverFile: "或封面上传",
-                catalogFormTitle: "添加新产品",
-                lblProdNamePt: "名称 (葡萄牙语)",
-                lblProdNameEn: "名称 (英语)",
-                lblProdNameZh: "名称 (中文)",
-                lblProdPrice: "价格",
-                lblProdCategory: "主分类",
-                lblProdSubCategory: "子分类 / 分区",
-                lblProdDesc: "描述 (PT)",
-                lblProdDescEn: "描述 (EN)",
-                lblProdDescZh: "描述 (ZH)",
-                lblProdImgUrl: "图片网址",
-                lblProdImgFile: "或照片上传",
-                lblProdAvailable: "产品有售",
-                btnSaveProductText: "添加产品",
-                btnCancelEditText: "取消编辑",
-                lblRegisteredProds: "已注册产品",
-                importTitleText: "智能菜单导入",
-                importDescText: "上传您的菜单<strong>图片</strong>或<strong>PDF</strong>，光学阅读器将自动提取项目和价格。",
-                lblImportCategory: "导入项目的默认分类",
-                btnProcessImport: "处理并导入",
-                importedDetectedText: "检测到的项目：",
-                qrScanNoticeText: "扫描相机访问数字菜单：",
-                btnCopyLinkText: "复制链接",
-                btnPrintQrText: "打印二维码标牌",
-                btnExitPanelText: "退出后台",
-                btnSaveSettings: "保存更改",
-                lojistaBtnText: "商家模式",
-                allCategories: "全部",
-                addBtn: "添加",
-                unavailable: "不可用",
-                popular: "推荐"
-            },
-            fr: {
-                searchPlaceholder: "Rechercher dans le menu...",
-                cartLabelTotal: "Total de l'addition",
-                viewCartBtn: "Voir l'addition",
-                modalCartTitle: "Votre Addition",
-                modalCartTotalLabel: "Total :",
-                checkoutBtn: "Finaliser la commande",
-                loginTitleText: "Connexion Marchand",
-                loginDescText: "Connectez-vous avec vos identifiants Firebase pour gérer votre établissement.",
-                lblLoginEmail: "E-mail",
-                lblLoginPassword: "Mot de passe",
-                btnLoginSubmit: "Se connecter",
-                adminTitleText: "Tableau de Bord",
-                tabConfigBtn: "Paramètres",
-                tabCatalogBtn: "Catalogue",
-                tabImportBtn: "Importer PDF/Image",
-                tabQrBtn: "QR Code & Partage",
-                lblCfgStoreName: "Nom du Restaurant",
-                lblCfgLogo: "Logo / Emoji",
-                lblCfgDesc: "Description courte (PT)",
-                lblCfgDescEn: "Description (EN)",
-                lblCfgDescZh: "Description (ZH)",
-                lblCfgWhatsapp: "WhatsApp",
-                lblCfgInstagram: "Instagram",
-                lblCfgHours: "Horaires",
-                lblCfgSalesMode: "Mode de Vente",
-                optSalesDirect: "Vente directe (WhatsApp)",
-                optSalesSimulate: "Simulation de compte (Serveur)",
-                lblCfgAddress: "Adresse complète",
-                lblCfgCoverUrl: "URL de couverture",
-                lblCfgCoverFile: "Ou fichier de couverture",
-                catalogFormTitle: "Ajouter un produit",
-                lblProdNamePt: "Nom (Portugais)",
-                lblProdNameEn: "Nom (Anglais)",
-                lblProdNameZh: "Nom (Chinois)",
-                lblProdPrice: "Prix",
-                lblProdCategory: "Catégorie Principale",
-                lblProdSubCategory: "Sous-catégorie / Section",
-                lblProdDesc: "Description (PT)",
-                lblProdDescEn: "Description (EN)",
-                lblProdDescZh: "Description (ZH)",
-                lblProdImgUrl: "URL de l'image",
-                lblProdImgFile: "Ou Fichier image",
-                lblProdAvailable: "Produit disponible",
-                btnSaveProductText: "Ajouter le produit",
-                btnCancelEditText: "Annuler",
-                lblRegisteredProds: "Produits Enregistrés",
-                importTitleText: "Importation Intelligente",
-                importDescText: "Téléchargez une <strong>Image</strong> ou un <strong>PDF</strong> de votre menu pour extraire automatiquement les articles.",
-                lblImportCategory: "Catégorie par défaut",
-                btnProcessImport: "Traiter et Importer",
-                importedDetectedText: "Éléments détectés :",
-                qrScanNoticeText: "Scannez pour accéder au menu numérique :",
-                btnCopyLinkText: "Copier le lien",
-                btnPrintQrText: "Imprimer le QR Code",
-                btnExitPanelText: "Quitter",
-                btnSaveSettings: "Enregistrer",
-                lojistaBtnText: "Mode Marchand",
-                allCategories: "Tous",
-                addBtn: "Ajouter",
-                unavailable: "Indisponible",
-                popular: "Populaire"
-            },
-            it: {
-                searchPlaceholder: "Cerca nel menu...",
-                cartLabelTotal: "Totale Conto",
-                viewCartBtn: "Vedi Conto",
-                modalCartTitle: "Il Tuo Conto",
-                modalCartTotalLabel: "Totale:",
-                checkoutBtn: "Completa Ordine",
-                loginTitleText: "Accesso Commerciante",
-                loginDescText: "Accedi con le credenziali Firebase per gestire la tua attività.",
-                lblLoginEmail: "E-mail",
-                lblLoginPassword: "Password",
-                btnLoginSubmit: "Accedi",
-                adminTitleText: "Pannello di Controllo",
-                tabConfigBtn: "Impostazioni",
-                tabCatalogBtn: "Catalogo",
-                tabImportBtn: "Importa PDF/Immagine",
-                tabQrBtn: "QR Code e Condivisione",
-                lblCfgStoreName: "Nome Negozio",
-                lblCfgLogo: "Logo / Emoji",
-                lblCfgDesc: "Breve descrizione (PT)",
-                lblCfgDescEn: "Descrizione (EN)",
-                lblCfgDescZh: "Descrizione (ZH)",
-                lblCfgWhatsapp: "WhatsApp",
-                lblCfgInstagram: "Instagram",
-                lblCfgHours: "Orari",
-                lblCfgSalesMode: "Modalità Vendita",
-                optSalesDirect: "Vendita Diretta (WhatsApp)",
-                optSalesSimulate: "Simulazione Conto (Cameriere)",
-                lblCfgAddress: "Indirizzo",
-                lblCfgCoverUrl: "URL Copertina",
-                lblCfgCoverFile: "O carica file copertina",
-                catalogFormTitle: "Aggiungi Prodotto",
-                lblProdNamePt: "Nome (Portoghese)",
-                lblProdNameEn: "Nome (Inglese)",
-                lblProdNameZh: "Nome (Cinese)",
-                lblProdPrice: "Prezzo",
-                lblProdCategory: "Categoria Principale",
-                lblProdSubCategory: "Sottocategoria / Sezione",
-                lblProdDesc: "Descrizione (PT)",
-                lblProdDescEn: "Descrizione (EN)",
-                lblProdDescZh: "Descrizione (ZH)",
-                lblProdImgUrl: "URL Immagine",
-                lblProdImgFile: "O carica immagine",
-                lblProdAvailable: "Disponibile per la vendita",
-                btnSaveProductText: "Aggiungi Prodotto",
-                btnCancelEditText: "Annulla Modifica",
-                lblRegisteredProds: "Prodotti Registrati",
-                importTitleText: "Importazione Intelligente Menu",
-                importDescText: "Carica un'<strong>Immagine</strong> o un <strong>PDF</strong> del tuo menu.",
-                lblImportCategory: "Categoria Predefinita",
-                btnProcessImport: "Elabora e Importa",
-                importedDetectedText: "Elementi Rilevati:",
-                qrScanNoticeText: "Inquadra per accedere al menu digitale:",
-                btnCopyLinkText: "Copia Link",
-                btnPrintQrText: "Stampa QR Code",
-                btnExitPanelText: "Esci",
-                btnSaveSettings: "Salva Modifiche",
-                lojistaBtnText: "Modalità Negozio",
-                allCategories: "Tutti",
-                addBtn: "Aggiungi",
-                unavailable: "Non disponibile",
-                popular: "Popolare"
-            },
-            de: {
-                searchPlaceholder: "Speisekarte durchsuchen...",
-                cartLabelTotal: "Gesamtsumme",
-                viewCartBtn: "Rechnung ansehen",
-                modalCartTitle: "Ihre Rechnung",
-                modalCartTotalLabel: "Gesamt:",
-                checkoutBtn: "Bestellung abschließen",
-                loginTitleText: "Händler-Login",
-                loginDescText: "Melden Sie sich mit Ihren Firebase-Anmeldedaten an.",
-                lblLoginEmail: "E-Mail",
-                lblLoginPassword: "Passwort",
-                btnLoginSubmit: "Anmelden",
-                adminTitleText: "Händler-Dashboard",
-                tabConfigBtn: "Einstellungen",
-                tabCatalogBtn: "Produktkatalog",
-                tabImportBtn: "PDF/Bild importieren",
-                tabQrBtn: "QR-Code & Teilen",
-                lblCfgStoreName: "Geschäftsname",
-                lblCfgLogo: "Logo / Emoji",
-                lblCfgDesc: "Kurzbeschreibung (PT)",
-                lblCfgDescEn: "Beschreibung (EN)",
-                lblCfgDescZh: "Beschreibung (ZH)",
-                lblCfgWhatsapp: "WhatsApp",
-                lblCfgInstagram: "Instagram",
-                lblCfgHours: "Öffnungszeiten",
-                lblCfgSalesMode: "Verkaufsmodus",
-                optSalesDirect: "Direktverkauf (WhatsApp)",
-                optSalesSimulate: "Rechnungssimulation (Kellner)",
-                lblCfgAddress: "Vollständige Adresse",
-                lblCfgCoverUrl: "Titelbild-URL",
-                lblCfgCoverFile: "Oder Datei-Upload",
-                catalogFormTitle: "Neues Produkt hinzufügen",
-                lblProdNamePt: "Name (Portugiesisch)",
-                lblProdNameEn: "Name (Englisch)",
-                lblProdNameZh: "Name (Chinesisch)",
-                lblProdPrice: "Preis",
-                lblProdCategory: "Hauptkategorie",
-                lblProdSubCategory: "Unterkategorie / Sektion",
-                lblProdDesc: "Beschreibung (PT)",
-                lblProdDescEn: "Beschreibung (EN)",
-                lblProdDescZh: "Beschreibung (ZH)",
-                lblProdImgUrl: "Bild-URL",
-                lblProdImgFile: "Oder Bild-Upload",
-                lblProdAvailable: "Produkt verfügbar",
-                btnSaveProductText: "Produkt hinzufügen",
-                btnCancelEditText: "Abbrechen",
-                lblRegisteredProds: "Registrierte Produkte",
-                importTitleText: "Intelligenter Menü-Import",
-                importDescText: "Laden Sie ein <strong>Bild</strong> oder <strong>PDF</strong> hoch.",
-                lblImportCategory: "Standardkategorie",
-                btnProcessImport: "Verarbeiten und importieren",
-                importedDetectedText: "Erkannte Elemente:",
-                qrScanNoticeText: "Scannen Sie den QR-Code:",
-                btnCopyLinkText: "Link kopieren",
-                btnPrintQrText: "QR-Code drucken",
-                btnExitPanelText: "Dashboard verlassen",
-                btnSaveSettings: "Änderungen speichern",
-                lojistaBtnText: "Händlermodus",
-                allCategories: "Alle",
-                addBtn: "Hinzufügen",
-                unavailable: "Nicht verfügbar",
-                popular: "Beliebt"
-            },
-            ja: {
-                searchPlaceholder: "メニューを検索...",
-                cartLabelTotal: "合計金額",
-                viewCartBtn: "注文内容を見る",
-                modalCartTitle: "ご注文内容",
-                modalCartTotalLabel: "合計：",
-                checkoutBtn: "注文を確定する",
-                loginTitleText: "管理者ログイン",
-                loginDescText: "Firebaseの認証情報でログインしてください。",
-                lblLoginEmail: "メールアドレス",
-                lblLoginPassword: "パスワード",
-                btnLoginSubmit: "ログイン",
-                adminTitleText: "管理者ダッシュボード",
-                tabConfigBtn: "店舗設定",
-                tabCatalogBtn: "商品カタログ",
-                tabImportBtn: "PDF/画像インポート",
-                tabQrBtn: "QRコードと共有",
-                lblCfgStoreName: "店舗名",
-                lblCfgLogo: "ロゴ / 絵文字",
-                lblCfgDesc: "簡単な説明 (PT)",
-                lblCfgDescEn: "説明 (EN)",
-                lblCfgDescZh: "説明 (ZH)",
-                lblCfgWhatsapp: "WhatsApp",
-                lblCfgInstagram: "Instagram",
-                lblCfgHours: "営業時間",
-                lblCfgSalesMode: "販売モード",
-                optSalesDirect: "直接販売 (WhatsApp注文)",
-                optSalesSimulate: "会計シミュレーション",
-                lblCfgAddress: "住所",
-                lblCfgCoverUrl: "カバー画像URL",
-                lblCfgCoverFile: "またはファイルアップロード",
-                catalogFormTitle: "新商品の追加",
-                lblProdNamePt: "名前 (ポルトガル語)",
-                lblProdNameEn: "名前 (英語)",
-                lblProdNameZh: "名前 (中国語)",
-                lblProdPrice: "価格",
-                lblProdCategory: "メインカテゴリ",
-                lblProdSubCategory: "サブカテゴリ / セクション",
-                lblProdDesc: "説明 (PT)",
-                lblProdDescEn: "説明 (EN)",
-                lblProdDescZh: "説明 (ZH)",
-                lblProdImgUrl: "画像URL",
-                lblProdImgFile: "または画像アップロード",
-                lblProdAvailable: "販売可能",
-                btnSaveProductText: "商品を追加",
-                btnCancelEditText: "キャンセル",
-                lblRegisteredProds: "登録済み商品",
-                importTitleText: "スマートメニューインポート",
-                importDescText: "メニューの<strong>画像</strong>または<strong>PDF</strong>をアップロードしてください。",
-                lblImportCategory: "デフォルトカテゴリ",
-                btnProcessImport: "処理してインポート",
-                importedDetectedText: "検出されたアイテム：",
-                qrScanNoticeText: "デジタルメニューにアクセス：",
-                btnCopyLinkText: "リンクをコピー",
-                btnPrintQrText: "QRコードを印刷",
-                btnExitPanelText: "ダッシュボードを閉じる",
-                btnSaveSettings: "変更を保存",
-                lojistaBtnText: "管理者モード",
-                allCategories: "すべて",
-                addBtn: "追加",
-                unavailable: "売り切れ",
-                popular: "人気"
-            },
-            ko: {
-                searchPlaceholder: "메뉴 검색...",
-                cartLabelTotal: "총 주문금액",
-                viewCartBtn: "주문 내역 보기",
-                modalCartTitle: "주문 내역",
-                modalCartTotalLabel: "합계:",
-                checkoutBtn: "주문 완료",
-                loginTitleText: "관리자 로그인",
-                loginDescText: "Firebase 인증 정보로 로그인하세요.",
-                lblLoginEmail: "이메일",
-                lblLoginPassword: "비밀번호",
-                btnLoginSubmit: "로그인",
-                adminTitleText: "관리자 대시보드",
-                tabConfigBtn: "매장 설정",
-                tabCatalogBtn: "상품 카탈로그",
-                tabImportBtn: "PDF/이미지 가져오기",
-                tabQrBtn: "QR 코드 및 공유",
-                lblCfgStoreName: "매장 이름",
-                lblCfgLogo: "로고 / 이모지",
-                lblCfgDesc: "간단한 설명 (PT)",
-                lblCfgDescEn: "설명 (EN)",
-                lblCfgDescZh: "설명 (ZH)",
-                lblCfgWhatsapp: "WhatsApp",
-                lblCfgInstagram: "Instagram",
-                lblCfgHours: "영업 시간",
-                lblCfgSalesMode: "판매 모드",
-                optSalesDirect: "직접 판매 (WhatsApp 주문)",
-                optSalesSimulate: "계산 시뮬레이션",
-                lblCfgAddress: "상세 주소",
-                lblCfgCoverUrl: "커버 이미지 URL",
-                lblCfgCoverFile: "또는 파일 업로드",
-                catalogFormTitle: "새 상품 추가",
-                lblProdNamePt: "이름 (포르투갈어)",
-                lblProdNameEn: "이름 (영어)",
-                lblProdNameZh: "이름 (중국어)",
-                lblProdPrice: "가격",
-                lblProdCategory: "메인 카테고리",
-                lblProdSubCategory: "하위 카테고리 / 섹션",
-                lblProdDesc: "설명 (PT)",
-                lblProdDescEn: "설명 (EN)",
-                lblProdDescZh: "설명 (ZH)",
-                lblProdImgUrl: "이미지 URL",
-                lblProdImgFile: "또는 이미지 업로드",
-                lblProdAvailable: "판매 가능",
-                btnSaveProductText: "상품 추가",
-                btnCancelEditText: "취소",
-                lblRegisteredProds: "등록된 상품",
-                importTitleText: "스마트 메뉴 가져오기",
-                importDescText: "메뉴의 <strong>이미지</strong>나 <strong>PDF</strong>를 업로드하세요.",
-                lblImportCategory: "기본 카테고리",
-                btnProcessImport: "처리 및 가져오기",
-                importedDetectedText: "감지된 항목:",
-                qrScanNoticeText: "디지털 메뉴 접속 QR 코드:",
-                btnCopyLinkText: "링크 복사",
-                btnPrintQrText: "QR 코드 인쇄",
-                btnExitPanelText: "대시보드 나가기",
-                btnSaveSettings: "변경사항 저장",
-                lojistaBtnText: "관리자 모드",
-                allCategories: "전체",
-                addBtn: "추가",
-                unavailable: "품절",
-                popular: "인기"
-            }
+            pt: { viewCart: "Ver Carrinho", observations: "Observações (opcional)", addToCart: "Adicionar", yourOrder: "Seu Pedido", orderType: "Modo de Pedido", dineIn: "Consumir no Local / Mesa", delivery: "Entrega em Domicílio (Delivery)", pickup: "Retirar no Balcão", clientName: "Seu Nome / Mesa", total: "Total:", sendWhatsapp: "Enviar Pedido via WhatsApp" },
+            en: { viewCart: "View Cart", observations: "Notes (optional)", addToCart: "Add", yourOrder: "Your Order", orderType: "Order Type", dineIn: "Dine-In / Table", delivery: "Delivery", pickup: "Pickup", clientName: "Your Name / Table", total: "Total:", sendWhatsapp: "Send Order via WhatsApp" },
+            zh: { viewCart: "查看购物车", observations: "备注（可选）", addToCart: "加入", yourOrder: "您的订单", orderType: "订单类型", dineIn: "堂食 / 桌号", delivery: "外卖配送", pickup: "自取", clientName: "您的姓名 / 桌号", total: "总计:", sendWhatsapp: "通过 WhatsApp 发送订单" }
         };
 
-        // UI Translation Applicator
-        function applyTranslations() {
-            const lang = window.languages[window.currentLangIndex].code;
-            const t = translations[lang] || translations['pt'];
+        // App Initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            renderStoreHeader();
+            renderCategories();
+            renderProducts();
+            generateQrCode();
+        });
 
-            document.getElementById('langDisplay').innerText = window.languages[window.currentLangIndex].label;
-            document.getElementById('searchInput').placeholder = t.searchPlaceholder;
-            document.getElementById('adminSearchInput').placeholder = lang === 'pt' ? 'Buscar para editar...' : 'Search to edit...';
-            document.getElementById('cartLabelTotal').innerText = t.cartLabelTotal;
-            document.getElementById('viewCartBtn').innerText = t.viewCartBtn;
-            document.getElementById('modalCartTitle').innerText = t.modalCartTitle;
-            document.getElementById('modalCartTotalLabel').innerText = t.modalCartTotalLabel;
-            document.getElementById('checkoutBtn').innerText = t.checkoutBtn;
-            document.getElementById('loginTitleText').innerText = t.loginTitleText;
-            document.getElementById('loginDescText').innerText = t.loginDescText;
-            document.getElementById('lblLoginEmail').innerText = t.lblLoginEmail;
-            document.getElementById('lblLoginPassword').innerText = t.lblLoginPassword;
-            document.getElementById('btnLoginSubmit').innerText = t.btnLoginSubmit;
-            document.getElementById('adminTitleText').innerText = t.adminTitleText;
-            document.getElementById('tabConfigBtn').innerHTML = `<i class="fa-solid fa-store"></i> ${t.tabConfigBtn}`;
-            document.getElementById('tabCatalogBtn').innerHTML = `<i class="fa-solid fa-utensils"></i> ${t.tabCatalogBtn}`;
-            document.getElementById('tabImportBtn').innerHTML = `<i class="fa-solid fa-file-import"></i> ${t.tabImportBtn}`;
-            document.getElementById('tabQrBtn').innerHTML = `<i class="fa-solid fa-qrcode"></i> ${t.tabQrBtn}`;
-            document.getElementById('lblCfgStoreName').innerText = t.lblCfgStoreName;
-            document.getElementById('lblCfgLogo').innerText = t.lblCfgLogo;
-            document.getElementById('lblCfgDesc').innerText = t.lblCfgDesc;
-            document.getElementById('lblCfgDescEn').innerText = t.lblCfgDescEn;
-            document.getElementById('lblCfgDescZh').innerText = t.lblCfgDescZh;
-            document.getElementById('lblCfgWhatsapp').innerText = t.lblCfgWhatsapp;
-            document.getElementById('lblCfgInstagram').innerText = t.lblCfgInstagram;
-            document.getElementById('lblCfgHours').innerText = t.lblCfgHours;
-            document.getElementById('lblCfgSalesMode').innerText = t.lblCfgSalesMode;
-            document.getElementById('optSalesDirect').innerText = t.optSalesDirect;
-            document.getElementById('optSalesSimulate').innerText = t.optSalesSimulate;
-            document.getElementById('lblCfgAddress').innerText = t.lblCfgAddress;
-            document.getElementById('lblCfgCoverUrl').innerText = t.lblCfgCoverUrl;
-            document.getElementById('lblCfgCoverFile').innerText = t.lblCfgCoverFile;
-            document.getElementById('catalogFormTitle').innerText = t.catalogFormTitle;
-            document.getElementById('lblProdNamePt').innerText = t.lblProdNamePt;
-            document.getElementById('lblProdNameEn').innerText = t.lblProdNameEn;
-            document.getElementById('lblProdNameZh').innerText = t.lblProdNameZh;
-            document.getElementById('lblProdPrice').innerText = t.lblProdPrice;
-            document.getElementById('lblProdCategory').innerText = t.lblProdCategory;
-            document.getElementById('lblProdSubCategory').innerText = t.lblProdSubCategory;
-            document.getElementById('lblProdDesc').innerText = t.lblProdDesc;
-            document.getElementById('lblProdDescEn').innerText = t.lblProdDescEn;
-            document.getElementById('lblProdDescZh').innerText = t.lblProdDescZh;
-            document.getElementById('lblProdImgUrl').innerText = t.lblProdImgUrl;
-            document.getElementById('lblProdImgFile').innerText = t.lblProdImgFile;
-            document.getElementById('lblProdAvailable').innerText = t.lblProdAvailable;
-            document.getElementById('btnSaveProductText').innerText = t.btnSaveProductText;
-            document.getElementById('btnCancelEditText').innerText = t.btnCancelEditText;
-            document.getElementById('lblRegisteredProds').innerText = t.lblRegisteredProds;
-            document.getElementById('importTitleText').innerText = t.importTitleText;
-            document.getElementById('importDescText').innerHTML = t.importDescText;
-            document.getElementById('lblImportCategory').innerText = t.lblImportCategory;
-            document.getElementById('btnProcessImport').innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> ${t.btnProcessImport}`;
-            document.getElementById('importedDetectedText').innerText = t.importedDetectedText;
-            document.getElementById('qrScanNoticeText').innerText = t.qrScanNoticeText;
-            document.getElementById('btnCopyLinkText').innerText = t.btnCopyLinkText;
-            document.getElementById('btnPrintQrText').innerText = t.btnPrintQrText;
-            document.getElementById('btnExitPanelText').innerText = t.btnExitPanelText;
-            document.getElementById('btnSaveSettings').innerText = t.btnSaveSettings;
-            document.getElementById('lojistaBtnText').innerText = t.lojistaBtnText;
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        window.toggleLanguage = function() {
-            window.currentLangIndex = (window.currentLangIndex + 1) % window.languages.length;
-            applyTranslations();
-            renderMenu();
-        };
-
-        // Toast Notification Helper
-        window.showToast = function(message) {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.innerText = message;
-            container.appendChild(toast);
-            setTimeout(() => toast.classList.add('show'), 100);
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        };
-
-        // Firebase Listeners & Initial Load
-        function initFirebaseListeners() {
-            // Store Settings Listener
-            onSnapshot(doc(db, "store_config", "settings"), (docSnap) => {
-                if (docSnap.exists()) {
-                    window.storeSettings = docSnap.data();
-                    updateHeaderUI();
-                }
-            });
-
-            // Products Listener
-            onSnapshot(collection(db, "products"), (snapshot) => {
-                window.productsList = [];
-                snapshot.forEach((docSnap) => {
-                    window.productsList.push({ id: docSnap.id, ...docSnap.data() });
-                });
-                renderMenu();
-                renderAdminProductList();
-            });
-        }
-
-        function updateHeaderUI() {
-            const s = window.storeSettings;
-            const lang = window.languages[window.currentLangIndex].code;
-
-            document.getElementById('pageTitle').innerText = s.name || "Cardápio Virtual";
-            document.getElementById('storeLogo').innerText = s.logo || "🦀";
-            document.getElementById('storeNameDisplay').innerText = s.name || "Cardápio Virtual";
-            
-            let desc = s.descriptionPt;
-            if (lang === 'en' && s.descriptionEn) desc = s.descriptionEn;
-            if (lang === 'zh' && s.descriptionZh) desc = s.descriptionZh;
-            document.getElementById('storeDescDisplay').innerText = desc || s.descriptionPt || "";
-            document.getElementById('storeHoursDisplay').innerHTML = `<i class="fa-regular fa-clock"></i> ${s.hours || '10:00 - 22:00'}`;
-            document.getElementById('storeInstaDisplay').innerHTML = `<i class="fa-brands fa-instagram"></i> ${s.instagram || '@cardapiovirtual'}`;
-
-            if (s.coverUrl) {
-                const headerBg = document.getElementById('headerBg');
-                headerBg.style.backgroundImage = `url('${s.coverUrl}')`;
-            }
-
-            document.getElementById('printStoreName').innerText = s.name || "Cardápio Virtual";
-            document.getElementById('printStoreUrl').innerText = window.location.href;
-        }
-
-        // Render Menu with Subdivisions & Alphabetical Order
-        window.renderMenu = function() {
-            const container = document.getElementById('menuContainer');
-            const catContainer = document.getElementById('categoryContainer');
-            const searchVal = document.getElementById('searchInput').value.toLowerCase();
-            const lang = window.languages[window.currentLangIndex].code;
-            const t = translations[lang] || translations['pt'];
-
-            // Categories extraction
-            const categoriesSet = new Set();
-            window.productsList.forEach(p => { if (p.category) categoriesSet.add(p.category); });
-            const categories = ['all', ...Array.from(categoriesSet)];
-
-            // Render Category buttons
-            catContainer.innerHTML = categories.map(cat => {
-                const activeClass = (window.currentCategory === cat) ? 'active' : '';
-                const label = cat === 'all' ? t.allCategories : cat;
-                return `<button class="cat-btn ${activeClass}" onclick="selectCategory('${cat}')">${label}</button>`;
-            }).join('');
-
-            // Filter Products
-            let filtered = window.productsList.filter(p => {
-                const name = (p.namePt || '').toLowerCase();
-                const desc = (p.descPt || '').toLowerCase();
-                const matchesSearch = name.includes(searchVal) || desc.includes(searchVal);
-                const matchesCat = (window.currentCategory === 'all' || p.category === window.currentCategory);
-                const matchesSubCat = (window.currentSubCategory === 'all' || p.subCategory === window.currentSubCategory);
-                return matchesSearch && matchesCat && matchesSubCat;
-            });
-
-            // Alphabetical Sorting within groups
-            filtered.sort((a, b) => (a.namePt || '').localeCompare(b.namePt || ''));
-
-            if (filtered.length === 0) {
-                container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted);"><i class="fa-solid fa-utensils" style="font-size:2rem; margin-bottom:10px;"></i><p>Nenhum produto encontrado.</p></div>`;
-                return;
-            }
-
-            // Group by Category and Subcategory
-            const grouped = {};
-            filtered.forEach(p => {
-                const cat = p.category || 'Geral';
-                const subCat = p.subCategory || 'Geral';
-                if (!grouped[cat]) grouped[cat] = {};
-                if (!grouped[cat][subCat]) grouped[cat][subCat] = [];
-                grouped[cat][subCat].push(p);
-            });
-
-            let html = '';
-            for (const cat in grouped) {
-                html += `<div class="section-title"><span>${cat}</span></div>`;
-                
-                // Subcategories tabs if any exist other than 'Geral'
-                const subCats = Object.keys(grouped[cat]);
-                if (subCats.length > 1 || (subCats.length === 1 && subCats[0] !== 'Geral')) {
-                    html += `<div class="subcategories-container">`;
-                    html += `<button class="subcat-btn ${window.currentSubCategory === 'all' ? 'active' : ''}" onclick="selectSubCategory('all')">${t.allCategories}</button>`;
-                    subCats.forEach(sub => {
-                        html += `<button class="subcat-btn ${window.currentSubCategory === sub ? 'active' : ''}" onclick="selectSubCategory('${sub}')">${sub}</button>`;
-                    });
-                    html += `</div>`;
-                }
-
-                for (const subCat in grouped[cat]) {
-                    html += `<div class="product-grid">`;
-                    grouped[cat][subCat].forEach(p => {
-                        let name = p.namePt || '';
-                        let desc = p.descPt || '';
-                        if (lang === 'en') {
-                            name = p.nameEn || name;
-                            desc = p.descEn || desc;
-                        } else if (lang === 'zh') {
-                            name = p.nameZh || name;
-                            desc = p.descZh || desc;
-                        } else if (lang !== 'pt') {
-                            // Automatic Fallback simulation for other languages
-                            name = p.nameEn || name;
-                            desc = p.descEn || desc;
-                        }
-
-                        const priceFormatted = Number(p.price || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                        const unavailableClass = p.available === false ? 'unavailable' : '';
-                        const popularBadge = p.popular ? `<span class="badge-popular">${t.popular}</span>` : '';
-                        const outStockBadge = p.available === false ? `<span class="badge-out-stock">${t.unavailable}</span>` : '';
-
-                        html += `
-                            <div class="product-card ${unavailableClass}">
-                                ${popularBadge}
-                                ${outStockBadge}
-                                <div>
-                                    ${p.imgUrl ? `<img src="${p.imgUrl}" class="product-img" alt="${name}">` : `<div class="product-img" style="display:flex;align-items:center;justify-content:center;color:#ccc;"><i class="fa-solid fa-camera"></i></div>`}
-                                    <div class="product-info">
-                                        <h3>${name}</h3>
-                                        <p>${desc}</p>
-                                    </div>
-                                </div>
-                                <div class="product-bottom">
-                                    <span class="price">${priceFormatted}</span>
-                                    <button class="add-btn" ${p.available === false ? 'disabled' : ''} onclick="addToCart('${p.id}')">
-                                        <i class="fa-solid fa-plus"></i> ${t.addBtn}
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    html += `</div>`;
-                }
-            }
-
-            container.innerHTML = html;
-        };
-
-        window.selectCategory = function(cat) {
-            window.currentCategory = cat;
-            window.currentSubCategory = 'all';
-            renderMenu();
-        };
-
-        window.selectSubCategory = function(sub) {
-            window.currentSubCategory = sub;
-            renderMenu();
-        };
-
-        window.filterProducts = function() {
-            renderMenu();
-        };
-
-        // Cart Management
-        window.addToCart = function(productId) {
-            const product = window.productsList.find(p => p.id === productId);
-            if (!product) return;
-
-            const existing = window.cart.find(item => item.id === productId);
-            if (existing) {
-                existing.qty += 1;
-            } else {
-                window.cart.push({ ...product, qty: 1 });
-            }
-            updateCartUI();
-            showToast(`${product.namePt} adicionado à comanda!`);
-        };
-
-        window.updateCartQty = function(productId, delta) {
-            const item = window.cart.find(i => i.id === productId);
-            if (!item) return;
-            item.qty += delta;
-            if (item.qty <= 0) {
-                window.cart = window.cart.filter(i => i.id !== productId);
-            }
-            updateCartUI();
-        };
-
-        function updateCartUI() {
-            const totalCount = window.cart.reduce((sum, i) => sum + i.qty, 0);
-            const totalPrice = window.cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
-
-            document.getElementById('cartBadge').innerText = totalCount;
-            const formattedTotal = totalPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('cartTotalBar').innerText = formattedTotal;
-            document.getElementById('cartTotalModal').innerText = formattedTotal;
-
-            const container = document.getElementById('cartItemsContainer');
-            if (window.cart.length === 0) {
-                container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted);"><p>Sua comanda está vazia.</p></div>`;
-            } else {
-                container.innerHTML = window.cart.map(item => `
-                    <div class="cart-item">
-                        <div>
-                            <div class="cart-item-title">${item.namePt}</div>
-                            <div class="cart-item-price">R$ ${Number(item.price).toFixed(2)} x ${item.qty}</div>
-                        </div>
-                        <div class="qty-controls">
-                            <button class="qty-btn" onclick="updateCartQty('${item.id}', -1)">-</button>
-                            <span>${item.qty}</span>
-                            <button class="qty-btn" onclick="updateCartQty('${item.id}', 1)">+</button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            const simContainer = document.getElementById('simulationBannerContainer');
-            if (window.storeSettings.salesMode === 'simulation') {
-                simContainer.innerHTML = `<div class="simulation-banner"><i class="fa-solid fa-triangle-exclamation"></i> Modo Simulação: Este pedido será gerado como pré-conta para o garçom.</div>`;
-            } else {
-                simContainer.innerHTML = '';
-            }
-        }
-
-        window.toggleCartModal = function(show) {
-            const modal = document.getElementById('cartModal');
-            if (show) {
-                modal.classList.add('active');
-                updateCartUI();
-            } else {
-                modal.classList.remove('active');
-            }
-        };
-
-        window.sendOrder = function() {
-            if (window.cart.length === 0) return;
-            
-            let text = `*Novo Pedido - ${window.storeSettings.name || 'Cardápio Virtual'}*%0A%0A`;
-            window.cart.forEach(item => {
-                text += `• ${item.qty}x ${item.namePt} - R$ ${(item.price * item.qty).toFixed(2)}%0A`;
-            });
-            const totalPrice = window.cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
-            text += `%0A*Total: R$ ${totalPrice.toFixed(2)}*%0A`;
-
-            if (window.storeSettings.salesMode === 'simulation') {
-                text += `%0A*(Pré-conta solicitada pelo cliente na mesa)*`;
-            }
-
-            const whatsappNumber = window.storeSettings.whatsapp || '5585999999999';
-            const url = `https://wa.me/${whatsappNumber}?text=${text}`;
-            window.open(url, '_blank');
-        };
-
-        // Merchant Authentication & Panel Modals
-        window.handleLojistaClick = function() {
-            if (window.currentUser) {
-                toggleModal('adminModal', true);
-                loadAdminSettingsIntoForm();
-            } else {
-                toggleModal('pinModal', true);
-            }
-        };
-
-        window.toggleModal = function(modalId, show) {
+        function toggleModal(modalId, show) {
             const modal = document.getElementById(modalId);
             if (show) modal.classList.add('active');
             else modal.classList.remove('active');
-        };
-
-        window.verifyLogin = async function() {
-            const email = document.getElementById('loginEmail').value;
-            const pass = document.getElementById('loginPassword').value;
-            try {
-                await signInWithEmailAndPassword(auth, email, pass);
-                toggleModal('pinModal', false);
-                toggleModal('adminModal', true);
-                loadAdminSettingsIntoForm();
-                showToast("Login realizado com sucesso!");
-            } catch (error) {
-                showToast("Erro de autenticação: Verifique e-mail e senha.");
-            }
-        };
-
-        window.logoutAdmin = async function() {
-            await signOut(auth);
-            toggleModal('adminModal', false);
-            showToast("Sessão encerrada.");
-        };
-
-        onAuthStateChanged(auth, (user) => {
-            window.currentUser = user;
-        });
-
-        window.switchAdminTab = function(tabId, event) {
-            document.querySelectorAll('.admin-tab-content').forEach(el => el.style.display = 'none');
-            document.querySelectorAll('.admin-tab').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).style.display = 'block';
-            event.currentTarget.classList.add('active');
-
-            if (tabId === 'tabQr') {
-                generateQrCode();
-            }
-        };
-
-        function loadAdminSettingsIntoForm() {
-            const s = window.storeSettings;
-            document.getElementById('cfgStoreName').value = s.name || '';
-            document.getElementById('cfgLogo').value = s.logo || '';
-            document.getElementById('cfgDesc').value = s.descriptionPt || '';
-            document.getElementById('cfgDescEn').value = s.descriptionEn || '';
-            document.getElementById('cfgDescZh').value = s.descriptionZh || '';
-            document.getElementById('cfgWhatsapp').value = s.whatsapp || '';
-            document.getElementById('cfgInstagram').value = s.instagram || '';
-            document.getElementById('cfgHours').value = s.hours || '';
-            document.getElementById('cfgSalesMode').value = s.salesMode || 'direct';
-            document.getElementById('cfgAddress').value = s.address || '';
-            document.getElementById('cfgCoverUrl').value = s.coverUrl || '';
         }
 
-        window.saveAdminSettings = async function() {
-            try {
-                let coverUrl = document.getElementById('cfgCoverUrl').value;
-                const coverFile = document.getElementById('cfgCoverFile').files[0];
-                if (coverFile) {
-                    const fileRef = storageRef(storage, `covers/${Date.now()}_${coverFile.name}`);
-                    const snapshot = await uploadBytes(fileRef, coverFile);
-                    coverUrl = await getDownloadURL(snapshot.ref);
-                }
+        function changeLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) el.innerText = translations[lang][key];
+            });
+            renderProducts();
+        }
 
-                const newSettings = {
-                    name: document.getElementById('cfgStoreName').value,
-                    logo: document.getElementById('cfgLogo').value,
-                    descriptionPt: document.getElementById('cfgDesc').value,
-                    descriptionEn: document.getElementById('cfgDescEn').value,
-                    descriptionZh: document.getElementById('cfgDescZh').value,
-                    whatsapp: document.getElementById('cfgWhatsapp').value,
-                    instagram: document.getElementById('cfgInstagram').value,
-                    hours: document.getElementById('cfgHours').value,
-                    salesMode: document.getElementById('cfgSalesMode').value,
-                    address: document.getElementById('cfgAddress').value,
-                    coverUrl: coverUrl
-                };
+        function renderStoreHeader() {
+            document.getElementById('storeHeader').style.backgroundImage = `url('${storeSettings.coverUrl}')`;
+            document.getElementById('storeLogoImg').src = storeSettings.logo;
+            document.getElementById('storeNameText').innerText = storeSettings.name;
+            document.getElementById('storeDescText').innerText = storeSettings.description;
+            document.getElementById('storeHours').innerText = storeSettings.hours;
+            document.getElementById('storeAddress').innerText = storeSettings.address;
+        }
 
-                await setDoc(doc(db, "store_config", "settings"), newSettings, { merge: true });
-                showToast("Configurações salvas com sucesso!");
-            } catch (err) {
-                showToast("Erro ao salvar configurações.");
-            }
-        };
-
-        // Product CRUD & Fast Admin Search
-        window.saveProduct = async function() {
-            const namePt = document.getElementById('prodNamePt').value;
-            const price = parseFloat(document.getElementById('prodPrice').value);
-            if (!namePt || isNaN(price)) {
-                showToast("Preencha o nome e o preço do produto.");
-                return;
-            }
-
-            let imgUrl = document.getElementById('prodImgUrl').value;
-            const imgFile = document.getElementById('prodImgFile').files[0];
-            if (imgFile) {
-                const fileRef = storageRef(storage, `products/${Date.now()}_${imgFile.name}`);
-                const snapshot = await uploadBytes(fileRef, imgFile);
-                imgUrl = await getDownloadURL(snapshot.ref);
-            }
-
-            const productData = {
-                namePt,
-                nameEn: document.getElementById('prodNameEn').value,
-                nameZh: document.getElementById('prodNameZh').value,
-                price,
-                category: document.getElementById('prodCategory').value || 'Geral',
-                subCategory: document.getElementById('prodSubCategory').value || 'Geral',
-                descPt: document.getElementById('prodDesc').value,
-                descEn: document.getElementById('prodDescEn').value,
-                descZh: document.getElementById('prodDescZh').value,
-                imgUrl,
-                available: document.getElementById('prodAvailable').checked
-            };
-
-            if (window.editingProductId) {
-                await updateDoc(doc(db, "products", window.editingProductId), productData);
-                showToast("Produto atualizado com sucesso!");
-                cancelEditProduct();
-            } else {
-                await addDoc(collection(db, "products"), productData);
-                showToast("Produto cadastrado com sucesso!");
-                clearProductForm();
-            }
-        };
-
-        window.renderAdminProductList = function() {
-            const listEl = document.getElementById('adminProductList');
-            const searchVal = (document.getElementById('adminSearchInput').value || '').toLowerCase();
+        function renderCategories() {
+            const container = document.getElementById('categoriesContainer');
+            const categories = ['all', ...new Set(productsList.map(p => p.category))];
             
-            const filtered = window.productsList.filter(p => (p.namePt || '').toLowerCase().includes(searchVal));
+            container.innerHTML = categories.map(cat => `
+                <div class="cat-chip ${cat === currentCategory ? 'active' : ''}" onclick="filterCategory('${cat}', this)">
+                    ${cat === 'all' ? (currentLang === 'pt' ? 'Todos' : currentLang === 'en' ? 'All' : '全部') : cat}
+                </div>
+            `).join('');
+        }
 
-            if (filtered.length === 0) {
-                listEl.innerHTML = `<p style="font-size:0.8rem; color:var(--text-muted); text-align:center; padding:10px;">Nenhum produto encontrado.</p>`;
+        function filterCategory(cat, element) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+            renderProducts();
+        }
+
+        function renderProducts(filteredList = null) {
+            const contentArea = document.getElementById('contentArea');
+            let items = filteredList || productsList.filter(p => p.available !== false);
+
+            if (currentCategory !== 'all' && !filteredList) {
+                items = items.filter(p => p.category === currentCategory);
+            }
+
+            if (items.length === 0) {
+                contentArea.innerHTML = `<p style="text-align:center; color:var(--gray); padding:30px;">Nenhum produto encontrado.</p>`;
                 return;
             }
 
-            listEl.innerHTML = filtered.map(p => `
+            // Group by category if showing all
+            const categoriesToRender = currentCategory === 'all' ? [...new Set(items.map(p => p.category))] : [currentCategory];
+
+            contentArea.innerHTML = categoriesToRender.map(cat => {
+                const catItems = items.filter(p => p.category === cat);
+                if (catItems.length === 0) return '';
+
+                return `
+                    ${currentCategory === 'all' ? `<div class="category-section-title">${cat}</div>` : ''}
+                    ${catItems.map(p => {
+                        const name = currentLang === 'en' ? (p.nameEn || p.namePt) : currentLang === 'zh' ? (p.nameZh || p.namePt) : p.namePt;
+                        const desc = p.descPt || '';
+                        return `
+                            <div class="product-card" onclick="openProductModal('${p.id}')">
+                                <img src="${p.imgUrl \vert{}\vert{} 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=200&q=80'}" class="product-img" alt="${name}">
+                                <div class="product-info">
+                                    <div>
+                                        <div class="product-title">${name}</div>
+                                        <div class="product-desc">${desc}</div>
+                                    </div>
+                                    <div class="product-footer">
+                                        <div class="product-price">R$ ${Number(p.price || 0).toFixed(2)}</div>
+                                        <button class="add-btn" onclick="event.stopPropagation(); openProductModal('${p.id}')"><i class="fa-solid fa-plus"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                `;
+            }).join('');
+        }
+
+        function filterProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = productsList.filter(p => p.namePt.toLowerCase().includes(query) || (p.descPt && p.descPt.toLowerCase().includes(query)));
+            renderProducts(filtered);
+        }
+
+        function openProductModal(id) {
+            const p = productsList.find(item => item.id === id);
+            if (!p) return;
+
+            selectedProductForModal = p;
+            const name = currentLang === 'en' ? (p.nameEn || p.namePt) : currentLang === 'zh' ? (p.nameZh || p.namePt) : p.namePt;
+            
+            document.getElementById('modalProdName').innerText = name;
+            document.getElementById('modalProdDesc').innerText = p.descPt || '';
+            document.getElementById('modalProdPrice').innerText = `R$ ${Number(p.price || 0).toFixed(2)}`;
+            document.getElementById('modalProdObs').value = '';
+            
+            const img = document.getElementById('modalProdImg');
+            if (p.imgUrl) {
+                img.src = p.imgUrl;
+                img.style.display = 'block';
+            } else {
+                img.style.display = 'none';
+            }
+
+            toggleModal('productModal', true);
+        }
+
+        function confirmAddToCart() {
+            if (!selectedProductForModal) return;
+            const obs = document.getElementById('modalProdObs').value;
+
+            cart.push({
+                ...selectedProductForModal,
+                obs: obs,
+                cartId: Date.now() + Math.random()
+            });
+
+            toggleModal('productModal', false);
+            updateCartUI();
+            showToast("Item adicionado ao carrinho!");
+        }
+
+        function updateCartUI() {
+            const cartBar = document.getElementById('floatingCart');
+            const cartBadge = document.getElementById('cartBadge');
+            const cartSubTotal = document.getElementById('cartSubTotal');
+
+            if (cart.length === 0) {
+                cartBar.classList.add('hidden');
+                return;
+            }
+
+            const total = cart.reduce((sum, item) => sum + Number(item.price), 0);
+            cartBadge.innerText = cart.length;
+            cartSubTotal.innerText = `R$ ${total.toFixed(2)}`;
+            cartBar.classList.remove('hidden');
+        }
+
+        function openCartModal() {
+            const list = document.getElementById('cartItemsList');
+            const totalEl = document.getElementById('cartTotalPrice');
+
+            list.innerHTML = cart.map((item, index) => `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:0.85rem;">
+                    <div>
+                        <strong>${item.namePt}</strong> ${item.obs ? `<br><small style="color:#666;">Obs: ${item.obs}</small>` : ''}
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span>R$ ${Number(item.price).toFixed(2)}</span>
+                        <button onclick="removeFromCart(${index})" style="background:none; border:none; color:#E74C3C; cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+
+            const total = cart.reduce((sum, item) => sum + Number(item.price), 0);
+            totalEl.innerText = `R$ ${total.toFixed(2)}`;
+            toggleModal('cartModal', true);
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            openCartModal();
+            updateCartUI();
+        }
+
+        function checkoutOrder() {
+            if (cart.length === 0) return;
+            const clientName = document.getElementById('clientNameInput').value.trim();
+            const orderType = document.getElementById('orderTypeSelect').value;
+
+            if (!clientName) {
+                showToast("Por favor, preencha seu Nome ou Mesa.");
+                document.getElementById('clientNameInput').focus();
+                return;
+            }
+
+            let message = `*Novo Pedido - ${storeSettings.name}*\n\n`;
+            message += `👤 *Cliente/Mesa:* ${clientName}\n`;
+            message += `🛵 *Tipo:* ${orderType.toUpperCase()}\n\n`;
+            message += `🛒 *Itens do Pedido:*\n`;
+
+            cart.forEach((item, idx) => {
+                message += `${idx + 1}. ${item.namePt} - R$ ${Number(item.price).toFixed(2)}${item.obs ? ` (Obs: ${item.obs})` : ''}\n`;
+            });
+
+            const total = cart.reduce((sum, item) => sum + Number(item.price), 0);
+            message += `\n💰 *Total:* R$ ${total.toFixed(2)}`;
+
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${storeSettings.whatsapp}?text=${encodedMessage}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // QR Code & Admin Management
+        function openQrModal() {
+            document.getElementById('qrUrlInput').value = window.location.href;
+            const qrcodeContainer = document.getElementById('qrcodeContainer');
+            qrcodeContainer.innerHTML = '';
+            new QRCode(qrcodeContainer, { text: window.location.href, width: 160, height: 160 });
+
+            const printQrCode = document.getElementById('printQrCode');
+            printQrCode.innerHTML = '';
+            new QRCode(printQrCode, { text: window.location.href, width: 220, height: 220 });
+
+            toggleModal('qrModal', true);
+        }
+
+        function copyStoreUrl() {
+            const input = document.getElementById('qrUrlInput');
+            input.select();
+            navigator.clipboard.writeText(input.value);
+            showToast("Link copiado!");
+        }
+
+        function printQrSheet() {
+            window.print();
+        }
+
+        function openAdminModal() {
+            const pin = prompt("Digite a senha de administrador (padrão: 1234):");
+            if (pin === "1234") {
+                renderAdminProductList();
+                loadStoreSettingsToForm();
+                toggleModal('adminModal', true);
+            } else if (pin !== null) {
+                showToast("Senha incorreta!");
+            }
+        }
+
+        function switchAdminTab(tab, btn) {
+            document.querySelectorAll('.admin-tab-content').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('#adminModal .cat-chip').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(`adminTab${tab.charAt(0).toUpperCase() + tab.slice(1)}`).style.display = 'block';
+            btn.classList.add('active');
+        }
+
+        function renderAdminProductList(filtered = null) {
+            const list = document.getElementById('adminProductList');
+            const items = filtered || productsList;
+
+            list.innerHTML = items.map(p => `
                 <div class="admin-product-item">
                     <div class="admin-product-info">
-                        <h4>${p.namePt}</h4>
-                        <span>R$ ${Number(p.price).toFixed(2)} | ${p.category} ${p.subCategory !== 'Geral' ? ' > ' + p.subCategory : ''}</span>
+                        <h4>${p.namePt} - R$ ${Number(p.price).toFixed(2)}</h4>
+                        <span>${p.category}</span>
                     </div>
-                    <div style="display:flex; gap:6px;">
-                        <button class="btn-toggle-sm ${p.available !== false ? 'available' : ''}" onclick="toggleProductStock('${p.id}', ${p.available !== false})">${p.available !== false ? 'Disponível' : 'Indisponível'}</button>
-                        <button class="btn-edit-sm" onclick="startEditProduct('${p.id}')"><i class="fa-solid fa-pen"></i></button>
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn-toggle-sm ${p.available !== false ? 'available' : ''}" onclick="toggleAvailability('${p.id}')"><i class="fa-solid fa-power-off"></i></button>
+                        <button class="btn-edit-sm" onclick="editProduct('${p.id}')"><i class="fa-solid fa-pen"></i></button>
                         <button class="btn-danger-sm" onclick="deleteProduct('${p.id}')"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>
             `).join('');
-        };
+        }
 
-        window.filterAdminProducts = function() {
+        function filterAdminProducts() {
+            const q = document.getElementById('adminSearchInput').value.toLowerCase();
+            const filtered = productsList.filter(p => p.namePt.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+            renderAdminProductList(filtered);
+        }
+
+        function saveProduct() {
+            const name = document.getElementById('prodNamePt').value;
+            const price = parseFloat(document.getElementById('prodPrice').value);
+            const category = document.getElementById('prodCategory').value;
+
+            if (!name || isNaN(price) || !category) {
+                showToast("Preencha Nome, Preço e Categoria.");
+                return;
+            }
+
+            const productData = {
+                id: editingProductId || String(Date.now()),
+                namePt: name,
+                price: price,
+                category: category,
+                imgUrl: document.getElementById('prodImgUrl').value,
+                descPt: document.getElementById('prodDesc').value,
+                available: document.getElementById('prodAvailable').checked
+            };
+
+            if (editingProductId) {
+                const index = productsList.findIndex(p => p.id === editingProductId);
+                if (index !== -1) productsList[index] = productData;
+                showToast("Produto atualizado!");
+                cancelEditProduct();
+            } else {
+                productsList.push(productData);
+                showToast("Produto cadastrado!");
+                clearProductForm();
+            }
+
+            renderProducts();
+            renderCategories();
             renderAdminProductList();
-        };
+        }
 
-        window.startEditProduct = function(id) {
-            const p = window.productsList.find(item => item.id === id);
+        function editProduct(id) {
+            const p = productsList.find(item => item.id === id);
             if (!p) return;
-            window.editingProductId = id;
-            document.getElementById('prodNamePt').value = p.namePt || '';
-            document.getElementById('prodNameEn').value = p.nameEn || '';
-            document.getElementById('prodNameZh').value = p.nameZh || '';
-            document.getElementById('prodPrice').value = p.price || '';
-            document.getElementById('prodCategory').value = p.category || '';
-            document.getElementById('prodSubCategory').value = p.subCategory || '';
-            document.getElementById('prodDesc').value = p.descPt || '';
-            document.getElementById('prodDescEn').value = p.descEn || '';
-            document.getElementById('prodDescZh').value = p.descZh || '';
+
+            editingProductId = id;
+            document.getElementById('prodNamePt').value = p.namePt;
+            document.getElementById('prodPrice').value = p.price;
+            document.getElementById('prodCategory').value = p.category;
             document.getElementById('prodImgUrl').value = p.imgUrl || '';
+            document.getElementById('prodDesc').value = p.descPt || '';
             document.getElementById('prodAvailable').checked = p.available !== false;
 
             document.getElementById('catalogFormTitle').innerText = "Editar Produto";
             document.getElementById('btnSaveProductText').innerText = "Salvar Alterações";
             document.getElementById('btnCancelEdit').style.display = 'inline-block';
-        };
+        }
 
-        window.cancelEditProduct = function() {
-            window.editingProductId = null;
+        function cancelEditProduct() {
+            editingProductId = null;
             clearProductForm();
             document.getElementById('catalogFormTitle').innerText = "Adicionar Novo Produto";
             document.getElementById('btnSaveProductText').innerText = "Cadastrar Produto";
             document.getElementById('btnCancelEdit').style.display = 'none';
-        };
+        }
 
         function clearProductForm() {
             document.getElementById('prodNamePt').value = '';
-            document.getElementById('prodNameEn').value = '';
-            document.getElementById('prodNameZh').value = '';
             document.getElementById('prodPrice').value = '';
             document.getElementById('prodCategory').value = '';
-            document.getElementById('prodSubCategory').value = '';
-            document.getElementById('prodDesc').value = '';
-            document.getElementById('prodDescEn').value = '';
-            document.getElementById('prodDescZh').value = '';
             document.getElementById('prodImgUrl').value = '';
-            document.getElementById('prodImgFile').value = '';
+            document.getElementById('prodDesc').value = '';
             document.getElementById('prodAvailable').checked = true;
         }
 
-        window.toggleProductStock = async function(id, currentStatus) {
-            await updateDoc(doc(db, "products", id), { available: !currentStatus });
-            showToast("Status de disponibilidade atualizado!");
-        };
-
-        window.deleteProduct = async function(id) {
-            if (confirm("Deseja realmente excluir este produto?")) {
-                await deleteDoc(doc(db, "products", id));
-                showToast("Produto excluído.");
+        function toggleAvailability(id) {
+            const p = productsList.find(item => item.id === id);
+            if (p) {
+                p.available = p.available === false ? true : false;
+                renderAdminProductList();
+                renderProducts();
+                showToast("Status alterado!");
             }
-        };
+        }
 
-        // Smart Menu Import via Tesseract.js OCR
-        window.processMenuImport = async function() {
+        function deleteProduct(id) {
+            if (confirm("Excluir este produto?")) {
+                productsList = productsList.filter(p => p.id !== id);
+                renderAdminProductList();
+                renderProducts();
+                renderCategories();
+                showToast("Produto excluído!");
+            }
+        }
+
+        // Menu OCR Import via Tesseract.js
+        async function processMenuImport() {
             const fileInput = document.getElementById('menuImportFile');
-            const defaultCategory = document.getElementById('importCategoryDefault').value || 'Geral';
+            const defaultCategory = document.getElementById('importCategoryDefault').value || 'Destaques';
             if (fileInput.files.length === 0) {
-                showToast("Selecione um arquivo de imagem ou PDF.");
+                showToast("Selecione uma imagem.");
                 return;
             }
 
@@ -2287,119 +1169,78 @@
             const progressBar = document.getElementById('importProgressBar');
             const progressFill = document.getElementById('importProgressFill');
             const statusText = document.getElementById('importStatusText');
-            
+
             progressBar.style.display = 'block';
-            statusText.innerText = "Lendo arquivo com Inteligência OCR...";
+            progressFill.style.width = '20%';
+            statusText.innerText = "Lendo imagem (OCR)...";
 
             try {
                 const worker = await Tesseract.createWorker('por');
+                progressFill.style.width = '60%';
+                statusText.innerText = "Analisando itens e preços...";
+
                 const ret = await worker.recognize(file);
                 await worker.terminate();
+                progressFill.style.width = '100%';
 
-                const text = ret.data.text;
-                const lines = text.split('\n');
-                const detectedItems = [];
-
-                // Regex matcher for Price (ex: R$ 15,90 or 15.90)
-                const priceRegex = /(?:R\$\s*)?(\d+([.,]\d{2}))/i;
+                const lines = ret.data.text.split('\n');
+                let count = 0;
+                const priceRegex = /(?:R\$\s*)?(\d{1,3}(?:[.,]\d{3})*[.,]\d{2})/g;
 
                 lines.forEach(line => {
-                    const match = line.match(priceRegex);
-                    if (match) {
-                        const priceStr = match[1].replace(',', '.');
+                    const clean = line.trim();
+                    if (clean.length < 3) return;
+                    const matches = [...clean.matchAll(priceRegex)];
+                    if (matches.length > 0) {
+                        const priceStr = matches[matches.length - 1][1].replace('.', '').replace(',', '.');
                         const price = parseFloat(priceStr);
-                        const name = line.replace(match[0], '').trim();
-                        if (name.length > 2 && !isNaN(price)) {
-                            detectedItems.push({ name, price, category: defaultCategory });
+                        const name = clean.replace(matches[matches.length - 1][0], '').trim();
+
+                        if (name && !isNaN(price) && price < 1000) {
+                            productsList.push({
+                                id: String(Date.now() + Math.random()),
+                                namePt: name,
+                                price: price,
+                                category: defaultCategory,
+                                descPt: "Importado via leitor OCR",
+                                available: true
+                            });
+                            count++;
                         }
                     }
                 });
 
-                document.getElementById('importedPreviewArea').style.display = 'block';
-                const listEl = document.getElementById('importedItemsList');
-                
-                if (detectedItems.length === 0) {
-                    listEl.innerHTML = `<p style="color:var(--text-muted); font-size:0.85rem;">Nenhum item com preço claro foi detectado automaticamente. Tente uma imagem mais nítida.</p>`;
-                } else {
-                    listEl.innerHTML = detectedItems.map((item, idx) => `
-                        <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #eee; font-size:0.85rem;">
-                            <span><strong>${item.name}</strong> (${item.category})</span>
-                            <span style="color:var(--secondary); font-weight:bold;">R$ ${item.price.toFixed(2)}</span>
-                        </div>
-                    `).join('') + `
-                        <button class="add-btn" style="margin-top:10px; width:100%; justify-content:center;" onclick="confirmImportedItems(${encodeURIComponent(JSON.stringify(detectedItems))})">Confirmar e Salvar no Firestore</button>
-                    `;
-                }
-
-                statusText.innerText = "Processamento concluído com sucesso!";
-                progressFill.style.width = '100%';
+                renderProducts();
+                renderCategories();
+                renderAdminProductList();
+                showToast(`Sucesso! ${count} itens importados.`);
             } catch (err) {
-                statusText.innerText = "Erro ao processar arquivo OCR.";
-                showToast("Erro no reconhecimento óptico.");
+                statusText.innerText = "Erro ao processar imagem.";
+                showToast("Erro no leitor OCR.");
             }
-        };
-
-        window.confirmImportedItems = async function(itemsEncoded) {
-            const items = JSON.parse(decodeURIComponent(itemsEncoded));
-            for (const item of items) {
-                await addDoc(collection(db, "products"), {
-                    namePt: item.name,
-                    price: item.price,
-                    category: item.category,
-                    subCategory: 'Geral',
-                    descPt: 'Importado via OCR',
-                    available: true
-                });
-            }
-            showToast(`${items.length} produtos importados com sucesso!`);
-            document.getElementById('importedPreviewArea').style.display = 'none';
-        };
-
-        // QR Code & Printing
-        function generateQrCode() {
-            const url = window.location.href;
-            document.getElementById('qrUrlInput').value = url;
-            
-            const container = document.getElementById('qrcodeContainer');
-            container.innerHTML = '';
-            new QRCode(container, {
-                text: url,
-                width: 180,
-                height: 180,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-
-            const printContainer = document.getElementById('printQrCode');
-            printContainer.innerHTML = '';
-            new QRCode(printContainer, {
-                text: url,
-                width: 250,
-                height: 250,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
         }
 
-        window.copyStoreUrl = function() {
-            const input = document.getElementById('qrUrlInput');
-            input.select();
-            navigator.clipboard.writeText(input.value);
-            showToast("Link copiado para a área de transferência!");
-        };
+        function loadStoreSettingsToForm() {
+            document.getElementById('cfgStoreName').value = storeSettings.name;
+            document.getElementById('cfgLogo').value = storeSettings.logo;
+            document.getElementById('cfgCoverUrl').value = storeSettings.coverUrl;
+            document.getElementById('cfgDesc').value = storeSettings.description;
+            document.getElementById('cfgWhatsapp').value = storeSettings.whatsapp;
+            document.getElementById('cfgHours').value = storeSettings.hours;
+        }
 
-        window.printQrSheet = function() {
-            window.print();
-        };
+        function saveStoreSettings() {
+            storeSettings.name = document.getElementById('cfgStoreName').value;
+            storeSettings.logo = document.getElementById('cfgLogo').value;
+            storeSettings.coverUrl = document.getElementById('cfgCoverUrl').value;
+            storeSettings.description = document.getElementById('cfgDesc').value;
+            storeSettings.whatsapp = document.getElementById('cfgWhatsapp').value;
+            storeSettings.hours = document.getElementById('cfgHours').value;
 
-        // Initialize App on Load
-        window.addEventListener('DOMContentLoaded', () => {
-            applyTranslations();
-            initFirebaseListeners();
-        });
+            renderStoreHeader();
+            showToast("Configurações salvas!");
+            toggleModal('adminModal', false);
+        }
     </script>
 </body>
 </html>
-
