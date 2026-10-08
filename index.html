@@ -1165,12 +1165,14 @@
         // Helper de formatação monetária
         const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
 
+        // Helper de pausa para evitar exceder limite de requisições da API de tradução
+        const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
         // Configurações Padrão de Fallback
         const defaultStoreConfig = {
             name: "Cardápio Virtual",
             logo: "crab",
             description: "Praia do Futuro - Fortaleza/CE | Desde 1987",
-            descriptionEn: "Praia do Futuro - Fortaleza/CE | Since 1987",
             whatsapp: "5585999999999",
             address: "Av. Clóvis Arrais Maia, 4930 - Praia do Futuro, Fortaleza - CE",
             hours: "10:00 - 22:00",
@@ -1353,9 +1355,11 @@
         let currentLang = 'pt';
         let isAuthenticated = false;
         let editingProductId = null;
+        let isTranslating = false;
 
-        // Helper genérico para extrair texto de produto no idioma ativo
+        // Helper padronizado para buscar propriedades traduzidas no formato chave + Idioma (Ex: nameEs, descriptionFr)
         function getProductText(p, field) {
+            if (!p) return '';
             if (currentLang === 'pt') return p[field] || '';
             const key = field + currentLang.charAt(0).toUpperCase() + currentLang.slice(1);
             return p[key] || p[field] || '';
@@ -1364,6 +1368,25 @@
         // Helper para ordenar array de strings usando localeCompare
         function sortAlphabetically(array, lang = currentLang) {
             return [...array].sort((a, b) => a.localeCompare(b, lang, { sensitivity: 'base' }));
+        }
+
+        // Requisição para API MyMemory com tratamento de erro e limpeza de strings
+        async function fetchTranslation(text, targetLang) {
+            if (!text || targetLang === 'pt') return text;
+            try {
+                const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=pt|${targetLang}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data.responseData && data.responseData.translatedText) {
+                    const translated = data.responseData.translatedText;
+                    if (!translated.includes("QUERY LENGTH LIMIT EXCEEDED") && !translated.includes("MYMEMORY WARNING")) {
+                        return translated;
+                    }
+                }
+            } catch (e) {
+                console.warn("Erro ao traduzir via API MyMemory:", e);
+            }
+            return null;
         }
 
         // Inicialização
@@ -1443,7 +1466,10 @@
             document.getElementById("pageTitle").innerText = `${storeConfig.name} - ${currentLang === 'pt' ? 'Cardápio Digital' : 'Digital Menu'}`;
             document.getElementById("storeLogo").innerText = storeConfig.logo || "crab";
             document.getElementById("storeNameDisplay").innerText = storeConfig.name;
-            document.getElementById("storeDescDisplay").innerText = currentLang === 'pt' ? storeConfig.description : (storeConfig.descriptionEn || storeConfig.description);
+            
+            const descKey = 'description' + currentLang.charAt(0).toUpperCase() + currentLang.slice(1);
+            document.getElementById("storeDescDisplay").innerText = currentLang === 'pt' ? storeConfig.description : (storeConfig[descKey] || storeConfig.description);
+            
             document.getElementById("storeHoursDisplay").innerHTML = `<i class="fa-regular fa-clock"></i> ${storeConfig.hours}`;
             document.getElementById("storeInstaDisplay").innerHTML = `<i class="fa-brands fa-instagram"></i> ${storeConfig.instagram}`;
             
@@ -1507,8 +1533,6 @@
 
             container.innerHTML = categoriesToDisplay.map(cat => {
                 let catItems = filteredProducts.filter(p => getProductText(p, 'category') === cat);
-                
-                // Ordenação Alfabética dos produtos dentro da categoria
                 catItems.sort((a, b) => getProductText(a, 'name').localeCompare(getProductText(b, 'name'), currentLang, { sensitivity: 'base' }));
 
                 return `
@@ -1553,31 +1577,87 @@
             filterProducts();
         }
 
+        // Troca de idioma e tradução sequencial automática gravada diretamente no Firestore
         async function changeLanguage(langCode) {
             currentLang = langCode;
-            
-            if (currentLang !== 'pt') {
-                showToast("Traduzindo conteúdo...");
-                for (let p of products) {
-                    const nameKey = 'name' + currentLang.charAt(0).toUpperCase() + currentLang.slice(1);
-                    if (!p[nameKey] || p[nameKey] === p.name) {
-                        try {
-                            const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(p.name)}&langpair=pt|${currentLang}`);
-                            const data = await res.json();
-                            if (data.responseData?.translatedText) {
-                                const updateData = {};
-                                updateData[nameKey] = data.responseData.translatedText;
-                                await updateDoc(doc(db, "products", p.id), updateData);
-                            }
-                        } catch(e) {}
-                    }
-                }
+
+            const lojistaBtnText = document.getElementById("lojistaBtnText");
+            if (lojistaBtnText) {
+                lojistaBtnText.innerText = isAuthenticated ? i18n[currentLang].adminPanel : i18n[currentLang].lojistaMode;
             }
 
             renderHeader();
             renderCategories();
             renderProducts();
             updateCartUI();
+
+            if (currentLang === 'pt' || isTranslating) return;
+
+            const langSuffix = currentLang.charAt(0).toUpperCase() + currentLang.slice(1);
+            const nameKey = 'name' + langSuffix;
+            const descKey = 'description' + langSuffix;
+            const catKey = 'category' + langSuffix;
+
+            // Verifica se há algo pendente de tradução no Firestore
+            const storeDescNeedsTranslation = !storeConfig[descKey] && storeConfig.description;
+            const pendingProducts = products.filter(p => !p[nameKey] || !p[descKey] || !p[catKey]);
+
+            if (!storeDescNeedsTranslation && pendingProducts.length === 0) {
+                return; // Todos os itens já estão gravados no Firestore para este idioma!
+            }
+
+            isTranslating = true;
+            showToast("Traduzindo e salvando catálogo...");
+
+            // Traduz a descrição da loja caso necessário
+            if (storeDescNeedsTranslation) {
+                const translatedDesc = await fetchTranslation(storeConfig.description, currentLang);
+                if (translatedDesc) {
+                    const updateObj = {};
+                    updateObj[descKey] = translatedDesc;
+                    storeConfig[descKey] = translatedDesc;
+                    await updateDoc(doc(db, "store_config", "settings"), updateObj);
+                    renderHeader();
+                }
+            }
+
+            // Traduz os produtos sequencialmente para garantir salvamento e evitar estouro de requisições
+            for (let p of pendingProducts) {
+                let updated = false;
+                const updateData = {};
+
+                if (!p[nameKey] && p.name) {
+                    const resName = await fetchTranslation(p.name, currentLang);
+                    if (resName) { updateData[nameKey] = resName; p[nameKey] = resName; updated = true; }
+                    await sleep(150);
+                }
+
+                if (!p[descKey] && p.description) {
+                    const resDesc = await fetchTranslation(p.description, currentLang);
+                    if (resDesc) { updateData[descKey] = resDesc; p[descKey] = resDesc; updated = true; }
+                    await sleep(150);
+                }
+
+                if (!p[catKey] && p.category) {
+                    const resCat = await fetchTranslation(p.category, currentLang);
+                    if (resCat) { updateData[catKey] = resCat; p[catKey] = resCat; updated = true; }
+                    await sleep(150);
+                }
+
+                if (updated) {
+                    try {
+                        await updateDoc(doc(db, "products", p.id), updateData);
+                        renderCategories();
+                        renderProducts();
+                        updateCartUI();
+                    } catch (e) {
+                        console.error("Erro ao gravar tradução no Firestore:", e);
+                    }
+                }
+            }
+
+            isTranslating = false;
+            showToast("Traduções salvas com sucesso!");
         }
 
         function addToCart(productId) {
@@ -2003,12 +2083,9 @@
                         if (name.length > 2 && !isNaN(price)) {
                             const newProduct = {
                                 name: name,
-                                nameEn: name,
                                 price: price,
                                 category: categoryDefault,
-                                categoryEn: categoryDefault,
                                 description: "Importado via cardápio",
-                                descriptionEn: "Imported via menu file",
                                 available: true,
                                 image: "",
                                 favorite: false,
