@@ -1183,7 +1183,7 @@
 
         const defaultProducts = [];
 
-        // Dicionário Multilíngue Completo (UI Labels em 8 Idiomas)
+        // Dicionário Multilíngue Completo (UI Labels e Legendas em 8 Idiomas)
         const i18n = {
             pt: {
                 searchPlaceholder: "Buscar no cardápio...",
@@ -1379,7 +1379,7 @@
                 const data = await res.json();
                 if (data.responseData && data.responseData.translatedText) {
                     const translated = data.responseData.translatedText;
-                    if (!translated.includes("QUERY LENGTH LIMIT EXCEEDED") && !translated.includes("MYMEMORY WARNING")) {
+                    if (data.responseStatus === 200 && !translated.includes("QUERY LENGTH LIMIT EXCEEDED") && !translated.includes("MYMEMORY WARNING")) {
                         return translated;
                     }
                 }
@@ -1577,7 +1577,7 @@
             filterProducts();
         }
 
-        // Troca de idioma e tradução sequencial automática gravada diretamente no Firestore
+        // Troca de idioma e tradução sequencial automática gravada diretamente no Firestore (Produtos, Descrições e Categorias)
         async function changeLanguage(langCode) {
             currentLang = langCode;
 
@@ -1603,13 +1603,13 @@
             const pendingProducts = products.filter(p => !p[nameKey] || !p[descKey] || !p[catKey]);
 
             if (!storeDescNeedsTranslation && pendingProducts.length === 0) {
-                return; // Todos os itens já estão gravados no Firestore para este idioma!
+                return; // Todos os produtos e descrições já estão traduzidos no Firestore!
             }
 
             isTranslating = true;
-            showToast("Traduzindo e salvando catálogo...");
+            showToast("Traduzindo produtos e legendas...");
 
-            // Traduz a descrição da loja caso necessário
+            // Traduz a descrição principal do estabelecimento caso necessário
             if (storeDescNeedsTranslation) {
                 const translatedDesc = await fetchTranslation(storeConfig.description, currentLang);
                 if (translatedDesc) {
@@ -1621,7 +1621,7 @@
                 }
             }
 
-            // Traduz os produtos sequencialmente para garantir salvamento e evitar estouro de requisições
+            // Traduz nome, descrição e categoria de cada produto sequencialmente
             for (let p of pendingProducts) {
                 let updated = false;
                 const updateData = {};
@@ -1651,13 +1651,13 @@
                         renderProducts();
                         updateCartUI();
                     } catch (e) {
-                        console.error("Erro ao gravar tradução no Firestore:", e);
+                        console.error("Erro ao gravar tradução do produto no Firestore:", e);
                     }
                 }
             }
 
             isTranslating = false;
-            showToast("Traduções salvas com sucesso!");
+            showToast("Tradução do catálogo atualizada!");
         }
 
         function addToCart(productId) {
@@ -1765,6 +1765,12 @@
                 updateCartUI();
                 toggleCartModal(false);
             } else {
+                const phone = (storeConfig.whatsapp || '').replace(/\D/g, '');
+                if (!phone) {
+                    showToast("Número de WhatsApp do estabelecimento não configurado!");
+                    return;
+                }
+
                 let msg = `*Novo Pedido - ${storeConfig.name}*\n`;
                 if (tableOrName) {
                     msg += `*Mesa/Cliente:* ${tableOrName}\n`;
@@ -1775,7 +1781,6 @@
                 });
                 msg += `\n*Total: ${formatCurrency(total)}*`;
 
-                const phone = storeConfig.whatsapp.replace(/\D/g, '');
                 window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
                 
                 showToast(i18n[currentLang].orderSuccessMsg);
