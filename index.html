@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="pageTitle">Cardápio Virtual</title>
-    <!-- Google Fonts, Font Awesome Icons, QRCode.js & Tesseract.js (OCR) CDN -->
+    <!-- Google Fonts, Font Awesome Icons & QRCode.js CDN -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     
     <style>
         :root {
@@ -51,6 +50,25 @@
             left: 0;
             right: 0;
             z-index: 10;
+        }
+
+        .lang-select {
+            background: rgba(0, 0, 0, 0.4);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .lang-select option {
+            background: #2c3e50;
+            color: white;
         }
 
         .top-nav-btn {
@@ -161,12 +179,24 @@
             box-shadow: 0 0 0 3px rgba(200, 35, 51, 0.15);
         }
 
-        .search-box i {
+        .search-box i.fa-magnifying-glass {
             position: absolute;
             left: 15px;
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-muted);
+        }
+
+        .clear-search-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
         }
 
         .categories {
@@ -791,9 +821,16 @@
     <!-- Header Navigation & Store Info -->
     <header id="headerBg">
         <div class="top-nav">
-            <button class="top-nav-btn" onclick="toggleLanguage()">
-                <span id="langDisplay">🇧🇷 PT</span>
-            </button>
+            <select class="lang-select" id="langSelect" onchange="changeLanguage(this.value)">
+                <option value="pt">🇧🇷 PT</option>
+                <option value="en">🇺🇸 EN</option>
+                <option value="es">🇪🇸 ES</option>
+                <option value="fr">🇫🇷 FR</option>
+                <option value="it">🇮🇹 IT</option>
+                <option value="de">🇩🇪 DE</option>
+                <option value="zh">🇨🇳 ZH</option>
+                <option value="ko">🇰🇷 KO</option>
+            </select>
             <button class="top-nav-btn" onclick="handleLojistaClick()">
                 <i class="fa-solid fa-user-gear"></i> <span id="lojistaBtnText">Modo Lojista</span>
             </button>
@@ -816,6 +853,9 @@
         <div class="search-box">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" id="searchInput" placeholder="Buscar no cardápio..." oninput="filterProducts()">
+            <button class="clear-search-btn" id="btnClearSearch" style="display:none;" onclick="clearMenuSearch()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
         <div class="categories" id="categoryContainer"></div>
     </div>
@@ -855,6 +895,10 @@
             <div class="cart-items" id="cartItemsContainer"></div>
             <div class="modal-footer">
                 <div id="simulationBannerContainer"></div>
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="tableOrNameInput" id="labelTableOrName" style="font-size:0.8rem;">Mesa / Identificação (Opcional)</label>
+                    <input type="text" id="tableOrNameInput" class="form-control" placeholder="Ex: Mesa 04 ou Nome">
+                </div>
                 <div style="display:flex; justify-content:space-between; font-size:1.1rem; font-weight:bold;">
                     <span id="modalCartTotalLabel">Total:</span>
                     <span id="cartTotalModal">R$ 0,00</span>
@@ -1013,6 +1057,13 @@
                     </div>
 
                     <h4 style="margin-bottom:12px; font-size:1rem;">Produtos Cadastrados</h4>
+                    <div class="search-box" style="margin-bottom: 12px;">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="adminSearchInput" placeholder="Buscar produtos no painel..." oninput="filterAdminProducts()">
+                        <button class="clear-search-btn" id="btnAdminClearSearch" style="display:none;" onclick="clearAdminSearch()">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
                     <div id="adminProductList" style="max-height:250px; overflow-y:auto;"></div>
                 </div>
 
@@ -1130,7 +1181,7 @@
 
         const defaultProducts = [];
 
-        // Dicionário Multilíngue (UI Labels)
+        // Dicionário Multilíngue Completo (UI Labels em 8 Idiomas)
         const i18n = {
             pt: {
                 searchPlaceholder: "Buscar no cardápio...",
@@ -1149,7 +1200,8 @@
                 adminPanel: "Painel Lojista",
                 simulationNotice: "Modo Simulação: Apresente esta prévia de consumo ao garçom.",
                 orderSuccessMsg: "Pedido preparado! Redirecionando para o WhatsApp...",
-                simulationSuccessMsg: "Simulação de conta concluída com sucesso!"
+                simulationSuccessMsg: "Simulação de conta concluída com sucesso!",
+                tableOrNameLabel: "Mesa / Identificação (Opcional)"
             },
             en: {
                 searchPlaceholder: "Search menu...",
@@ -1168,7 +1220,128 @@
                 adminPanel: "Store Panel",
                 simulationNotice: "Simulation Mode: Present this bill preview to your waiter.",
                 orderSuccessMsg: "Order prepared! Redirecting to WhatsApp...",
-                simulationSuccessMsg: "Bill simulation completed successfully!"
+                simulationSuccessMsg: "Bill simulation completed successfully!",
+                tableOrNameLabel: "Table / Identification (Optional)"
+            },
+            es: {
+                searchPlaceholder: "Buscar en el menú...",
+                all: "Todos",
+                totalCommand: "Total de la Cuenta",
+                viewCart: "Ver Cuenta",
+                myCart: "Su Pedido",
+                cartEmpty: "Su cuenta está vacía.",
+                total: "Total:",
+                checkoutWhatsApp: "Enviar Pedido (WhatsApp)",
+                checkoutSimulate: "Simular Cuenta",
+                add: "Agregar",
+                popular: "Más Vendido",
+                outOfStock: "Agotado",
+                lojistaMode: "Modo Tienda",
+                adminPanel: "Panel de Gestión",
+                simulationNotice: "Modo Simulación: Presente esta vista previa al camarero.",
+                orderSuccessMsg: "¡Pedido listo! Redirigiendo a WhatsApp...",
+                simulationSuccessMsg: "¡Simulación realizada con éxito!",
+                tableOrNameLabel: "Mesa / Identificación (Opcional)"
+            },
+            fr: {
+                searchPlaceholder: "Rechercher dans le menu...",
+                all: "Tous",
+                totalCommand: "Total de la Note",
+                viewCart: "Voir la Note",
+                myCart: "Votre Commande",
+                cartEmpty: "Votre commande est vide.",
+                total: "Total:",
+                checkoutWhatsApp: "Envoyer la commande (WhatsApp)",
+                checkoutSimulate: "Simuler l'addition",
+                add: "Ajouter",
+                popular: "Populaire",
+                outOfStock: "Épuisé",
+                lojistaMode: "Mode Commerçant",
+                adminPanel: "Panneau de Gestion",
+                simulationNotice: "Mode Simulation : Présentez cet aperçu au serveur.",
+                orderSuccessMsg: "Commande prête ! Redirection vers WhatsApp...",
+                simulationSuccessMsg: "Simulation de facture terminée avec succès !",
+                tableOrNameLabel: "Table / Identification (Optionnel)"
+            },
+            it: {
+                searchPlaceholder: "Cerca nel menu...",
+                all: "Tutti",
+                totalCommand: "Totale Conto",
+                viewCart: "Vedi Conto",
+                myCart: "Il tuo Ordine",
+                cartEmpty: "Il tuo ordine è vuoto.",
+                total: "Totale:",
+                checkoutWhatsApp: "Invia Ordine (WhatsApp)",
+                checkoutSimulate: "Simula Conto",
+                add: "Aggiungi",
+                popular: "Più Venduto",
+                outOfStock: "Esaurito",
+                lojistaMode: "Modo Esercente",
+                adminPanel: "Pannello Gestione",
+                simulationNotice: "Modalità Simulazione: Presenta questo conto al cameriere.",
+                orderSuccessMsg: "Ordine pronto! Reindirizzamento a WhatsApp...",
+                simulationSuccessMsg: "Simulazione del conto completata con successo!",
+                tableOrNameLabel: "Tavolo / Identificazione (Opzionale)"
+            },
+            de: {
+                searchPlaceholder: "Speisekarte durchsuchen...",
+                all: "Alle",
+                totalCommand: "Gesamtsumme",
+                viewCart: "Rechnung Ansehen",
+                myCart: "Ihre Bestellung",
+                cartEmpty: "Ihre Bestellung ist leer.",
+                total: "Gesamt:",
+                checkoutWhatsApp: "Bestellung Senden (WhatsApp)",
+                checkoutSimulate: "Rechnung Simulieren",
+                add: "Hinzufügen",
+                popular: "Beliebt",
+                outOfStock: "Ausverkauft",
+                lojistaMode: "Manager-Modus",
+                adminPanel: "Admin-Panel",
+                simulationNotice: "Simulationsmodus: Zeigen Sie diese Vorschau dem Kellner.",
+                orderSuccessMsg: "Bestellung bereit! Weiterleitung zu WhatsApp...",
+                simulationSuccessMsg: "Rechnungssimulation erfolgreich abgeschlossen!",
+                tableOrNameLabel: "Tisch / Name (Optional)"
+            },
+            zh: {
+                searchPlaceholder: "搜索菜单...",
+                all: "全部",
+                totalCommand: "总金额",
+                viewCart: "查看账单",
+                myCart: "您的订单",
+                cartEmpty: "您的订单是空的。",
+                total: "合计:",
+                checkoutWhatsApp: "发送订单 (WhatsApp)",
+                checkoutSimulate: "模拟结账",
+                add: "添加",
+                popular: "畅销",
+                outOfStock: "售罄",
+                lojistaMode: "商家模式",
+                adminPanel: "管理面板",
+                simulationNotice: "模拟模式：请向服务员出示此预检账单。",
+                orderSuccessMsg: "订单已准备好！正在跳转至 WhatsApp...",
+                simulationSuccessMsg: "模拟账单成功！",
+                tableOrNameLabel: "桌号 / 姓名 (选填)"
+            },
+            ko: {
+                searchPlaceholder: "메뉴 검색...",
+                all: "전체",
+                totalCommand: "총 금액",
+                viewCart: "주문 내역 보기",
+                myCart: "내 주문",
+                cartEmpty: "주문 내역이 비어 있습니다.",
+                total: "합계:",
+                checkoutWhatsApp: "주문하기 (WhatsApp)",
+                checkoutSimulate: "계산서 미리보기",
+                add: "추가",
+                popular: "인기",
+                outOfStock: "품절",
+                lojistaMode: "매장 관리자",
+                adminPanel: "관리자 패널",
+                simulationNotice: "시뮬레이션 모드: 이 내역을 웨이터에게 보여주세요.",
+                orderSuccessMsg: "주문 준비 완료! WhatsApp으로 이동합니다...",
+                simulationSuccessMsg: "계산서 미리보기가 완료되었습니다!",
+                tableOrNameLabel: "테이블 / 이름 (선택사항)"
             }
         };
 
@@ -1180,6 +1353,18 @@
         let currentLang = 'pt';
         let isAuthenticated = false;
         let editingProductId = null;
+
+        // Helper genérico para extrair texto de produto no idioma ativo
+        function getProductText(p, field) {
+            if (currentLang === 'pt') return p[field] || '';
+            const key = field + currentLang.charAt(0).toUpperCase() + currentLang.slice(1);
+            return p[key] || p[field] || '';
+        }
+
+        // Helper para ordenar array de strings usando localeCompare
+        function sortAlphabetically(array, lang = currentLang) {
+            return [...array].sort((a, b) => a.localeCompare(b, lang, { sensitivity: 'base' }));
+        }
 
         // Inicialização
         document.addEventListener("DOMContentLoaded", () => {
@@ -1270,21 +1455,30 @@
         }
 
         function renderCategories() {
-            const rawCategories = [...new Set(products.map(p => currentLang === 'pt' ? p.category : (p.categoryEn || p.category)))];
-            const categories = [i18n[currentLang].all, ...rawCategories];
+            const rawCategories = [...new Set(products.map(p => getProductText(p, 'category')))];
+            const sortedCategories = sortAlphabetically(rawCategories, currentLang);
+            const categories = [i18n[currentLang].all, ...sortedCategories];
             
             const container = document.getElementById("categoryContainer");
-            container.innerHTML = categories.map(cat => `
-                <button class="cat-btn ${cat === currentCategory || (currentCategory === 'Todos' && cat === i18n[currentLang].all) ? 'active' : ''}" onclick="selectCategory('${cat}')">
-                    ${cat}
-                </button>
-            `).join('');
+            container.innerHTML = categories.map(cat => {
+                const isActive = cat === currentCategory || (currentCategory === 'Todos' && cat === i18n[currentLang].all);
+                return `
+                    <button class="cat-btn ${isActive ? 'active' : ''}" onclick="selectCategory('${cat}', this)">
+                        ${cat}
+                    </button>
+                `;
+            }).join('');
         }
 
-        function selectCategory(category) {
-            currentCategory = (category === i18n['pt'].all || category === i18n['en'].all) ? "Todos" : category;
+        function selectCategory(category, element) {
+            const allLabel = i18n[currentLang].all;
+            currentCategory = (category === allLabel || category === 'Todos') ? "Todos" : category;
             renderCategories();
             renderProducts();
+
+            if (element && element.scrollIntoView) {
+                element.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }
         }
 
         function renderProducts() {
@@ -1292,9 +1486,9 @@
             const searchVal = document.getElementById("searchInput").value.toLowerCase();
 
             const filteredProducts = products.filter(p => {
-                const name = currentLang === 'pt' ? p.name : (p.nameEn || p.name);
-                const desc = currentLang === 'pt' ? p.description : (p.descriptionEn || p.description);
-                const category = currentLang === 'pt' ? p.category : (p.categoryEn || p.category);
+                const name = getProductText(p, 'name');
+                const desc = getProductText(p, 'description');
+                const category = getProductText(p, 'category');
 
                 const matchesCat = currentCategory === "Todos" || category === currentCategory;
                 const matchesSearch = name.toLowerCase().includes(searchVal) || desc.toLowerCase().includes(searchVal);
@@ -1306,18 +1500,23 @@
                 return;
             }
 
+            const rawCategories = [...new Set(filteredProducts.map(p => getProductText(p, 'category')))];
             const categoriesToDisplay = currentCategory === "Todos" 
-                ? [...new Set(filteredProducts.map(p => currentLang === 'pt' ? p.category : (p.categoryEn || p.category)))] 
+                ? sortAlphabetically(rawCategories, currentLang) 
                 : [currentCategory];
 
             container.innerHTML = categoriesToDisplay.map(cat => {
-                const catItems = filteredProducts.filter(p => (currentLang === 'pt' ? p.category : (p.categoryEn || p.category)) === cat);
+                let catItems = filteredProducts.filter(p => getProductText(p, 'category') === cat);
+                
+                // Ordenação Alfabética dos produtos dentro da categoria
+                catItems.sort((a, b) => getProductText(a, 'name').localeCompare(getProductText(b, 'name'), currentLang, { sensitivity: 'base' }));
+
                 return `
                     <div class="section-title"><i class="fa-solid fa-utensils"></i> ${cat}</div>
                     <div class="product-grid">
                         ${catItems.map(p => {
-                            const name = currentLang === 'pt' ? p.name : (p.nameEn || p.name);
-                            const desc = currentLang === 'pt' ? p.description : (p.descriptionEn || p.description);
+                            const name = getProductText(p, 'name');
+                            const desc = getProductText(p, 'description');
                             const isAvailable = p.available !== false;
                             
                             return `
@@ -1343,22 +1542,32 @@
         }
 
         function filterProducts() {
+            const inputVal = document.getElementById("searchInput").value;
+            const btnClear = document.getElementById("btnClearSearch");
+            if (btnClear) btnClear.style.display = inputVal ? "block" : "none";
             renderProducts();
         }
 
-        async function toggleLanguage() {
-            currentLang = currentLang === 'pt' ? 'en' : 'pt';
-            document.getElementById('langDisplay').innerText = currentLang === 'pt' ? '🇧🇷 PT' : '🇺🇸 EN';
+        function clearMenuSearch() {
+            document.getElementById("searchInput").value = "";
+            filterProducts();
+        }
+
+        async function changeLanguage(langCode) {
+            currentLang = langCode;
             
-            if (currentLang === 'en') {
+            if (currentLang !== 'pt') {
                 showToast("Traduzindo conteúdo...");
                 for (let p of products) {
-                    if (!p.nameEn || p.nameEn === p.name) {
+                    const nameKey = 'name' + currentLang.charAt(0).toUpperCase() + currentLang.slice(1);
+                    if (!p[nameKey] || p[nameKey] === p.name) {
                         try {
-                            const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(p.name)}&langpair=pt|en`);
+                            const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(p.name)}&langpair=pt|${currentLang}`);
                             const data = await res.json();
                             if (data.responseData?.translatedText) {
-                                await updateDoc(doc(db, "products", p.id), { nameEn: data.responseData.translatedText });
+                                const updateData = {};
+                                updateData[nameKey] = data.responseData.translatedText;
+                                await updateDoc(doc(db, "products", p.id), updateData);
                             }
                         } catch(e) {}
                     }
@@ -1383,7 +1592,7 @@
             }
 
             updateCartUI();
-            showToast(`${product.name} ${currentLang === 'pt' ? 'adicionado!' : 'added!'}`);
+            showToast(`${getProductText(product, 'name')} ${currentLang === 'pt' ? 'adicionado!' : 'added!'}`);
         }
 
         function changeQty(productId, delta) {
@@ -1410,6 +1619,7 @@
             document.getElementById("viewCartBtn").innerText = i18n[currentLang].viewCart;
             document.getElementById("modalCartTitle").innerText = i18n[currentLang].myCart;
             document.getElementById("modalCartTotalLabel").innerText = i18n[currentLang].total;
+            document.getElementById("labelTableOrName").innerText = i18n[currentLang].tableOrNameLabel;
 
             const checkoutBtn = document.getElementById("checkoutBtn");
             const simContainer = document.getElementById("simulationBannerContainer");
@@ -1427,7 +1637,7 @@
                 cartContainer.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:30px 0;">${i18n[currentLang].cartEmpty}</p>`;
             } else {
                 cartContainer.innerHTML = cart.map(item => {
-                    const name = currentLang === 'pt' ? item.name : (item.nameEn || item.name);
+                    const name = getProductText(item, 'name');
                     return `
                         <div class="cart-item">
                             <div>
@@ -1464,16 +1674,24 @@
             }
 
             const total = cart.reduce((acc, item) => acc + (parseFloat(item.price) * item.qty), 0);
+            const tableOrName = document.getElementById("tableOrNameInput").value.trim();
 
             if (storeConfig.salesMode === "simulation") {
-                alert(`${i18n[currentLang].simulationSuccessMsg}\n\nTotal: ${formatCurrency(total)}`);
+                let simInfo = `${i18n[currentLang].simulationSuccessMsg}\n\nTotal: ${formatCurrency(total)}`;
+                if (tableOrName) simInfo = `Identificação: ${tableOrName}\n` + simInfo;
+                alert(simInfo);
                 cart = [];
+                document.getElementById("tableOrNameInput").value = "";
                 updateCartUI();
                 toggleCartModal(false);
             } else {
-                let msg = `*Novo Pedido - ${storeConfig.name}*\n\n`;
+                let msg = `*Novo Pedido - ${storeConfig.name}*\n`;
+                if (tableOrName) {
+                    msg += `*Mesa/Cliente:* ${tableOrName}\n`;
+                }
+                msg += `\n`;
                 cart.forEach(item => {
-                    msg += `• ${item.qty}x ${item.name} - ${formatCurrency(parseFloat(item.price) * item.qty)}\n`;
+                    msg += `• ${item.qty}x ${getProductText(item, 'name')} - ${formatCurrency(parseFloat(item.price) * item.qty)}\n`;
                 });
                 msg += `\n*Total: ${formatCurrency(total)}*`;
 
@@ -1482,6 +1700,7 @@
                 
                 showToast(i18n[currentLang].orderSuccessMsg);
                 cart = [];
+                document.getElementById("tableOrNameInput").value = "";
                 updateCartUI();
                 toggleCartModal(false);
             }
@@ -1672,9 +1891,37 @@
             }
         }
 
+        function filterAdminProducts() {
+            const inputVal = document.getElementById("adminSearchInput").value;
+            const btnClear = document.getElementById("btnAdminClearSearch");
+            if (btnClear) btnClear.style.display = inputVal ? "block" : "none";
+            renderAdminProductList();
+        }
+
+        function clearAdminSearch() {
+            document.getElementById("adminSearchInput").value = "";
+            filterAdminProducts();
+        }
+
         function renderAdminProductList() {
             const container = document.getElementById("adminProductList");
-            container.innerHTML = products.map(p => {
+            const searchVal = (document.getElementById("adminSearchInput")?.value || "").toLowerCase();
+
+            let sortedProducts = [...products].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'pt', { sensitivity: 'base' }));
+
+            if (searchVal) {
+                sortedProducts = sortedProducts.filter(p => 
+                    (p.name || '').toLowerCase().includes(searchVal) || 
+                    (p.category || '').toLowerCase().includes(searchVal)
+                );
+            }
+
+            if (sortedProducts.length === 0) {
+                container.innerHTML = `<p style="text-align:center; padding: 15px; color: var(--text-muted);">Nenhum produto encontrado.</p>`;
+                return;
+            }
+
+            container.innerHTML = sortedProducts.map(p => {
                 const isAvail = p.available !== false;
                 return `
                     <div class="admin-product-item">
@@ -1694,7 +1941,7 @@
             }).join('');
         }
 
-        // Importador de Cardápio por PDF ou Imagem
+        // Importador de Cardápio por PDF ou Imagem (Carregamento Dinâmico do Tesseract)
         async function processMenuImport() {
             const fileInput = document.getElementById("menuImportFile");
             const categoryDefault = document.getElementById("importCategoryDefault").value.trim() || "Geral";
@@ -1711,19 +1958,33 @@
 
             const file = fileInput.files[0];
             progressBar.style.display = "block";
-            progressFill.style.width = "0%";
-            statusText.innerText = "Iniciando leitura óptica (OCR)...";
+            progressFill.style.width = "10%";
+            statusText.innerText = "Carregando módulo OCR...";
 
             try {
+                // Importação dinâmica do Tesseract.js sob demanda
+                if (!window.Tesseract) {
+                    await new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+                        script.onload = resolve;
+                        script.onerror = reject;
+                        document.head.appendChild(script);
+                    });
+                }
+
+                statusText.innerText = "Iniciando leitura óptica (OCR)...";
+                progressFill.style.width = "30%";
+
                 const worker = await Tesseract.createWorker('por');
                 
                 statusText.innerText = "Lendo texto e preços do arquivo...";
-                progressFill.style.width = "40%";
+                progressFill.style.width = "60%";
 
                 const ret = await worker.recognize(file);
                 const text = ret.data.text;
 
-                progressFill.style.width = "70%";
+                progressFill.style.width = "80%";
                 statusText.innerText = "Extraindo produtos e salvando...";
 
                 await worker.terminate();
@@ -1857,7 +2118,7 @@
         }
 
         // Exportação global de funções chamadas por eventos HTML inline
-        window.toggleLanguage = toggleLanguage;
+        window.changeLanguage = changeLanguage;
         window.handleLojistaClick = handleLojistaClick;
         window.verifyLogin = verifyLogin;
         window.logoutAdmin = logoutAdmin;
@@ -1865,6 +2126,9 @@
         window.toggleCartModal = toggleCartModal;
         window.selectCategory = selectCategory;
         window.filterProducts = filterProducts;
+        window.clearMenuSearch = clearMenuSearch;
+        window.filterAdminProducts = filterAdminProducts;
+        window.clearAdminSearch = clearAdminSearch;
         window.addToCart = addToCart;
         window.changeQty = changeQty;
         window.sendOrder = sendOrder;
